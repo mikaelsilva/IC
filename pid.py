@@ -4,7 +4,7 @@ import math
 from matplotlib import pyplot as plt 
 
 
-def reducao_ruido(num,imagem):
+def reducao_ruido(num,imagem,pasta):
 	kernel = np.ones((10,10),np.uint8)
 
 	clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(15,15))
@@ -12,21 +12,17 @@ def reducao_ruido(num,imagem):
 
 	erosao = cv.erode(cl1,kernel,iterations = 1)
 
-	clahe3 = cv.createCLAHE(clipLimit=2.0, tileGridSize=(5,5))
-	c2 = clahe3.apply(erosao)
-	
-	'''
-	Verificar se
-	gradient = cv.morphologyEx(c2, cv.MORPH_OPEN, kernel)
-	mostrar_imagens(imagem,cl1,c2,gradient)'''
-	
-	##salvar(num,c2)
-	return c2
+	clahe2 = cv.createCLAHE(clipLimit=2.0, tileGridSize=(5,5))
+	cl2 = clahe2.apply(erosao)
+
+	nome = 'Imagem_' + str(pasta)
+	salvar(nome,cl2,pasta)
+
+	return cl2
 
 def encontrando_contornos(imagem):
 	imagem2 = cv.Canny(imagem,100,200)
-	#mostrar_imagem(imagem2)
-		
+
 	return imagem2          
 
 def area(contornos):
@@ -36,10 +32,10 @@ def area(contornos):
     return a
 
 def comprimento(contornos):
-    l = cv.arcLength(contornos,True)
-    if l == None:
-        l = 0.0
-    return l
+    c = cv.arcLength(contornos,True)
+    if c == None:
+        c = 0.0
+    return c
 
 def largura(contornos):
     x,y,w,h = cv.boundingRect(contornos)
@@ -59,7 +55,7 @@ def circularidade(contornos):
         c = 0.0
     return c
 
-
+'''
 #Ambas as funções estão sendo alteradas para buscar um melhor resultado na identificação de buracos, manchas, rachaduras e outros....
 def buraco(imagem_fatia,imagem):
 	cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
@@ -77,6 +73,10 @@ def buraco(imagem_fatia,imagem):
 
 	return 0
 
+OBS:Será que é possivel pegar um bloco da imagem e verificar se ela possui alguma similaridade em outras regiões
+		dela?
+	Talvez seja possivel identificar que uma região é uma sombra se ela puder ser "identificada" em outras partes
+		da imagem, pelo menos com uma porcentagem de "igualdade" 
 
 
 def reanalizando_contornos(imagem,novos_contornos,num):
@@ -112,10 +112,10 @@ def reanalizando_contornos(imagem,novos_contornos,num):
 	imagem_fatia = 0
 
 	return 0
+'''
 
 
-
-def definindo_caracteristicas(imagem, imagem_canny):
+def definindo_caracteristicas(imagem, imagem_canny,pasta):
 	imagem2, contornos, hierarquia = cv.findContours(imagem_canny, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
  	
 	imagem3 = imagem.copy()
@@ -130,8 +130,8 @@ def definindo_caracteristicas(imagem, imagem_canny):
 		novos_contornos = np.int0(novos_contornos)
 		
 		if (area(novos_contornos) >  200 and comprimento(novos_contornos) > 15 and largura(novos_contornos) > 15 and altura(novos_contornos) > 15):
-			print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
-			print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
+			#print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
+			#print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
 
 			cv.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
 			cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
@@ -139,28 +139,34 @@ def definindo_caracteristicas(imagem, imagem_canny):
 			#mostrar_imagem(imagem_contorno)
 			#mostrar_imagem(imagem_quadrado)
 			
-			reanalizando_contornos(imagem,novos_contornos,i)
+			#reanalizando_contornos(imagem,novos_contornos,i)
 
-			#cv.drawContours(imagem3,[novos_contornos],0,(0,0,255),3)
+			cv.drawContours(imagem3,[novos_contornos],0,(0,0,255),3)
 
 			nome = str(i)
-			#salvar(nome,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,255),3))
+			salvar(nome,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),pasta)
 			nome = 0
 	
-		print ("--------------------------------------------------------------------------------------------")
+		#print ("--------------------------------------------------------------------------------------------")
 
 
 	imagem4 = imagem.copy()
 	cv.drawContours(imagem4,contornos,-1,(0,255,255),3)
-	mostrar_imagem(imagem4)
-	#salvar('Final',imagem3)
-	#salvar('Contornos',imagem4)
+
+	nome = 'Imagem_' + str(pasta+1)
+	salvar(nome,imagem_canny,pasta)
+
+	nome = 'Imagem_' + str(pasta+2)
+	salvar(nome,imagem3,pasta)
+
+	nome = 'Imagem_' + str(pasta+3)
+	salvar(nome,imagem4,pasta)
 		          
 	return imagem
 
 def mostrar_imagem(imagem):
 	
-	cv.imshow('1',imagem) 
+	cv.imshow('Imagem',imagem) 
 	cv.waitKey(0)
 	cv.destroyAllWindows()
 	
@@ -175,9 +181,9 @@ def mostrar_imagens(imagem1,imagem2,imagem3,imagem4):
 
 	return 0
 
-def salvar(num,imagem):
-	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
-	final = destino + num + '.png'
+def salvar(num,imagem,pasta):
+	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_P/'
+	final = destino + str(pasta) + '/' + num + '.png'
 
 	cv.imwrite(final,imagem)
 
@@ -189,20 +195,15 @@ if __name__ == "__main__":
 	origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_B/'
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_P/'
 
-	for i in range(8,9):
+	for i in range(1,2):
 		leitura = origem + str(i) + '.JPG'
 		imagem = cv.imread(leitura)
+
 		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
 
-		imagem_tratada = reducao_ruido(i,imagem_cinza)
+		imagem_tratada = reducao_ruido(i,imagem_cinza,i)
 		imagem_canny = encontrando_contornos(imagem_tratada)
 
-		imagem_finalizada = definindo_caracteristicas(imagem,imagem_canny)
+		imagem_finalizada = definindo_caracteristicas(imagem,imagem_canny,i)
 
-		
-		#mostrar_imagem(imagem_cinza)
-		mostrar_imagem(imagem_finalizada)
-		#final = destino + str(i) + '_2.png'
-		#cv.imwrite(final,imagem_finalizada)
-		final = 0 
 		leitura = 0
