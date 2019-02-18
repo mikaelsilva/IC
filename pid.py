@@ -14,8 +14,12 @@ def reducao_ruido(num,imagem):
 
 	clahe3 = cv.createCLAHE(clipLimit=2.0, tileGridSize=(5,5))
 	c2 = clahe3.apply(erosao)
-	#mostrar_imagens(imagem,cl1,erosao,c2)
-
+	
+	'''
+	Verificar se
+	gradient = cv.morphologyEx(c2, cv.MORPH_OPEN, kernel)
+	mostrar_imagens(imagem,cl1,c2,gradient)'''
+	
 	##salvar(num,c2)
 	return c2
 
@@ -55,26 +59,21 @@ def circularidade(contornos):
         c = 0.0
     return c
 
-'''
+
 #Ambas as funções estão sendo alteradas para buscar um melhor resultado na identificação de buracos, manchas, rachaduras e outros....
-def buraco(imagem):
+def buraco(imagem_fatia,imagem):
 	cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
 	kernel = np.ones((10,10),np.uint8)
 
 	clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(15,15))
 	cl1 = clahe.apply(cinza)
 
-	erosao = cv.erode(cl1,kernel,iterations = 5)
+	erosao = cv.erode(cl1,kernel,iterations = 1)
 
-	clahe = cv.createCLAHE(clipLimit=5.0, tileGridSize=(15,15))
-	cl2 = clahe.apply(erosao)
+	ret, th = cv.threshold(erosao,50,255,cv.THRESH_BINARY + cv.THRESH_OTSU)
 
-	mostrar_imagem(imagem)
-	mostrar_imagem(cl2)
 
-	teste = cv.Canny(cl2,100,200)
-	mostrar_imagem(teste)
-	print ("imagem")
+	mostrar_imagens(imagem,cinza,erosao,th)
 
 	return 0
 
@@ -84,8 +83,8 @@ def reanalizando_contornos(imagem,novos_contornos,num):
 	listaX=[]
 	listaY=[]
 	print ("VALORES: ")
-	for j in range(0,4):
-		x,y = novos_contornos[j]
+	for i in range(0,4):
+		x,y = novos_contornos[i]
 		print (x,y)
 		listaX.append(y)
 		listaY.append(x)
@@ -104,15 +103,15 @@ def reanalizando_contornos(imagem,novos_contornos,num):
 		height, width = imagem_fatia.shape[:2]
 		res = cv.resize(imagem_fatia,(10*width, 10*height), interpolation = cv.INTER_CUBIC)
 		#mostrar_imagem(res)
-		num=str(num)
+		#num=str(num)
 		#salvar(num,res)
+		buraco(imagem_fatia,res)
 
-		#buraco(res)
+
 
 	imagem_fatia = 0
 
 	return 0
-'''
 
 
 
@@ -137,10 +136,10 @@ def definindo_caracteristicas(imagem, imagem_canny):
 			cv.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
 			cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
 
-			mostrar_imagem(imagem_contorno)
-			mostrar_imagem(imagem_quadrado)
+			#mostrar_imagem(imagem_contorno)
+			#mostrar_imagem(imagem_quadrado)
 			
-			#reanalizando_contornos(imagem,novos_contornos,i)
+			reanalizando_contornos(imagem,novos_contornos,i)
 
 			#cv.drawContours(imagem3,[novos_contornos],0,(0,0,255),3)
 
@@ -149,11 +148,13 @@ def definindo_caracteristicas(imagem, imagem_canny):
 			nome = 0
 	
 		print ("--------------------------------------------------------------------------------------------")
+
+
 	imagem4 = imagem.copy()
 	cv.drawContours(imagem4,contornos,-1,(0,255,255),3)
-	#mostrar_imagem(imagem4)
+	mostrar_imagem(imagem4)
 	#salvar('Final',imagem3)
-	salvar('Contornos',imagem4)
+	#salvar('Contornos',imagem4)
 		          
 	return imagem
 
