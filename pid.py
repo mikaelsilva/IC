@@ -7,7 +7,7 @@ import os
 
 def reducao_ruido(num,imagem,pasta):
 	kernel = np.ones((10,10),np.uint8)
-	##dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
+	#dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
 
 	clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(15,15))
 	cl1 = clahe.apply(imagem)
@@ -60,7 +60,7 @@ def circularidade(contornos):
 def reanalizando_contornos(imagem,novos_contornos,num):
 	listaX=[]
 	listaY=[]
-	print ("VALORES: ")
+	#print ("VALORES: ")
 	for i in range(0,4):
 		x,y = novos_contornos[i]
 		print (x,y)
@@ -85,7 +85,7 @@ def reanalizando_contornos(imagem,novos_contornos,num):
 
 		#print (area_final)
 		#mostrar_imagem(imagem_fatia)
-		res = cv.resize(imagem_fatia,(10*width, 10*height), interpolation = cv.INTER_CUBIC)
+		#res = cv.resize(imagem_fatia,(10*width, 10*height), interpolation = cv.INTER_CUBIC)
 
 		if (area_final >= 0.01):
 			nome = '3_SubImagens'
@@ -180,15 +180,15 @@ if __name__ == "__main__":
 	
 	lista = [[]]
 	for i in range(3,4):
-		leitura = origem + str(i) + '.jfif'
+		leitura = origem + str(i) +  '.jfif'
 		img = cv.imread(leitura)
 
 		#Recortando imagem
 		imagem = img[256:512,0:512]
 		#mostrar_imagem(imagem)i9
 
-		mostrar_imagem(img)
-		mostrar_imagem(imagem)
+		#mostrar_imagem(img)
+		#mostrar_imagem(imagem)
 
 		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
 		#mostrar_imagem(imagem_cinza)
@@ -197,11 +197,11 @@ if __name__ == "__main__":
 		imagem_canny = encontrando_contornos(imagem_tratada)
 		#mostrar_imagem(imagem_canny)
 		imagem_finalizada,quant_img_salvas = definindo_caracteristicas(imagem,imagem_canny,i,lista)
-		mostrar_imagem(imagem_finalizada)
+		#mostrar_imagem(imagem_finalizada)
 
-		print (lista)
+		#print (lista)
 		#print (lista, ' ---- ---- ' ,str(lista[1][0][0][0]))
-		arq = open(destino + '4_Contornos/' + 'lista.txt', 'w')
+		arq = open(destino + '4_Contornos/' + 'lista' + str(i) + '.txt', 'w')
 		
 		arq.write('[[')
 		for i in range(1,quant_img_salvas):
