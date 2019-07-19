@@ -179,7 +179,7 @@ if __name__ == "__main__":
 
 	
 	lista = [[]]
-	for i in range(12,13):
+	for i in range(4,5):
 		leitura = origem + str(i) +  '.jfif'
 		img = cv.imread(leitura)
 

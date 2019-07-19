@@ -118,90 +118,120 @@ def limites_externos(height,width,x,y,x1,y1):
 	if ( x > 20 ):
 		x -= 20
 	else:
-		if (x - int(x/2) >= 0):
+		if (x - int(x/2) > 0):
 			x -= int(x/2)
 		else:
-			x = x
+			x = 0
 
 	if ( (width-1) - x1 > 20 ):
 		x1 += 20
 	else:
-		x1 += int(((width-1) - x1)/2)
+		if( x1 + int((width-1) - x1) < (width-1)):
+			x1 += int(((width-1) - x1))
+		else:
+			x1 = width-1
 
 	if ( y > 20 ):
 		y -= 20
 	else:
-		if (y - int(y/2) >= 0):
+		if (y - int(y/2) > 0):
 			y -= int(y/2)
 		else:
-			y = y
+			y = 0
 		
-	if ( int((height-1) - y1) > 20 ):
+	if ( (height-1) - y1 > 20 ):
 		y1 += 20
 	else:
-		y1 += int(((height-1) - y1)/2)
+		if(y1 + int((height-1) - y1) < (height-1)):
+			y1 += int(((height-1) - y1))
+		else:
+			y1 = height-1
+
+
+	print ("|Iniciais: ",x,'|',y,"|Finais:",'|',x1,'|',y1)
 
 	return x,y,x1,y1
 
-def definindo_regiao(y,y1,x,x1,imagem):
+def definindo_regiao(x,x1,y,y1,imagem):
 	lista = []
+	mostrar_imagem(imagem)
+	height,width = imagem.shape[:2]
 	for i in range(0,255):
-		lista.append(0)
+		lista.append(-1)
 
-	#print ('Limites:','[',x,'-',x1,']','|','[',y,'-',y1,']')
-	if(x == x1 | y == y1):
+	print ('Limites:','[',x,'-',x1,']','|','[',y,'-',y1,']')
+	
+	if(x == x1 or y == y1):
 		return (lista)
 	else:
-		for i in range(x,x1-1):
-			for j in range(y, y1-1):
+		for i in range(y,y1-1): #height
+			for j in range(x,x1-1): #width
 				indice = imagem[i][j]
 				lista[indice] += 1
-		#print ('lista: ',lista) 
+
 		return (lista)
 
 #VERIFICAR COMO ESTIMAR DE FORMA CORRETA A MEDIA DOS VALORES PARA CADA REGIÃO
 def estimando_regiao(lista):
-	r1 = 0
-	re1 = 1
-	r2 = 0
-	re2 = 1
-	r3 = 0
-	re3 = 1
+	r1 = 0.01
+	m1 = 1
+	r2 = 0.01
+	m2 = 1
+	r3 = 0.01
+	m3 = 1
+
+	print ("Listandi: ",lista)
 
 	for i in range(0,len(lista)-1):
 		if (i <= 85):
-			if(lista[i] != 0):
-				r1 += 3*lista[i]
-				re1 += 3
+			if(lista[i] != -1):
+				r1 += i*lista[i]
+				m1 += i
 			
 		elif (i > 85 and i <= 170):
-			if(lista[i] != 0):
-				r2 += lista[i]
-				re2 += 3
+			if(lista[i] != -1):
+				r2 += i*lista[i]
+				m2 += i
 		else:
-			if(lista[i] != 0):
-				r3 += 1*lista[i]
-				re3 += 3
+			if(lista[i] != -1):
+				r3 += i*lista[i]
+				m3 += i
+		
+	r1 = (r1/m1)
+	r2 = (r2/m2)
+	r3 = (r3/m3)
+	
+	print ("R1: ",r1, "and","M1: ",m1)
+	print ("R2: ",r2, "and","M2: ",m2)
+	print ("R3: ",r3, "and","M3: ",m3)
 
-	r1 = (r1/re1)
-	r2 = (r2/re2)
-	r3 = (r3/re3)
 
-	if(r1 == r2 == r3 == 0):
-		return ('Indefinida',0.0)
+	#VERIFICAÇÃO URGENTE
+	if(r1 == r2 == r3 == -1):
+		return ('Indefinida',-1)
 	elif (r1 >= r2 and r1 >= r3):
-		return ('Escuro',[r1,r2,r3])
+		return ('Escuro',r1)
 	elif (r2 >= r1 and r2 >= r3):
-		return ('Cinza',[r1,r2,r3])
+		return ('Cinza',r2)
 	else:
-		return ('Claro',[r1,r2,r3])
+		return ('Claro',r3)
+	
+def porcentagem(lista,indice):
+	valor = 0
+
+	for i in range(0,len(lista)-1):
+		if (i != indice):
+			porcent = lista[i][2]/lista[indice][2]
+			if (porcent*100 > 70):
+				valor += 1
+	return valor
 
 def relacionando_regiao(lista):
 	listaEs = []
 	listaCi = []
 	listaCl = []
 
-	for i in range(0,len(lista)):
+	for i in range(0,len(lista)-1):
 		if (lista[i][1] == 'Escuro'):
 			listaEs.append(lista[i])
 		
@@ -212,26 +242,31 @@ def relacionando_regiao(lista):
 			listaCl.append(lista[i])
 
 
-	for i in range(0,len(listaEs)):
+	for i in range(0,len(listaEs)-1):
 		if(listaEs[i][0] == 'P'):
-			if(len(listaEs) > 1):
-				return len(listaEs)
+			valor = porcentagem(listaEs,i)
+			if(valor > 1):
+				return valor
 			else:
 				return 0
 		
-	for i in range(0,len(listaCi)):
+	for i in range(0,len(listaCi)-1):
 		if(listaCi[i][0] == 'P'):
-			if(len(listaCi) > 1):
-				return len(listaCi)
+			valor = porcentagem(listaCi,i)
+			if(valor > 1):
+				return valor
 			else:
 				return 0
+		
 
-	for i in range(0,len(listaCl)):
+	for i in range(0,len(listaCl)-1):
 		if(listaCl[i][0] == 'P'):
-			if(len(listaCl) > 1):
-				return len(listaCl)
+			valor = porcentagem(listaCl,i)
+			if(valor > 1):
+				return valor
 			else:
 				return 0
+		
 
 	return 0
 
@@ -245,7 +280,7 @@ if __name__ == "__main__":
 	listandoContornos = []
 	imagem_finalizada = np.ones((256, 512, 3)) * 255 #imagem 400x300, com fundo branco e 3 canais para as cores
 
-	for i in range(8,10):
+	for i in range(1,17):
 		leitura = origem + str(i) + '.png'
 		cor = cv.imread(leitura)
 		
@@ -254,7 +289,7 @@ if __name__ == "__main__":
 		height, width = cor.shape[:2]
 
 		area_imagem = height * width
-		print ("---", i)
+		#print ("---", i)
 		#Os passos a seguir são somente para um pequeno tratamento (novamente) na sub-imagem
 		imagem = limpar(imagem)
 		#mostrar_imagem(imagem)
@@ -264,25 +299,29 @@ if __name__ == "__main__":
 
 		imagem = erosao(imagem)
 		imagem_cinza = imagem
-		mostrar_imagem(imagem)
+		#mostrar_imagem(imagem)
 
 		imagema = thresholding(imagem)
 		#mostrar_imagem(imagem)
 		#mostrar_imagem(imagema)
 
 		imagem = canny(imagema)
-		#mostrar_imagem(imagem)
+		mostrar_imagem(imagem)
 
-		imagema,imagemb,imagemc = contornos(imagem)
+		imagema,imagem_contorno,imagemc = contornos(imagem)
 		#-----------------------------------------------------------------------------------
 
+		#Evitando valores iguals
+		#for j in range(0,len(imagem_contorno)):
 
 		#Definindo os contos e salvando em uma imagem e em uma lista
 		#Verificar de que forma o algoritmo pode "reduzir" o número de imagens "inadequadas" que passam por ele 
-		#for j in range(0,len(imagemb)): #VERIFICAR ESSE imagemb, há muito valores repetiso por algum motivo
-		for j in range(0,1):
+		#for j in range(0,len(imagem_contorno)): #VERIFICAR ESSE imagem_contorno, há muito valores repetidos por algum motivo
+		for j in range(0,len(imagem_contorno)-1):
 			subImagem = cor.copy()
-			teste = imagemb[j]
+			#print ("LIMITE:", len(imagem_contorno))
+
+			teste = imagem_contorno[j]
 
 			quadrado = cv.minAreaRect(teste)
 			novos_contornos = cv.boxPoints(quadrado)
@@ -309,11 +348,14 @@ if __name__ == "__main__":
 
 			listaN = []
 			listaN = definindo_regiao(lxi0,lxi1,lye0,lyi0,imagem_cinza)
-			
+			#print (listaN)
+
 			listaS = []
 			listaS = definindo_regiao(lxi0,lxi1,lyi1,lye1,imagem_cinza)
 			#subImagem[lyi1:lye1, lxi0:lxi1] = (100, 0, 255)
 			#mostrar_imagem(subImagem)
+			#print (listaS)
+
 			
 			listaL = []
 			listaL = definindo_regiao(lxi1,lxe1,lyi0,lyi1,imagem_cinza)
@@ -337,15 +379,16 @@ if __name__ == "__main__":
 			#subImagem[lyi1:lye1, lxe0:lxi0] = (100, 100, 255)
 			#mostrar_imagem(subImagem)
 			#listaTotal = [listaP,listaNO,listaN,listaNL,listaL,listaSL,listaS,listaSO,listaO]
-
-			#print('----------------------------------------------------------------------------------------------------------------------')
+			#print (listaTotal)
+			
+			print('----------------------------------------------------------------------------------------------------------------------')
 			
 			print ('Definindo media das regiões')
 			listaRegiao = []
 			media = []
 
-			regiao, media = estimando_regiao(listaP)
-			listaRegiao.append(('P',regiao,media))
+			regiao, media_P = estimando_regiao(listaP)
+			listaRegiao.append(('P',regiao,media_P))
 			#print ('Principal:',regiao,'\n','Media de:',media)
 
 			regiao, media = estimando_regiao(listaN)
@@ -376,18 +419,19 @@ if __name__ == "__main__":
 			regiao, media = estimando_regiao(listaSO)
 			listaRegiao.append(('SO',regiao,media))
 
-			#print ('Listando:' , listaRegiao)
+			print ('Listando:' , listaRegiao)
 
-			#print('-----------------------------------------------------------------------------------------------------------------------')
+			
+			print('-----------------------------------------------------------------------------------------------------------------------')
 			print ('Relacionando valores de regiões')
 
 			valor = relacionando_regiao(listaRegiao)
 			if (valor > 1):
-				print ('Existe regiões com valores aproximados')
+				print ('Existem regiões com valores aproximados')
 			else:
 				print ('Possivel buraco')
 
-			#print('-----------------------------------------------------------------------------------------------------------------------')
+			print('-----------------------------------------------------------------------------------------------------------------------')
 
 			#print (listaRegiao)
 
@@ -403,7 +447,7 @@ if __name__ == "__main__":
 				#print ('Area:',area_final)
 				#print ('largura:',largura(teste))
 				#print ('Circularidade:',circularidade(teste))
-				
+
 				imagem_aux = desenhando(subImagem,novos_contornos)
 				mostrar_imagem(imagem_aux)
 				salvar(imagem_aux,i,j,'4_Contornos/')
@@ -414,7 +458,8 @@ if __name__ == "__main__":
 	listaFinal = []
 	
 	limite = len(listandoContornos)
-	arq = open(destino + '4_Contornos/' + 'lista' + str(12) + '.txt', 'r')
+	#print ("LIMITE:", limite)
+	arq = open(destino + '4_Contornos/' + 'lista' + str(4) + '.txt', 'r')
 
 	texto = arq.read()
 	lista = list(eval(texto.split()[0]))
@@ -422,15 +467,11 @@ if __name__ == "__main__":
 	leitura = especial + str(lista[0][1]) + '.jfif'
 	imagem_aux = cv.imread(leitura)
 
-
-
-
 	#AQUI COMEÇA A COMPARAÇÃO COM OS VALORES DA LISTA ENCONTRADA AQUI E DA LISTA ORIGINAL
 	inicioJ = 0
 	for i in range(0,len(lista)):
-		print ("IMAGEM_FINALIZADA 1") 	
 		for j in range(inicioJ,limite):
-			if (lista[i][2] == listandoContornos[j][1]):
+			if (lista[i][2] == listandoContornos[j][1]): #A comparação é realizada de acordo com os indices das imagens e não dos contornos
 				menorX,menorY,lix,lix2 = limites(lista[i][0])
 
 				x = menorX + listandoContornos[j][0][0][0] 
@@ -446,20 +487,14 @@ if __name__ == "__main__":
 				y3 = menorY + listandoContornos[j][0][3][1] + 256
 
 				contorno = np.array([[x,y],[x1,y1],[x2,y2],[x3,y3]])
-				imagem_finalizada = desenhando(imagem_aux,contorno)
-				#mostrar_imagem(imagem_finalizada)
-				print ("IMAGEM_FINALZIADA 2")
-				
-			else:
-				print ("IMAGEM FINALIZADA 3")
-				inicioJ = j
-				j = limite
+				cv.drawContours(imagem_aux,[contorno],0,(0,0,255),3)
 
 	print (lista[0][1])
-	salvar(imagem_finalizada,lista[0][1],0,'5_Finalizadas/')
+	salvar(imagem_aux,lista[0][1],0,'5_Finalizadas/')
 	print ('Finalizado')
 
 	arq.close()	
+				
 
 #Estado
 '''
@@ -467,7 +502,7 @@ if __name__ == "__main__":
 		limite da imagem_original, mas para os que funciona e o ambiente é mais controlado (rua sem muitos ruídos), o resultado se
 		apresenta de forma a ajudar o resultado final
 
-	Verificar a anomalia de imagemb que termina por resultar em imagens duplicadas
+	Verificar a anomalia de imagem_contorno que termina por resultar em imagens duplicadas
 
 	Verificar como é salvo os contornos finais
 
