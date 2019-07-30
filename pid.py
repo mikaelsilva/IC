@@ -4,8 +4,7 @@ import cv2 as cv
 import math
 import os
 
-
-def reducao_ruido(num,imagem,pasta):
+def reducao_ruido(num,imagem):
 	kernel = np.ones((10,10),np.uint8)
 	#dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
 
@@ -17,8 +16,9 @@ def reducao_ruido(num,imagem,pasta):
 	clahe2 = cv.createCLAHE(clipLimit=2.0, tileGridSize=(5,5))
 	cl2 = clahe2.apply(erosao)
 
-	nome = '1_Especial'
-	salvar(nome,cl2,pasta)
+	pasta = '1_Especial'
+	nome = str(num) + '.1'
+	salvar(pasta,cl2,nome)
 
 	return cl2
 
@@ -57,13 +57,14 @@ def circularidade(contornos):
         c = 0.0
     return c
 
-def reanalizando_contornos(imagem,novos_contornos,num):
+def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 	listaX=[]
 	listaY=[]
+
 	#print ("VALORES: ")
 	for i in range(0,4):
 		x,y = novos_contornos[i]
-		print (x,y)
+		#print (x,y)
 		listaX.append(y)
 		listaY.append(x)
 
@@ -88,14 +89,16 @@ def reanalizando_contornos(imagem,novos_contornos,num):
 		#res = cv.resize(imagem_fatia,(10*width, 10*height), interpolation = cv.INTER_CUBIC)
 
 		if (area_final >= 0.01):
-			nome = '3_SubImagens'
-			salvar(nome,imagem_fatia,num)
+			pasta = '3_SubImagens'
+			nome = str(num_imagem) + '.' + str(num)
+			salvar(pasta,imagem_fatia,nome)
 			return 1
 			
 	imagem_fatia = 0
 
 	return 0
 
+#RENOMEAR imagem1,2,3
 def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	num = 1
 	
@@ -121,12 +124,13 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 			#mostrar_imagem(imagem_contorno)
 			#mostrar_imagem(imagem_quadrado)
 
-			if (reanalizando_contornos(imagem,novos_contornos,num) == 1):
+			if (reanalizando_contornos(imagem,novos_contornos,num_imagem,num) == 1):
 
 				cv.drawContours(imagem3,[novos_contornos],0,(0,0,255),3)
-				nome = '2_Tratadas'
-				salvar(nome,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),num)
-				nome = 0
+				pasta = '2_Tratadas'
+				nome = str(num_imagem) + '.' + str(num)
+				salvar(pasta,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
+				#nome = 0
 				lista.append([novos_contornos,num_imagem,num])
 				num +=1
 		#print ("--------------------------------------------------------------------------------------------")
@@ -135,16 +139,19 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	imagem4 = imagem.copy()
 	cv.drawContours(imagem4,contornos,-1,(0,255,255),3)
 
-	nome = '1_Especial'
-	salvar(nome,imagem_canny,num_imagem+1)
+	pasta = '1_Especial'
+	nome = str(num_imagem) + '.2'
+	salvar(pasta,imagem_canny,nome)
 
-	nome = '1_Especial'
-	salvar(nome,imagem3,num_imagem+2)
+	pasta = '1_Especial'
+	nome = str(num_imagem) + '.3'
+	salvar(pasta,imagem3,nome)
 
-	nome = '1_Especial'
-	salvar(nome,imagem4,num_imagem+3)
+	pasta = '1_Especial'
+	nome = str(num_imagem) + '.4'
+	salvar(pasta,imagem4,nome)
 
-	return imagem,num
+	return imagem,num,lista
 
 def mostrar_imagem(imagem):
 
@@ -163,9 +170,11 @@ def mostrar_imagens(imagem1,imagem2,imagem3,imagem4):
 
 	return 0
 
-def salvar(nome,imagem,pasta):
+#ALTERAR O nome PARA PASTA
+#ALTERAR pasta PARA NUMERO já em STRING
+def salvar(pasta,imagem,nome):
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
-	final = destino + nome + '/' + str(pasta) + '.png'
+	final = destino + pasta + '/' + nome + '.png'
 
 	cv.imwrite(final,imagem)
 
@@ -174,57 +183,88 @@ def salvar(nome,imagem,pasta):
 
 if __name__ == "__main__":
 
-	origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_B/'
+	origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
+	openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 
-	
-	lista = [[]]
-	for i in range(4,5):
-		leitura = origem + str(i) +  '.jfif'
-		img = cv.imread(leitura)
+	for _, _, arquivo in os.walk(origem):
+		pass
 
-		#Recortando imagem
-		imagem = img[256:512,0:512]
-		#mostrar_imagem(imagem)i9
+	#print (arquivo)
+	#print (origem + arquivo[0])
 
-		#mostrar_imagem(img)
-		#mostrar_imagem(imagem)
-
-		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
-		#mostrar_imagem(imagem_cinza)
-		imagem_tratada = reducao_ruido(i,imagem_cinza,i)
-		#mostrar_imagem(imagem_tratada)
-		imagem_canny = encontrando_contornos(imagem_tratada)
-		#mostrar_imagem(imagem_canny)
-		imagem_finalizada,quant_img_salvas = definindo_caracteristicas(imagem,imagem_canny,i,lista)
-		#mostrar_imagem(imagem_finalizada)
-
-		#print (lista)
-		#print (lista, ' ---- ---- ' ,str(lista[1][0][0][0]))
-		arq = open(destino + '4_Contornos/' + 'lista' + str(i) + '.txt', 'w')
+	for img in arquivo:
 		
-		arq.write('[[')
-		for i in range(1,quant_img_salvas):
-			arq.write('[')
-			for x in range(0,4):
-				arq.write('[')
-				arq.write(str(lista[i][0][x][0]))
-				arq.write(',')
-				arq.write(str((lista[i][0][x][1])))
-				arq.write(']')
-				
-				if (x < 3):
-					arq.write(',')
-
-			arq.write('],')
-			arq.write(str((lista[i][1])))
-			arq.write(',')
-			arq.write(str((lista[i][2])))
-			if (i < quant_img_salvas-1):
-				arq.write('],[')
+		try:
+			lista = [[]]
+			
+			if(len(img) == 6):
+				#print (img[0:1])
+				i = int(img[0:1])
 			else:
-				arq.write(']')
+				#print (img[0:2])
+				i = int(img[0:2])
 
-		arq.write(']')
-		arq.close()
-		leitura = 0
+			imagem = cv.imread(origem+img)
+			
+			#Recortando imagem
+			imagem = imagem[256:512,0:512]
+			#mostrar_imagem(imagem)i9
+
+			#mostrar_imagem(img)
+			#mostrar_imagem(imagem)
+
+			imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
+			#mostrar_imagem(imagem_cinza)
+
+			#VERIFICAR A RETIRADA DO SEGUNDO i
+			imagem_tratada = reducao_ruido(i,imagem_cinza)
+			#mostrar_imagem(imagem_tratada)
+			imagem_canny = encontrando_contornos(imagem_tratada)
+			#mostrar_imagem(imagem_canny)
+
+			#VERIFICAR A FUNÇÃO definindo_caracteristicas()
+			imagem_finalizada,quant_img_salvas,lista= definindo_caracteristicas(imagem,imagem_canny,i,lista)
+			#mostrar_imagem(imagem_finalizada)
+
+
+			if(i == 5):
+				print(lista)
+			#print (lista)
+			#print (lista, ' ---- ---- ' ,str(lista[1][0][0][0]))
+
+			#VERIFICAR PASSAGEM DE PARAMETROS PARA A FUNÇÃO open()
+			
+			arq = open(destino + '4_Contornos/' + 'lista' + str(i) + '.txt', 'w')
+			
+			#ESTA PARTE PODE SER MELHORADA			
+			arq.write('[[')
+			for j in range(1,quant_img_salvas):
+				arq.write('[')
+				for x in range(0,4):
+					arq.write('[')
+					arq.write(str(lista[j][0][x][0]))
+					arq.write(',')
+					arq.write(str((lista[j][0][x][1])))
+					arq.write(']')
+					
+					if (x < 3):
+						arq.write(',')
+
+				arq.write('],')
+				arq.write(str((lista[j][1])))
+				arq.write(',')
+				arq.write(str((lista[j][2])))
+				if (j < quant_img_salvas-1):
+					arq.write('],[')
+				else:
+					arq.write(']')
+			
+			arq.write(']')
+			arq.close()
+			leitura = 0
+
+
+		except Exception as e:
+			print ("ERRO:",img)
+			pass
