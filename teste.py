@@ -1,3 +1,4 @@
+'''
 from matplotlib import pyplot as plt
 import numpy as np
 import cv2 as cv
@@ -5,8 +6,6 @@ import math
 import os 
 
 origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/2_Tratadas/'
-
-'''
 	cor = cv.imread(origem+'16.png')
 	imagem = cv.cvtColor(cor,cv.COLOR_RGB2GRAY)
 
@@ -30,7 +29,7 @@ origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento d
 			indice = imagem[i][j]
 			print (indice)
 			print ("---")
-'''
+
 
 for _, _, arquivo in os.walk(origem):
 	pass
@@ -56,3 +55,17 @@ for img in arquivo:
 		pass
 
 print ("FINALIZADO")
+'''
+
+
+from matplotlib import pyplot as plt
+import numpy as np
+import cv2 as cv
+import math
+import os 
+
+imagem = cv.imread("/home/study/Documentos/Env_RCNN/darknet/CARROS/" + "download.jpeg")
+imagem = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
+
+cv.imwrite("/home/study/Documentos/Env_RCNN/darknet/CARROS/carro_cinza.png",imagem)
+

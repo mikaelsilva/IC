@@ -5,12 +5,31 @@ import math
 import os
 
 
+
+'''
+#TAREFAS:
+	Verificar como integrar o Github com o Visual Studio Code
+	Corrigir função DEFINIR_REGIÃO(), ESTIMANDO_REGIÃO(), RELACIONANDO_REGIÃO()
+	
+'''
+
 def area(contornos):
     a = cv.contourArea(contornos)
     if a == None:
         a = 0.0
     return a
 
+#	A relação entre as duas areas de fato ocorre de maneira a 
+#ser definada como Area_Sub_Menor / Area_Original_Ou_SubAnterior
+def area_interesse(area_Imagem,area_SubImagem):
+
+	try:
+		area = area_SubImagem / area_Imagem 
+		area = area_SubImagem*100
+		return area
+	except:
+		return -1
+		
 def comprimento(contornos):
     c = cv.arcLength(contornos,True)
     if c == None:
@@ -22,6 +41,21 @@ def largura(contornos):
     if w == None:
         w = 0.0
     return w
+
+def relacionando_tamanho(largura,comprimento):
+	retorno = 0 
+		
+	try:
+		if(largura > comprimento):
+			retorno =  comprimento/largura 
+			return retorno
+		else:
+			retorno =  largura/comprimento
+			return retorno
+	except:
+		return retorno
+	
+
 
 def altura(contornos):
     x,y,w,h = cv.boundingRect(contornos)
@@ -259,7 +293,7 @@ def estimando_regiao(lista,flag):
 	listando = sorted(listando,reverse=True,key=take)
 	#print (":: ",listando)
 
-	if (r1==r2==r3 == -1):
+	if (r1 == r2 == r3 == -1):
 		return ("Indefinido",-1)
 	else:
 		return listando[0]
@@ -270,51 +304,62 @@ def porcentagem(lista,indice):
 	for i in range(0,len(lista)-1):
 		if (i != indice):
 			try:
-				porcent = lista[i][2]/lista[indice][2]
+				porcent = lista[i][2] / lista[indice][2] #(Valor_menor / Valor_maior)
 			except Exception as e:
-				if(int(lista[i][2]) != 0):
+				porcent = lista[i][2] / (-1)
+				
+				'''if(int(lista[i][2]) != 0):
 					porcent = (lista[i][2]/(lista[i][2])*3)
 				else:
 					porcent = lista[i][2]/3
-				pass
+				pass'''
 
 			if (porcent*100 >= 60):
 				valor += 1
 	return valor
 
-#VERIFICAR
+#VERIFICAR PARA PASSAR A LISTA QUE ESTÁ O ELEMENTO PRINCIPAL, PARA QUE OUTRAS ANALISES POSSAM ACONTECER
 def relacionando_regiao(lista):
 	listaEs = []
 	listaCi = []
 	listaCl = []
 	valor = 0
-
+	flag = ""
+	indice = 0
+	
 	for i in range(0,len(lista)-1):
 		if (lista[i][1] == 'Escuro'):
 			listaEs.append(lista[i])
+			flag = "Es"
 		
 		if(lista[i][1] == 'Cinza'):
 			listaCi.append(lista[i])
+			flag = "Ci"
 		
 		if(lista[i][1] == 'Claro'):
 			listaCl.append(lista[i])
+			flag = "Cl"
 
-	for i in range(0,len(listaEs)-1):
-		if(listaEs[i][0] == 'P'):
-			valor = porcentagem(listaEs,i)
-			if(valor > 1):
-				return valor
-			else:
-				return 0
+	if(flag == "Es"):
+		for i in range(0,len(listaEs)-1):
+			if(listaEs[i][0] == 'P'):
+				indice = i
+		valor = porcentagem(listaEs,indice)
 		
-	for i in range(0,len(listaCi)-1):
-		if(listaCi[i][0] == 'P'):
-			valor = porcentagem(listaCi,i)
-			if(valor > 1):
-				return valor
-			else:
-				return 0
+			
+	if(flag == "Ci"):
+		for i in range(0,len(listaCi)-1):
+			if(listaCi[i][0] == 'P'):
+				indice = i
+		valor = porcentagem(listaCi,indice)
+
+	if(flag == "Cl"):
+		for i in range(0,len(listaCl)-1):
+			if(listaCl[i][0] == 'P'):
+				indice = i
+		valor = porcentagem(listaCl,indice)
 		
+	'''
 	for i in range(0,len(listaCl)-1):
 		if(listaCl[i][0] == 'P'):
 			valor = porcentagem(listaCl,i)
@@ -322,6 +367,13 @@ def relacionando_regiao(lista):
 				return valor
 			else:
 				return 0
+
+
+			if(valor > 1):	
+				return valor
+			else:
+				return 0
+	'''
 	return valor
 
 def contando_subimagens(num,arquivo):
@@ -348,42 +400,41 @@ if __name__ == "__main__":
 		pass
 
 	'''
-	count = 0
-	num = 20
-	
-	#print (quantidade[2][0:1])
-	#print (arquivo[1][0])
-	for i in range(0,len(arquivo)):
-		if(arquivo[i][0:len(str(num)) + 1] == str(num) + '.'):
-			print (arquivo[i][0:2])
-			count +=1
-	
-	print (count)
+		count = 0
+		num = 20
+		
+		#print (quantidade[2][0:1])
+		#print (arquivo[1][0])
+		for i in range(0,len(arquivo)):
+			if(arquivo[i][0:len(str(num)) + 1] == str(num) + '.'):
+				print (arquivo[i][0:2])
+				count +=1
+		
+		print (count)
 	'''
 	#REDEFINIR O FOR PARA A ENTRADA DOS VALORES
 	#for num in range(2,len(quantidade)):
 	continua = 1
 	count = 0
 	#for num in range(5,6):	
-	for num in range(2,len(quantidade)):
+	for num in (2,len(quantidade)):
 		listandoContornos = []
 		
 		count = contando_subimagens(num,arquivo)
-		
-
 		print ("AQUI [%d] ate [%d]" %(1,count))
 		#REDEFINIR O FOR PARA A ENTRADA DOS VALORES
 		for i in range(1,count+1):
 
 			leitura = subimagem + str(num)+ '.' +str(i) + '.png'
-			print ("Leitura [%s]" %(leitura))
 			cor = cv.imread(leitura)
 			
 			imagem = cv.cvtColor(cor,cv.COLOR_RGB2GRAY)
 
 			height, width = cor.shape[:2]
 
-			area_imagem = height * width
+			area_SubImagem = height * width
+			width_SubImagem = width
+			height_SubImagem = height
 			#print ("---", i)
 			#Os passos a seguir são somente para um pequeno tratamento (novamente) na sub-imagem
 			imagem = limpar(imagem) #IMPORTANTE MANTER
@@ -426,6 +477,17 @@ if __name__ == "__main__":
 				#print('---------------------------------------------------------------------------------------------------------------------')	
 				#print ("Definindo regiões e seus valores")
 				lxi0, lyi0, lxi1, lyi1 = limites(height,width,novos_contornos)
+
+				#Area do contorno da SubImagem       
+				area_SubSubImagem = (lxi1-lxi0) *  (lyi1 - lyi0)    #width   #height
+				
+				comp_SubSubImagem = comprimento(teste)
+				circ_SubSubImagem = circularidade(teste)
+
+				width_SubSubImagem = (lxi1-lxi0)
+				height_SubSubImagem = (lyi1-lyi0)
+				#print(area_SubSubImagem)
+
 				#print ('lxi0:',lxi0,'lyi0:',lyi0,'lxi1:',lxi1,'lyi1:',lyi1)
 
 				lxe0, lye0, lxe1, lye1 = limites_externos(height,width,lxi0,lyi0,lxi1,lyi1)
@@ -482,8 +544,8 @@ if __name__ == "__main__":
 				listaRegiao = []
 				media = []
 
-				regiao, media_P = estimando_regiao(listaP,"P")
-				listaRegiao.append(('P',regiao,media_P))
+				regiao_P, media_P = estimando_regiao(listaP,"P")
+				listaRegiao.append(('P',regiao_P,media_P))
 				#print ('Principal:',regiao,'\n','Media de:',media)
 
 				regiao, media = estimando_regiao(listaN,"N")
@@ -522,20 +584,71 @@ if __name__ == "__main__":
 
 				valor = relacionando_regiao(listaRegiao)
 				#print ("Valor: ",valor)
-				if (valor > 1):
-					print ('Existem regiões com valores aproximados')
-				else:
-					print ('Possivel buraco')
+				#if (valor > 1):
+				#	print ('Existem regiões com valores aproximados')
+				#else:
+			#		print ('Possivel buraco')
 
 				print('-----------------------------------------------------------------------------------------------------------------------')
 
 				#print (listaRegiao)
 
-
+				area_Final = area_interesse(area_SubImagem,area_SubSubImagem)
+				tamanho = relacionando_tamanho(largura(novos_contornos),comprimento(novos_contornos)) #height,width
+				#print ("TAMANHO: ",tamanho)
 				#---------------------------------------------------------------------------------------------------------------------
-				area_final = (area(novos_contornos)/area_imagem)
+				#area_final = (area(novos_contornos)/area_SubImagem)
+				#print(area_valor)
+				#cv.drawContours(subImagem,[novos_contornos],0,(0,0,255),3)
+				#mostrar_imagem(subImagem)
+#Num_i_j | Area_imagem | Area_SubImagem | Area_SubContorno | Comprimento | Largura | Altura | Circularidade | Região | Estimativa_Regioes_Arredores (TODAS)| 
+
+				area_Imagem = 512*256
+				#area_SubImagem =  Já tem
+				#area_SubSubImagem = Já tem
+
+				comp_Imagem = 512
+				#width_SubImagem = já tem
+				#comp_SubSubImagem = já tem 
+
+				#larg_Imagem = 512	
+				#larg_SubImagem = 
+				#larg_SubSubImagem =  
+
+				#VERIFICAR
+				height_Imagem = 256
+				#height_SubImagem = já tem 
+				#height_SubSubImagem = height
+
+				#circ_SubSubImagem = já tem 
+
+				#area_SubOriginal = (area_Subimagem/area_Imagem)
+				#area_SubSub = (area_SubSub/area_Imagem)
+				#area_SubSubOriginal = (area_SubSubImagem/area_Imagem )
 				
-				if(area_final >= 0.01 and valor <=2):
+				#regiao_P,media_P
+				'''
+				train_list = []
+				train_list.append((num,i,j))
+				train_list.append(area_Imagem)
+				train_list.append(area_SubImagem)
+				train_list.append(area_SubSubImagem)
+
+				train_list.append(comp_Imagem)
+				train_list.append(comp_SubImagem)
+				train_list.append(comp_SubSubImagem)
+
+				train_list.append(alt_Imagem)
+				train_list.append(alt_SubImagem)
+				train_list.append(alt_SubSubImagem)
+
+				train_list.append(circ_SubSubImagem)
+
+				train_list.append((regiao_P,media_P))
+				'''
+				#train_list.append(LISTA COM OS OUTROS VALORES DA LISTA A QUAL A REGIÃO PRINCIPAL PERTENCE)
+
+				if(area_Final >= 0.003 and valor <= 1 and tamanho >= 0.2):
 					#print ('Imagem atual:')
 					
 					#print ('Comprimento:',comprimento(teste))
@@ -546,11 +659,11 @@ if __name__ == "__main__":
 
 					imagem_aux = desenhando(subImagem,novos_contornos)
 					#mostrar_imagem(imagem_aux)
-					tag = str(i) + "." + str(j)
+					tag = str(i) + "." + str(j)	
 					salvar(imagem_aux,num,tag,'4_Contornos/')
 					listandoContornos.append((novos_contornos,i))
-
-		#Num_i_j | Area_total | Area_SubImagem | Area | Comprimento | Largura | Altura | Circularidade | Região | Estimativa_Regioes_Arredores (TODAS)| 
+				
+		
 
 		leitura = 0
 		listXY = []
@@ -561,54 +674,44 @@ if __name__ == "__main__":
 		arq = open(destino + '4_Contornos/' + 'lista' + str(num) + '.txt', 'r')
 
 		texto = arq.read()
-		lista = list(eval(texto.split()[0]))
 
-		#print ("NOVA LISTA:" ,lista)
+		if(texto != 'NaN'):
+			lista = list(eval(texto.split()[0]))
 
-		leitura = especial + str(lista[0][1]) + '.jfif'
-		imagem_aux = cv.imread(leitura)
+			#print ("NOVA LISTA:" ,lista)
 
-		#AQUI COMEÇA A COMPARAÇÃO COM OS VALORES DA LISTA ENCONTRADA AQUI E DA LISTA ORIGINAL
-		inicioJ = 0
+			leitura = especial + str(lista[0][1]) + '.jfif'
+			imagem_aux = cv.imread(leitura)
 
-		for i in range(0,len(lista)):
-			for j in range(inicioJ,limite):
+			#AQUI COMEÇA A COMPARAÇÃO COM OS VALORES DA LISTA ENCONTRADA AQUI E DA LISTA ORIGINAL
+			inicioJ = 0
 
-				if (lista[i][2] == listandoContornos[j][1]): #A comparação é realizada de acordo com os indices das imagens e não dos contornos
-					menorX,menorY,lix,lix2 = limites(height,width,lista[i][0])
+			for k in range(0,len(lista)):
+				for j in range(inicioJ,limite):
 
-					x = menorX + listandoContornos[j][0][0][0] 
-					y = menorY + listandoContornos[j][0][0][1] + 256
+					if (lista[k][2] == listandoContornos[j][1]): #A comparação é realizada de acordo com os indices das imagens e não dos contornos
+						menorX,menorY,lix,lix2 = limites(height,width,lista[k][0])
 
-					x1 = menorX + listandoContornos[j][0][1][0] 
-					y1 = menorY + listandoContornos[j][0][1][1] + 256
+						x = menorX + listandoContornos[j][0][0][0] 
+						y = menorY + listandoContornos[j][0][0][1] + 256
 
-					x2 = menorX + listandoContornos[j][0][2][0] 
-					y2 = menorY + listandoContornos[j][0][2][1] + 256
+						x1 = menorX + listandoContornos[j][0][1][0] 
+						y1 = menorY + listandoContornos[j][0][1][1] + 256
 
-					x3 = menorX + listandoContornos[j][0][3][0] 
-					y3 = menorY + listandoContornos[j][0][3][1] + 256
+						x2 = menorX + listandoContornos[j][0][2][0] 
+						y2 = menorY + listandoContornos[j][0][2][1] + 256
 
-					contorno = np.array([[x,y],[x1,y1],[x2,y2],[x3,y3]])
-					cv.drawContours(imagem_aux,[contorno],0,(0,0,255),3)
+						x3 = menorX + listandoContornos[j][0][3][0] 
+						y3 = menorY + listandoContornos[j][0][3][1] + 256
 
-		#print (lista[0][1], ' and ',num)
-		salvar(imagem_aux,lista[0][1],i,'5_Finalizadas/')
-		print ('Finalizado nº: ',num)
+						contorno = np.array([[x,y],[x1,y1],[x2,y2],[x3,y3]])
+						cv.drawContours(imagem_aux,[contorno],0,(0,0,255),3)
+
+			#print (lista[0][1], ' and ',num)
+			salvar(imagem_aux,lista[0][1],0,'5_Finalizadas/')
+			print ('Finalizado nº: ',num)
+		#else:
+			#salvar(imagem_aux,i,len(listandoContornos),'5_Finalizadas/')
 
 		leitura = ""
 		arq.close()
-				
-
-#Estado
-'''
-	A verficiação ao redor do buraco está quase funcionando, falta verificar os casos em que os limites_da_area_externa ficam fora do 
-		limite da imagem_original, mas para os que funciona e o ambiente é mais controlado (rua sem muitos ruídos), o resultado se
-		apresenta de forma a ajudar o resultado final
-
-	Verificar a anomalia de imagem_contorno que termina por resultar em imagens duplicadas
-
-	Verificar como é salvo os contornos finais
-
-	Verificar como será o vetor utilizado para treinar a IA e que tipo de IA de classificção poderá ser utilizada
-'''

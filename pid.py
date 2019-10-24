@@ -195,6 +195,7 @@ if __name__ == "__main__":
 
 	for img in arquivo:
 		
+
 		try:
 			lista = [[]]
 			
@@ -224,43 +225,43 @@ if __name__ == "__main__":
 			#mostrar_imagem(imagem_canny)
 
 			#VERIFICAR A FUNÇÃO definindo_caracteristicas()
-			imagem_finalizada,quant_img_salvas,lista= definindo_caracteristicas(imagem,imagem_canny,i,lista)
+			imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
 			#mostrar_imagem(imagem_finalizada)
 
-
-			if(i == 5):
-				print(lista)
 			#print (lista)
 			#print (lista, ' ---- ---- ' ,str(lista[1][0][0][0]))
 
 			#VERIFICAR PASSAGEM DE PARAMETROS PARA A FUNÇÃO open()
 			
 			arq = open(destino + '4_Contornos/' + 'lista' + str(i) + '.txt', 'w')
-			
-			#ESTA PARTE PODE SER MELHORADA			
-			arq.write('[[')
-			for j in range(1,quant_img_salvas):
-				arq.write('[')
-				for x in range(0,4):
-					arq.write('[')
-					arq.write(str(lista[j][0][x][0]))
-					arq.write(',')
-					arq.write(str((lista[j][0][x][1])))
-					arq.write(']')
-					
-					if (x < 3):
-						arq.write(',')
 
-				arq.write('],')
-				arq.write(str((lista[j][1])))
-				arq.write(',')
-				arq.write(str((lista[j][2])))
-				if (j < quant_img_salvas-1):
-					arq.write('],[')
-				else:
-					arq.write(']')
+			#ESTA PARTE PODE SER MELHORADA			
+			if((len(lista)-1) != 0):
+				arq.write('[[')
+				for j in range(1,quant_img_salvas):
+					arq.write('[')
+					for x in range(0,4):
+						arq.write('[')
+						arq.write(str(lista[j][0][x][0]))
+						arq.write(',')
+						arq.write(str((lista[j][0][x][1])))
+						arq.write(']')
+						
+						if (x < 3):
+							arq.write(',')
+
+					arq.write('],')
+					arq.write(str((lista[j][1])))
+					arq.write(',')
+					arq.write(str((lista[j][2])))
+					if (j < quant_img_salvas-1):
+						arq.write('],[')
+					else:
+						arq.write(']')
 			
-			arq.write(']')
+				arq.write(']')
+			else:
+				arq.write('NaN')
 			arq.close()
 			leitura = 0
 
