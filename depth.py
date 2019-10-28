@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import pandas as pd
 import numpy as np
 import cv2 as cv
 import math
@@ -391,7 +392,13 @@ if __name__ == "__main__":
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 	especial = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
 
+	tabela = [{'NUM_I':0,"NUM_J":0,'AREA_IMAGEM':0.0,"AREA_SUB_IMAGEM":0.0,"AREA_SUB_CONTORNO":0.0,"COMPRIMENTO":0.0,"LARGURA":0.0,"ALTURA":0.0,"CIRCULARIDADE":0.0,"REGIAO":"null"}
+             ]
 
+	df = pd.DataFrame(tabela)
+	df = df[['NUM_I',"NUM_J",'AREA_IMAGEM','AREA_SUB_IMAGEM','AREA_SUB_CONTORNO','COMPRIMENTO','LARGURA','ALTURA','CIRCULARIDADE','REGIAO']]	 
+	df.to_csv('ic.csv',header=True,index=False)
+	
 	#7,8,8,9
 	for _, _, quantidade in os.walk(origem):
 		pass
@@ -650,6 +657,12 @@ if __name__ == "__main__":
 
 				if(area_Final >= 0.003 and valor <= 1 and tamanho >= 0.2):
 					#print ('Imagem atual:')
+					
+					friends = [{"NUM_I":i,"NUM_J":j,"AREA_IMAGEM":area_Imagem,"AREA_SUB_IMAGEM":area_SubImagem,"AREA_SUB_CONTORNO":i,"COMPRIMENTO":i,"LARGURA":i+0.0,"ALTURA":i+0.0,"CIRCULARIDADE":i+0.0,"REGIAO":"R"}]
+
+					df = pd.DataFrame(friends)
+					df = df[["NUM_I","NUM_J","AREA_IMAGEM","AREA_SUB_IMAGEM","AREA_SUB_CONTORNO","COMPRIMENTO","LARGURA","ALTURA","CIRCULARIDADE","REGIAO"]]
+					df.to_csv('ic.csv',header=False, mode='a',index=False)
 					
 					#print ('Comprimento:',comprimento(teste))
 					#print ('Altura:',altura(teste))
