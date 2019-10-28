@@ -184,57 +184,46 @@ def salvar(pasta,imagem,nome):
 if __name__ == "__main__":
 
 	origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
+	origem2 = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem_Fake/'
+
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 	openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 
-	for _, _, arquivo in os.walk(origem):
+	for _, _, arquivo in os.walk(origem2):
 		pass
 
 	#print (arquivo)
 	#print (origem + arquivo[0])
 
 	for img in arquivo:
-		
+		lista = [[]]
+
+		i = int(img[0:-5])
+		imagem = cv.imread(origem+img)
+
+		#Recortando imagem
+		imagem = imagem[256:512,0:512]
+		#mostrar_imagem(imagem)
+
+		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
+		#mostrar_imagem(imagem_cinza)
+
+		imagem_tratada = reducao_ruido(i,imagem_cinza)
+		#mostrar_imagem(imagem_tratada)
+		imagem_canny = encontrando_contornos(imagem_tratada)
+		#mostrar_imagem(imagem_canny)
+
+		#VERIFICAR A FUNÇÃO definindo_caracteristicas()
+		imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
+		#mostrar_imagem(imagem_finalizada)
+
+		arq = open('lista' + str(i) + '_MIKAEL.txt', 'w')
+		del lista[0]
+		saida = str(lista).replace('array','').replace('(','').replace(')',']')
+		arq.write(saida)
 
 		try:
-			lista = [[]]
-			
-			if(len(img) == 6):
-				#print (img[0:1])
-				i = int(img[0:1])
-			else:
-				#print (img[0:2])
-				i = int(img[0:2])
-
-			imagem = cv.imread(origem+img)
-			
-			#Recortando imagem
-			imagem = imagem[256:512,0:512]
-			#mostrar_imagem(imagem)i9
-
-			#mostrar_imagem(img)
-			#mostrar_imagem(imagem)
-
-			imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
-			#mostrar_imagem(imagem_cinza)
-
-			#VERIFICAR A RETIRADA DO SEGUNDO i
-			imagem_tratada = reducao_ruido(i,imagem_cinza)
-			#mostrar_imagem(imagem_tratada)
-			imagem_canny = encontrando_contornos(imagem_tratada)
-			#mostrar_imagem(imagem_canny)
-
-			#VERIFICAR A FUNÇÃO definindo_caracteristicas()
-			imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
-			#mostrar_imagem(imagem_finalizada)
-
-			#print (lista)
-			#print (lista, ' ---- ---- ' ,str(lista[1][0][0][0]))
-
-			#VERIFICAR PASSAGEM DE PARAMETROS PARA A FUNÇÃO open()
-			
-			arq = open(destino + '4_Contornos/' + 'lista' + str(i) + '.txt', 'w')
-
+			'''
 			#ESTA PARTE PODE SER MELHORADA			
 			if((len(lista)-1) != 0):
 				arq.write('[[')
@@ -262,6 +251,7 @@ if __name__ == "__main__":
 				arq.write(']')
 			else:
 				arq.write('NaN')
+				'''
 			arq.close()
 			leitura = 0
 
