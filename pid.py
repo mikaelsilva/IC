@@ -217,43 +217,20 @@ if __name__ == "__main__":
 		imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
 		#mostrar_imagem(imagem_finalizada)
 
-		arq = open('lista' + str(i) + '_MIKAEL.txt', 'w')
-		del lista[0]
-		saida = str(lista).replace('array','').replace('(','').replace(')',']')
-		arq.write(saida)
+	
+		#arq2 = open('lista' +str(i) +'.txt',"r")
+		#a = arq2.read()
+		#print(a)
+		#arq2.close()
+
 
 		try:
-			'''
-			#ESTA PARTE PODE SER MELHORADA			
-			if((len(lista)-1) != 0):
-				arq.write('[[')
-				for j in range(1,quant_img_salvas):
-					arq.write('[')
-					for x in range(0,4):
-						arq.write('[')
-						arq.write(str(lista[j][0][x][0]))
-						arq.write(',')
-						arq.write(str((lista[j][0][x][1])))
-						arq.write(']')
-						
-						if (x < 3):
-							arq.write(',')
-
-					arq.write('],')
-					arq.write(str((lista[j][1])))
-					arq.write(',')
-					arq.write(str((lista[j][2])))
-					if (j < quant_img_salvas-1):
-						arq.write('],[')
-					else:
-						arq.write(']')
+			arq = open('lista' +str(i) +'.txt', 'w')
+			del lista[0]
+			saida = str(lista).replace('array','').replace('(','').replace(')','').replace('\n','').replace(' ','')
+			arq.write(saida)
 			
-				arq.write(']')
-			else:
-				arq.write('NaN')
-				'''
 			arq.close()
-			leitura = 0
 
 
 		except Exception as e:
