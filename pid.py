@@ -4,23 +4,18 @@ import cv2 as cv
 import math
 import os
 
+#Verificada e deixando apenas em função da erosao
 def reducao_ruido(num,imagem):
 	kernel = np.ones((10,10),np.uint8)
 	#dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
 
-	clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(15,15))
-	cl1 = clahe.apply(imagem)
-
-	erosao = cv.erode(cl1,kernel,iterations = 1)
-
-	clahe2 = cv.createCLAHE(clipLimit=2.0, tileGridSize=(5,5))
-	cl2 = clahe2.apply(erosao)
+	erosao = cv.erode(imagem,kernel,iterations = 1)
 
 	pasta = '1_Especial'
 	nome = str(num) + '.1'
-	salvar(pasta,cl2,nome)
+	salvar(pasta,erosao,nome)
 
-	return cl2
+	return erosao
 
 def encontrando_contornos(imagem):
 	imagem2 = cv.Canny(imagem,100,200)
@@ -203,18 +198,19 @@ if __name__ == "__main__":
 
 		#Recortando imagem
 		imagem = imagem[256:512,0:512]
-		#mostrar_imagem(imagem)
+		mostrar_imagem(imagem)
 
 		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
 		#mostrar_imagem(imagem_cinza)
 
 		imagem_tratada = reducao_ruido(i,imagem_cinza)
-		#mostrar_imagem(imagem_tratada)
+		mostrar_imagem(imagem_tratada)
+		
 		imagem_canny = encontrando_contornos(imagem_tratada)
-		#mostrar_imagem(imagem_canny)
+		mostrar_imagem(imagem_canny)
 
 		#VERIFICAR A FUNÇÃO definindo_caracteristicas()
-		imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
+		#imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
 		#mostrar_imagem(imagem_finalizada)
 
 	
@@ -222,7 +218,6 @@ if __name__ == "__main__":
 		#a = arq2.read()
 		#print(a)
 		#arq2.close()
-
 
 		try:
 			arq = open('lista' +str(i) +'.txt', 'w')
