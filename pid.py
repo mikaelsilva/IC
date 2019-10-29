@@ -17,6 +17,7 @@ def reducao_ruido(num,imagem):
 
 	return erosao
 
+#Verificada
 def encontrando_contornos(imagem):
 	imagem2 = cv.Canny(imagem,100,200)
 
@@ -62,16 +63,13 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 		#print (x,y)
 		listaX.append(y)
 		listaY.append(x)
-
-	limites = sorted(listaX)
-	limites2 = sorted(listaY)
-
-	x1,x2 = limites[0],limites[3]
-	y1,y2 = limites2[0],limites2[3]
+	
+	x1,x2 = min(listaX),max(listaX)
+	y1,y2 = min(listaY),max(listaY)
 
 	if (x1 != x2 and y1 != y2 and x1 >= 0 and x2 >= 0 and y1 >= 0 and y2 >= 0):
-		imagem_fatia = imagem[limites[0]:limites[3],limites2[0]:limites2[3]] #Aqui é feito um recorte em relação a area do contorno analisado
-		#mostrar_imagem(imagem_fatia)
+		imagem_fatia = imagem[x1:x2,y1:y2] #Aqui é feito um recorte em relação a area do contorno analisado
+		mostrar_imagem(imagem_fatia)
 
 		#Esse calculo é feito para que a imagemFatia contenha uma area significativa em relação a imagem original
 		height, width = imagem_fatia.shape[:2]
@@ -80,8 +78,11 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 		area_final = (area_subImagem / area_total) 
 
 		#print (area_final)
-		#mostrar_imagem(imagem_fatia)
+		mostrar_imagem(imagem_fatia)
+
+		#VERIFICAR A POSSIBILIDADE DO RESIZE NA IMAGEM "28/10/2019 00:00"
 		#res = cv.resize(imagem_fatia,(10*width, 10*height), interpolation = cv.INTER_CUBIC)
+		#mostrar_imagem(res)
 
 		if (area_final >= 0.01):
 			pasta = '3_SubImagens'
@@ -93,7 +94,7 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 
 	return 0
 
-#RENOMEAR imagem1,2,3
+#MELHOR ESSE TRECHO DE CÓDIGO , ASSIM COMO RENOMEAR imagem1,2,3 .. . . . . . . . . .... . .  ..  . . .
 def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	num = 1
 	
@@ -109,12 +110,13 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 		novos_contornos = cv.boxPoints(quadrado)
 		novos_contornos = np.int0(novos_contornos)
 
+		#VERIFICAR A RETIRADA DA CONDIÇÃO DE "largura e altura" 28/10/2019 23:50
 		if (area(novos_contornos) >  100 and largura(novos_contornos) > 15 and altura(novos_contornos) > 15):
-			#print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
-			#print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
+			print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
+			print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
 
-			cv.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
-			cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
+			#cv.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
+			#cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
 
 			#mostrar_imagem(imagem_contorno)
 			#mostrar_imagem(imagem_quadrado)
@@ -184,7 +186,7 @@ if __name__ == "__main__":
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 	openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 
-	for _, _, arquivo in os.walk(origem2):
+	for _, _, arquivo in os.walk(origem):
 		pass
 
 	#print (arquivo)
@@ -201,7 +203,7 @@ if __name__ == "__main__":
 		mostrar_imagem(imagem)
 
 		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
-		#mostrar_imagem(imagem_cinza)
+		mostrar_imagem(imagem_cinza)
 
 		imagem_tratada = reducao_ruido(i,imagem_cinza)
 		mostrar_imagem(imagem_tratada)
@@ -210,9 +212,10 @@ if __name__ == "__main__":
 		mostrar_imagem(imagem_canny)
 
 		#VERIFICAR A FUNÇÃO definindo_caracteristicas()
-		#imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
+		imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
 		#mostrar_imagem(imagem_finalizada)
 
+		print("TERMINOU")
 	
 		#arq2 = open('lista' +str(i) +'.txt',"r")
 		#a = arq2.read()
