@@ -6,7 +6,7 @@ import os
 
 #Verificada e deixando apenas em função da erosao
 def reducao_ruido(num,imagem):
-	kernel = np.ones((10,10),np.uint8)
+	kernel = np.ones((2,15),np.uint8)
 	#dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
 
 	erosao = cv.erode(imagem,kernel,iterations = 1)
@@ -69,7 +69,7 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 
 	if (x1 != x2 and y1 != y2 and x1 >= 0 and x2 >= 0 and y1 >= 0 and y2 >= 0):
 		imagem_fatia = imagem[x1:x2,y1:y2] #Aqui é feito um recorte em relação a area do contorno analisado
-		mostrar_imagem(imagem_fatia)
+#		mostrar_imagem(imagem_fatia)
 
 		#Esse calculo é feito para que a imagemFatia contenha uma area significativa em relação a imagem original
 		height, width = imagem_fatia.shape[:2]
@@ -78,28 +78,28 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 		area_final = (area_subImagem / area_total) 
 
 		#print (area_final)
-		mostrar_imagem(imagem_fatia)
+#		mostrar_imagem(imagem_fatia)
 
 		#VERIFICAR A POSSIBILIDADE DO RESIZE NA IMAGEM "28/10/2019 00:00"
 		#res = cv.resize(imagem_fatia,(10*width, 10*height), interpolation = cv.INTER_CUBIC)
 		#mostrar_imagem(res)
 
-		if (area_final >= 0.01):
-			pasta = '3_SubImagens'
-			nome = str(num_imagem) + '.' + str(num)
-			salvar(pasta,imagem_fatia,nome)
-			return 1
+		#if (area_final >= 0.01):
+		pasta = '3_SubImagens'
+		nome = str(num_imagem) + '.' + str(num)
+		salvar(pasta,imagem_fatia,nome)
+		return 1
 			
 	imagem_fatia = 0
 
 	return 0
 
-#MELHOR ESSE TRECHO DE CÓDIGO , ASSIM COMO RENOMEAR imagem1,2,3 .. . . . . . . . . .... . .  ..  . . .
+#MELHOR ESSE TRECHO DE CÓDIGO .. . . . . . . . . .... . .  ..  . . .
 def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	num = 1
 	
 	imagem2, contornos, hierarquia = cv.findContours(imagem_canny, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
-	imagem3 = imagem.copy()
+	imagem_contornosQuadrados = imagem.copy()
 
 	for i in range(len(contornos)):
 		teste = contornos[i]
@@ -111,30 +111,29 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 		novos_contornos = np.int0(novos_contornos)
 
 		#VERIFICAR A RETIRADA DA CONDIÇÃO DE "largura e altura" 28/10/2019 23:50
-		if (area(novos_contornos) >  100 and largura(novos_contornos) > 15 and altura(novos_contornos) > 15):
-			print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
-			print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
+		#if (area(novos_contornos) >  100 and largura(novos_contornos) > 15 and altura(novos_contornos) > 15):
+		print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
+		print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
 
-			#cv.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
-			#cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
+		#cv.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
+		#cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
 
-			#mostrar_imagem(imagem_contorno)
-			#mostrar_imagem(imagem_quadrado)
+		#mostrar_imagem(imagem_contorno)
+		#mostrar_imagem(imagem_quadrado)
 
-			if (reanalizando_contornos(imagem,novos_contornos,num_imagem,num) == 1):
+		if (reanalizando_contornos(imagem,novos_contornos,num_imagem,num) == 1):
 
-				cv.drawContours(imagem3,[novos_contornos],0,(0,0,255),3)
-				pasta = '2_Tratadas'
-				nome = str(num_imagem) + '.' + str(num)
-				salvar(pasta,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
-				#nome = 0
-				lista.append([novos_contornos,num_imagem,num])
-				num +=1
-		#print ("--------------------------------------------------------------------------------------------")
+			cv.drawContours(imagem_contornosQuadrados,[novos_contornos],0,(0,0,255),3)
+			pasta = '2_Tratadas'
+			nome = str(num_imagem) + '.' + str(num)
+			salvar(pasta,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
+			#nome = 0
+			lista.append([novos_contornos,num_imagem,num])
+			num +=1
 
 
-	imagem4 = imagem.copy()
-	cv.drawContours(imagem4,contornos,-1,(0,255,255),3)
+	imagem_contornosCanny = imagem.copy()
+	cv.drawContours(imagem_contornosCanny,contornos,-1,(0,255,255),3)
 
 	pasta = '1_Especial'
 	nome = str(num_imagem) + '.2'
@@ -142,11 +141,11 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 
 	pasta = '1_Especial'
 	nome = str(num_imagem) + '.3'
-	salvar(pasta,imagem3,nome)
+	salvar(pasta,imagem_contornosQuadrados,nome)
 
 	pasta = '1_Especial'
 	nome = str(num_imagem) + '.4'
-	salvar(pasta,imagem4,nome)
+	salvar(pasta,imagem_contornosCanny,nome)
 
 	return imagem,num,lista
 
@@ -186,7 +185,7 @@ if __name__ == "__main__":
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 	openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 
-	for _, _, arquivo in os.walk(origem):
+	for _, _, arquivo in os.walk(origem2):
 		pass
 
 	#print (arquivo)
@@ -201,6 +200,19 @@ if __name__ == "__main__":
 		#Recortando imagem
 		imagem = imagem[256:512,0:512]
 		mostrar_imagem(imagem)
+		kernel = np.ones((2,15),np.uint8)
+		kernel2 = np.ones((2,8),np.uint8)
+
+		kernel3 = kernel1 - kernel2
+		erosao = cv.erode(imagem,kernel,iterations = 1)
+		erosao2 = cv.erode(imagem,kernel,iterations = 1)
+
+		
+		mostrar_imagem(erosao)
+
+
+
+
 
 		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
 		mostrar_imagem(imagem_cinza)
@@ -223,7 +235,8 @@ if __name__ == "__main__":
 		#arq2.close()
 
 		try:
-			arq = open('lista' +str(i) +'.txt', 'w')
+			print(lista)
+			arq = open(destino + "0_Listas_Posicoes/"+ "lista" +str(i) + ".txt", 'w')
 			del lista[0]
 			saida = str(lista).replace('array','').replace('(','').replace(')','').replace('\n','').replace(' ','')
 			arq.write(saida)
