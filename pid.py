@@ -6,7 +6,7 @@ import os
 
 #Verificada e deixando apenas em função da erosao
 def reducao_ruido(num,imagem):
-	kernel = np.ones((2,15),np.uint8)
+	kernel = np.ones((10,15),np.uint8)
 	#dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
 
 	erosao = cv.erode(imagem,kernel,iterations = 1)
@@ -200,20 +200,7 @@ if __name__ == "__main__":
 		#Recortando imagem
 		imagem = imagem[256:512,0:512]
 		mostrar_imagem(imagem)
-		kernel = np.ones((2,15),np.uint8)
-		kernel2 = np.ones((2,8),np.uint8)
-
-		kernel3 = kernel1 - kernel2
-		erosao = cv.erode(imagem,kernel,iterations = 1)
-		erosao2 = cv.erode(imagem,kernel,iterations = 1)
-
 		
-		mostrar_imagem(erosao)
-
-
-
-
-
 		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
 		mostrar_imagem(imagem_cinza)
 
