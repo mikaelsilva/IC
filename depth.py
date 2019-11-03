@@ -5,8 +5,6 @@ import cv2 as cv
 import math
 import os
 
-
-
 '''
 #TAREFAS:
 	Verificar como integrar o Github com o Visual Studio Code
@@ -94,6 +92,10 @@ def salvar(imagem, i,j,flag):
 
 	cv.imwrite(final,imagem)
 
+
+
+
+
 def limpar(imagem):
 	dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
 	return dst
@@ -103,16 +105,16 @@ def equalizar(imagem):
 	cl1 = clahe.apply(imagem)
 	return cl1
 
+#VERIFICADA, RESPONSAVEL POR RECEBER A SUB-IMAGEM CINZA E GERAR UMA 
+#EROSAO E UMA DILATAÇÃO EM SEGUIDA PARA REDUZIR O RUIDO
 def erosao(imagem):
-	kernel = np.ones((10,10),np.uint8)
+	kernel = np.ones((8,8),np.uint8)
 
 	#BLOCO EM ANALISE -----------------------------------------
-	opening = cv.morphologyEx(imagem, cv.MORPH_OPEN,(5,5))	 
-	#----------------------------------------------------------
+	opening = cv.morphologyEx(imagem, cv.MORPH_OPEN,kernel) 
+	#erosao = cv.erode(opening,kernel,iterations = 1) #VERIFICAR ESSA ALTERALÇÃO DO CL1 POR DST
 
-	erosao = cv.erode(opening,kernel,iterations = 1) #VERIFICAR ESSA ALTERALÇÃO DO CL1 POR DST
-
-	return erosao
+	return opening
 
 def thresholding(imagem):
 	ret,th = cv.threshold(imagem,0,255,cv.THRESH_BINARY + cv.THRESH_OTSU)
@@ -377,16 +379,22 @@ def relacionando_regiao(lista):
 	'''
 	return valor
 
+#Função atualizada, verificar apenas a possibilidade de retornar uma lista ao inves da quantidade
 def contando_subimagens(num,arquivo):
 	count = 0
+	lista = []
+	
 	for i in range(0,len(arquivo)):
-		if(arquivo[i][0:len(str(num)) + 1] == str(num) + '.'):
+		var = arquivo[i].split('_')
+		if(var[0] == num ):
 			count +=1
+			#lista.append(arquivo[i])
 
 	return count 
 
 if __name__ == "__main__":
 	origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
+	origem2 = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem_Fake/'
 	subimagem ='/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/3_SubImagens/'
 
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
@@ -399,50 +407,43 @@ if __name__ == "__main__":
 	df = df[['NUM_I',"NUM_J",'AREA_IMAGEM','AREA_SUB_IMAGEM','AREA_SUB_CONTORNO','COMPRIMENTO','LARGURA','ALTURA','CIRCULARIDADE','REGIAO']]	 
 	df.to_csv('ic.csv',header=True,index=False)
 	
-	#7,8,8,9
-	for _, _, quantidade in os.walk(origem):
+
+	for _, _, quantidade in os.walk(origem2):
 		pass
 
 	for _, _, arquivo in os.walk(subimagem):
 		pass
 
-	'''
-		count = 0
-		num = 20
-		
-		#print (quantidade[2][0:1])
-		#print (arquivo[1][0])
-		for i in range(0,len(arquivo)):
-			if(arquivo[i][0:len(str(num)) + 1] == str(num) + '.'):
-				print (arquivo[i][0:2])
-				count +=1
-		
-		print (count)
-	'''
-	#REDEFINIR O FOR PARA A ENTRADA DOS VALORES
-	#for num in range(2,len(quantidade)):
-	continua = 1
+
 	count = 0
-	#for num in range(5,6):	
-	for num in (2,len(quantidade)):
+	for cast in quantidade:
+		cast = cast.split('.')
+		num = int(cast[0])
 		listandoContornos = []
 		
-		count = contando_subimagens(num,arquivo)
+		count = contando_subimagens(cast[0],arquivo)
 		print ("AQUI [%d] ate [%d]" %(1,count))
+
 		#REDEFINIR O FOR PARA A ENTRADA DOS VALORES
 		for i in range(1,count+1):
 
-			leitura = subimagem + str(num)+ '.' +str(i) + '.png'
+			leitura = subimagem + str(num)+ '_' +str(i) + '.png'
 			cor = cv.imread(leitura)
+			#mostrar_imagem(cor)
+
+			width = int(cor.shape[1] *2)
+			height = int(cor.shape[0] * 2)
+			cor = cv.resize(cor, (width,height), interpolation = cv.INTER_LINEAR)
 			
 			imagem = cv.cvtColor(cor,cv.COLOR_RGB2GRAY)
+			#mostrar_imagem(imagem)
 
 			height, width = cor.shape[:2]
 
 			area_SubImagem = height * width
 			width_SubImagem = width
 			height_SubImagem = height
-			#print ("---", i)
+
 			#Os passos a seguir são somente para um pequeno tratamento (novamente) na sub-imagem
 			imagem = limpar(imagem) #IMPORTANTE MANTER
 			#mostrar_imagem(imagem)
@@ -454,17 +455,17 @@ if __name__ == "__main__":
 			imagem_cinza = imagem
 			#mostrar_imagem(imagem)
 
-			imagema = thresholding(imagem)
-			#mostrar_imagem(imagem)
-			#mostrar_imagem(imagema)
+			imagem_thresh = thresholding(imagem)
+			#mostrar_imagem(imagem_thresh)
 
-			imagem = canny(imagema)
+			imagem = canny(imagem_thresh)
 			#mostrar_imagem(imagem)
 
 			imagema,imagem_contorno,imagemc = contornos(imagem)
+			#TUDO OK (NA MEDIDA DO POSSÍVEL) DO INICIO ATÉ ESSA PARTE DO CÓDIGO
+			#VERIFICAÇÃO FINALIZADA EM 03/2019
 			#-----------------------------------------------------------------------------------
 
-		
 			#Definindo os contos e salvando em uma imagem e em uma lista
 			#Verificar de que forma o algoritmo pode "reduzir" o número de imagens "inadequadas" que passam por ele 
 			#for j in range(0,len(imagem_contorno)):
@@ -684,7 +685,7 @@ if __name__ == "__main__":
 		
 		limite = len(listandoContornos)
 		#print ("LIMITE: ", limite)
-		arq = open(destino + '4_Contornos/' + 'lista' + str(num) + '.txt', 'r')
+		arq = open(destino + '0_Listas_Posicoes/' + 'lista' + '3' + '.txt', 'r')
 
 		texto = arq.read()
 

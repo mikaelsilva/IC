@@ -17,7 +17,6 @@ def reducao_ruido(num,imagem):
 
 	return erosao
 
-#Verificada
 def encontrando_contornos(imagem):
 	imagem2 = cv.Canny(imagem,100,200)
 
@@ -69,7 +68,7 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 
 	if (x1 != x2 and y1 != y2 and x1 >= 0 and x2 >= 0 and y1 >= 0 and y2 >= 0):
 		imagem_fatia = imagem[x1:x2,y1:y2] #Aqui é feito um recorte em relação a area do contorno analisado
-#		mostrar_imagem(imagem_fatia)
+		#mostrar_imagem(imagem_fatia)
 
 		#Esse calculo é feito para que a imagemFatia contenha uma area significativa em relação a imagem original
 		height, width = imagem_fatia.shape[:2]
@@ -78,7 +77,7 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 		area_final = (area_subImagem / area_total) 
 
 		#print (area_final)
-#		mostrar_imagem(imagem_fatia)
+		#mostrar_imagem(imagem_fatia)
 
 		#VERIFICAR A POSSIBILIDADE DO RESIZE NA IMAGEM "28/10/2019 00:00"
 		#res = cv.resize(imagem_fatia,(10*width, 10*height), interpolation = cv.INTER_CUBIC)
@@ -86,7 +85,7 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 
 		#if (area_final >= 0.01):
 		pasta = '3_SubImagens'
-		nome = str(num_imagem) + '.' + str(num)
+		nome = str(num_imagem) + '_' + str(num)
 		salvar(pasta,imagem_fatia,nome)
 		return 1
 			
@@ -125,7 +124,7 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 
 			cv.drawContours(imagem_contornosQuadrados,[novos_contornos],0,(0,0,255),3)
 			pasta = '2_Tratadas'
-			nome = str(num_imagem) + '.' + str(num)
+			nome = str(num_imagem) + '_' + str(num)
 			salvar(pasta,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
 			#nome = 0
 			lista.append([novos_contornos,num_imagem,num])
@@ -136,18 +135,19 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	cv.drawContours(imagem_contornosCanny,contornos,-1,(0,255,255),3)
 
 	pasta = '1_Especial'
-	nome = str(num_imagem) + '.2'
+	nome = str(num_imagem) + '_2'
 	salvar(pasta,imagem_canny,nome)
 
 	pasta = '1_Especial'
-	nome = str(num_imagem) + '.3'
+	nome = str(num_imagem) + '_3'
 	salvar(pasta,imagem_contornosQuadrados,nome)
 
 	pasta = '1_Especial'
-	nome = str(num_imagem) + '.4'
+	nome = str(num_imagem) + '_4'
 	salvar(pasta,imagem_contornosCanny,nome)
 
 	return imagem,num,lista
+
 
 def mostrar_imagem(imagem):
 
@@ -166,8 +166,6 @@ def mostrar_imagens(imagem1,imagem2,imagem3,imagem4):
 
 	return 0
 
-#ALTERAR O nome PARA PASTA
-#ALTERAR pasta PARA NUMERO já em STRING
 def salvar(pasta,imagem,nome):
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 	final = destino + pasta + '/' + nome + '.png'
@@ -229,7 +227,6 @@ if __name__ == "__main__":
 			arq.write(saida)
 			
 			arq.close()
-
 
 		except Exception as e:
 			print ("ERRO:",img)
