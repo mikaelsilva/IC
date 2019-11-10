@@ -135,6 +135,7 @@ def desenhando(imagem,contornos):
 	cv.drawContours(imagem,[contornos],0,(0,0,255),3)
 	return imagem
 
+#RESPONSAVEL POR ENCONTRAR OS LIMITES DA SUBIMAGEM
 def limites(height,width,lista):
 	listaX = []
 	listaY = []
@@ -146,53 +147,50 @@ def limites(height,width,lista):
 		listaX.append(x)
 		listaY.append(y)
 
-	limites = sorted(listaX)
-	limites2 = sorted(listaY)
-
-	x1,x2 = limites[0],limites[len(limites)-1]
-	y1,y2 = limites2[0],limites2[len(limites2)-1]
+	x1,x2 = min(listaX),max(listaX)
+	y1,y2 = min(listaY),max(listaY)
 
 	if (x2 > width):
 		x2 = width
+	
+	if(x1 < 0):
+		x1 = 0
+	
 	if (y2 > height):
 		y2 = height
+	
+	if(y1 < 0):
+		y1 = 0 
 	
 	#print ("Limites na função:", x1,x2,y1,y2)
 	return x1,y1,x2,y2
 
-def limites_externos(height,width,x,y,x1,y1):
+#RESPONSAVEL PELA IDENTIFICAÇÃO DASOS VALORES QUE EXCEDEM A 
+# SUB_SUB_IMAGEM  FORMANDO AS 6 REGIÕES AO REDOR DA REGIÃO 
+# #IDENTIFICADA COMO UMA POSSIVEL ANOMALIA NA ESTRADA
+def limites_externos(height,width,height_Regiao,width_Regiao,x,y,x1,y1):
 
-	if ( x > 20 ):
-		x -= 20
+	if(x - int(width_Regiao/2) >= 0):
+		x -= int(width_Regiao/2)
 	else:
-		if (x > 10):
-			x -= 10
-		else:
-			x = 0
+		x = 0
 
-	if (width - x1 > 20):
-		x1 += 19
+	if(x1 + int(width_Regiao/2) < width):
+		x1 += int(width_Regiao/2)
 	else:
-		if( x1 + int((width - x1)/2) < width):
-			x1 += int((width - x1)/2) - 1
-		else:
-			x1 = width-1
+		x1 = width
 
-	if ( y > 20 ):
-		y -= 20
+
+	if(y - int(height_Regiao/2) >= 0):
+		y -= int(height_Regiao/2)
 	else:
-		if (y > 10):
-			y -= 10
-		else:
-			y = 0
-		
-	if (height - y1 > 20 ):
-		y1 += 18
+		y = 0
+
+	if(y1 + int(height_Regiao/2) < height):
+		y1 += int(height_Regiao/2)
 	else:
-		if(y1 + int((height - y1)/2) < height):
-			y1 += int((height - y1)/2) - 1 
-		else:
-			y1 = height-1
+		y1 = height
+
 
 	#print ("|Iniciais: ",x,'|',y,"|Finais:",'|',x1,'|',y1)
 
@@ -431,9 +429,9 @@ if __name__ == "__main__":
 			cor = cv.imread(leitura)
 			#mostrar_imagem(cor)
 
-			width = int(cor.shape[1] *2)
-			height = int(cor.shape[0] * 2)
-			cor = cv.resize(cor, (width,height), interpolation = cv.INTER_LINEAR)
+			#width = int(cor.shape[1] *2)
+			#height = int(cor.shape[0] * 2)
+			#cor = cv.resize(cor, (width,height), interpolation = cv.INTER_LINEAR)
 			
 			imagem = cv.cvtColor(cor,cv.COLOR_RGB2GRAY)
 			#mostrar_imagem(imagem)
@@ -453,7 +451,7 @@ if __name__ == "__main__":
 
 			imagem = erosao(imagem)
 			imagem_cinza = imagem
-			#mostrar_imagem(imagem)
+			#mostrar_imagem(imagem_cinza)
 
 			imagem_thresh = thresholding(imagem)
 			#mostrar_imagem(imagem_thresh)
@@ -462,93 +460,92 @@ if __name__ == "__main__":
 			#mostrar_imagem(imagem)
 
 			imagema,imagem_contorno,imagemc = contornos(imagem)
-			#TUDO OK (NA MEDIDA DO POSSÍVEL) DO INICIO ATÉ ESSA PARTE DO CÓDIGO
-			#VERIFICAÇÃO FINALIZADA EM 03/2019
+			
+			#INICIANDO CORREÇÃO DO CÓDIGO ABAIXO
 			#-----------------------------------------------------------------------------------
 
-			#Definindo os contos e salvando em uma imagem e em uma lista
-			#Verificar de que forma o algoritmo pode "reduzir" o número de imagens "inadequadas" que passam por ele 
-			#for j in range(0,len(imagem_contorno)):
-			#VERIFICAR ESSE imagem_contorno, há muito valores repetidos por algum motivo
+			#RESPONSAVEL POR PERCORRER CADA SubSubImagem que foi encontrada na SubImagem que pode ser um possivel buraco/mancha/rachadura
 			for j in range(0,len(imagem_contorno)-1):
 				subImagem = cor.copy()
-				#print ("LIMITE:", len(imagem_contorno))
 
 				teste = imagem_contorno[j]
-
 				quadrado = cv.minAreaRect(teste)
 				novos_contornos = cv.boxPoints(quadrado)
 				novos_contornos = np.int0(novos_contornos)
+				
+				print ("Definindo regiões e seus valores")
 
-				#Criando um script para tentar identificar buracos,manchas, rachaduras,
-				#---------------------------------------------------------------------------------------------------------------------
-				#print('---------------------------------------------------------------------------------------------------------------------')	
-				#print ("Definindo regiões e seus valores")
+				#RESPONSAVEL POR DEFINIR OS LIMITES EM (x,y) DA SubSubImagem
 				lxi0, lyi0, lxi1, lyi1 = limites(height,width,novos_contornos)
 
-				#Area do contorno da SubImagem       
-				area_SubSubImagem = (lxi1-lxi0) *  (lyi1 - lyi0)    #width   #height
-				
+				#Aqui são definidos alguns parametros da SubSubImagem (area,comprimento,circularidade,lagura,comprimento)       
+				area_SubSubImagem = (lxi1-lxi0) * (lyi1-lyi0)    #width * height
 				comp_SubSubImagem = comprimento(teste)
 				circ_SubSubImagem = circularidade(teste)
-
 				width_SubSubImagem = (lxi1-lxi0)
 				height_SubSubImagem = (lyi1-lyi0)
-				#print(area_SubSubImagem)
 
-				#print ('lxi0:',lxi0,'lyi0:',lyi0,'lxi1:',lxi1,'lyi1:',lyi1)
-
-				lxe0, lye0, lxe1, lye1 = limites_externos(height,width,lxi0,lyi0,lxi1,lyi1)
+				#RESPONSAVEL POR DEFIIR A REGIÃO DE ANALISE AO REDOR DA SubSubImagem, DE ACORDO COM O TAMANHO ORIGINAL DA IMAGEM
+				lxe0, lye0, lxe1, lye1 = limites_externos(height_SubImagem,width_SubImagem,height_SubSubImagem,width_SubSubImagem,lxi0,lyi0,lxi1,lyi1)
 
 				#print (height,width)
 				#print ('lxi0:',lxi0,'lyi0:',lyi0,'lxi1:',lxi1,'lyi1:',lyi1)
 				#print ('lxe0:',lxe0,'lye0:',lye0,'lxe1:',lxe1,'lye1:',lye1)
 
+				#RESPONSAVEL POR PERCORRER AS REGIÕES AO REDOR DA REGIÃO PRINCIPAL PARA FUTURAMENTE TENTAR ESTIMAR
+				#ALGUMAS INFORMAÇÕES A MAIS A PARTIR DA RELAÇÃO ENTRE ELAS E A PARTE PRINCIPAL
+				#AO TOD ESTÃO DEFINIDOS A REGIÃO PRINCIPAL (P), E MAIS 8 REGIÕES (Norte,Sul,Leste,Oeste,Nordeste,Noroeste,Sudeste,Sudoeste)
+				
+				#PAREI DE VERIFICAR EM definindo_regiao
 				listaP = []
 				listaP = definindo_regiao(lxi0,lxi1,lyi0,lyi1,imagem_cinza)
-				#subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 255)
-				#mostrar_imagem(subImagem)
-				#print (listaP)
+				subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 0)
+				mostrar_imagem(subImagem)
 
 				listaN = []
 				listaN = definindo_regiao(lxi0,lxi1,lye0,lyi0,imagem_cinza)
-				#print (listaN)
+				subImagem[lye0:lyi0, lxi0:lxi1] = (255, 0, 0)
+				mostrar_imagem(subImagem)
 
 				listaS = []
 				listaS = definindo_regiao(lxi0,lxi1,lyi1,lye1,imagem_cinza)
-				#subImagem[lyi1:lye1, lxi0:lxi1] = (100, 0, 255)
-				#mostrar_imagem(subImagem)
-				#print (listaS)
+				subImagem[lyi1:lye1, lxi0:lxi1] = (0, 255, 0)
+				mostrar_imagem(subImagem)
 
-				
 				listaL = []
 				listaL = definindo_regiao(lxi1,lxe1,lyi0,lyi1,imagem_cinza)
+				subImagem[lyi0:lyi1, lxi1:lxe1] = (0, 0, 255)
+				mostrar_imagem(subImagem)
 
 				listaO = []
 				listaO = definindo_regiao(lxe0,lxi0,lyi0,lyi1,imagem_cinza)
-				#subImagem[lyi0:lyi1, lxe0:lxi0] = (0, 100, 255)
-				#mostrar_imagem(subImagem)
+				subImagem[lyi0:lyi1, lxe0:lxi0] = (255, 255, 0)
+				mostrar_imagem(subImagem)
 
 				listaNO = []
 				listaNO = definindo_regiao(lxe0,lxi0,lye0,lyi0,imagem_cinza)
+				subImagem[lye0:lyi0, lxe0:lxi0] = (255, 0, 255)
+				mostrar_imagem(subImagem)
 
 				listaNL = []
 				listaNL = definindo_regiao(lxi1,lxe1,lye0,lyi0,imagem_cinza)
+				subImagem[lye0:lyi0, lxi1:lxe1] = (0, 255, 255)
+				mostrar_imagem(subImagem)
 
 				listaSL = []
 				listaSL = definindo_regiao(lxi1,lxe1,lyi1,lye1,imagem_cinza)
+				subImagem[lyi1:lye1, lxi1:lxe1] = (255, 255, 255)
+				mostrar_imagem(subImagem)
 
 				listaSO = []
 				listaSO = definindo_regiao(lxe0,lxi0,lyi1,lye1,imagem_cinza)
-				#subImagem[lyi1:lye1, lxe0:lxi0] = (100, 100, 255)
-				#mostrar_imagem(subImagem)
+				subImagem[lyi1:lye1, lxe0:lxi0] = (200, 200, 200)
+				mostrar_imagem(subImagem)
+
 				#listaTotal = [listaP,listaNO,listaN,listaNL,listaL,listaSL,listaS,listaSO,listaO]
 				#print (listaTotal)
 				
-				#print('----------------------------------------------------------------------------------------------------------------------')
-				
-				
-				#print ('Definindo media das regiões')
+				print ('Definindo media das regiões')
 				listaRegiao = []
 				media = []
 

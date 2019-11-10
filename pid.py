@@ -93,7 +93,7 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 
 	return 0
 
-#MELHOR ESSE TRECHO DE CÓDIGO .. . . . . . . . . .... . .  ..  . . .
+#MELHORAR ESSE TRECHO DE CÓDIGO .. . . . . . . . . .... . .  ..  . . .
 def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	num = 1
 	
