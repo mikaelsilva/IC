@@ -5,12 +5,6 @@ import cv2 as cv
 import math
 import os
 
-'''
-#TAREFAS:
-	Verificar como integrar o Github com o Visual Studio Code
-	Corrigir função DEFINIR_REGIÃO(), ESTIMANDO_REGIÃO(), RELACIONANDO_REGIÃO()
-	
-'''
 
 def area(contornos):
     a = cv.contourArea(contornos)
@@ -196,9 +190,11 @@ def limites_externos(height,width,height_Regiao,width_Regiao,x,y,x1,y1):
 
 	return x,y,x1,y1
 
+#FUNÇÃO RESPONSAVEL POR PERCORRER OS LIMITES INTERNOS -> EXTERNOS da SubSubImagem
+#PARA TENTAR TIRAR UMA GAUSSIANA DE SEUS VALORES
 def definindo_regiao(x,x1,y,y1,imagem):
 	lista = []
-	#mostrar_imagem(imagem)
+	
 	height,width = imagem.shape[:2]
 	for i in range(0,255):
 		lista.append(-1)
@@ -210,16 +206,20 @@ def definindo_regiao(x,x1,y,y1,imagem):
 	if(x == x1 or y == y1):
 		return (lista)
 	else:
-		for i in range(y,y1-1): #height
-			for j in range(x,x1-1): #width
+		for i in range(y,y1): #height
+			for j in range(x,x1): #width
 				if (imagem[i][j] == -1):
 					indice = imagem[i][j]
 					lista[indice] += 2
 				else:
 					indice = imagem[i][j]
 					lista[indice] += 1
+		#plt.plot(lista)
+		#plt.ylabel('Gauss')
+		#plt.show()
 
 		return (lista)
+
 
 def take(elem):
 	return elem[1]
@@ -281,9 +281,9 @@ def estimando_regiao(lista,flag):
 	r2 = (r2/m2)
 	r3 = (r3/m3)
 		
-	#print ("R1: ",r1, "and","M1: ",m1)
-	#print ("R2: ",r2, "and","M2: ",m2)
-	#print ("R3: ",r3, "and","M3: ",m3)
+	print ("R1: ",r1, "and","M1: ",m1)
+	print ("R2: ",r2, "and","M2: ",m2)
+	print ("R3: ",r3, "and","M3: ",m3)
 
 	#print ("-------------------------------------------------------------------------------")
 
@@ -292,11 +292,12 @@ def estimando_regiao(lista,flag):
 	listando.append(("Cinza",r2))
 	listando.append(("Claro",r3))
 	listando = sorted(listando,reverse=True,key=take)
-	#print (":: ",listando)
+	print (":: ",listando)
 
 	if (r1 == r2 == r3 == -1):
 		return ("Indefinido",-1)
 	else:
+		print('A',listando[0])
 		return listando[0]
 	
 def porcentagem(lista,indice):
@@ -469,15 +470,19 @@ if __name__ == "__main__":
 				subImagem = cor.copy()
 
 				teste = imagem_contorno[j]
+				
 				quadrado = cv.minAreaRect(teste)
 				novos_contornos = cv.boxPoints(quadrado)
 				novos_contornos = np.int0(novos_contornos)
+
+				a = area(novos_contornos)
+				#print(a)
 				
 				print ("Definindo regiões e seus valores")
 
 				#RESPONSAVEL POR DEFINIR OS LIMITES EM (x,y) DA SubSubImagem
 				lxi0, lyi0, lxi1, lyi1 = limites(height,width,novos_contornos)
-
+				print(lxi0, lyi0, lxi1, lyi1)
 				#Aqui são definidos alguns parametros da SubSubImagem (area,comprimento,circularidade,lagura,comprimento)       
 				area_SubSubImagem = (lxi1-lxi0) * (lyi1-lyi0)    #width * height
 				comp_SubSubImagem = comprimento(teste)
@@ -496,55 +501,56 @@ if __name__ == "__main__":
 				#ALGUMAS INFORMAÇÕES A MAIS A PARTIR DA RELAÇÃO ENTRE ELAS E A PARTE PRINCIPAL
 				#AO TOD ESTÃO DEFINIDOS A REGIÃO PRINCIPAL (P), E MAIS 8 REGIÕES (Norte,Sul,Leste,Oeste,Nordeste,Noroeste,Sudeste,Sudoeste)
 				
-				#PAREI DE VERIFICAR EM definindo_regiao
 				listaP = []
 				listaP = definindo_regiao(lxi0,lxi1,lyi0,lyi1,imagem_cinza)
 				subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 0)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
+			
 
 				listaN = []
 				listaN = definindo_regiao(lxi0,lxi1,lye0,lyi0,imagem_cinza)
 				subImagem[lye0:lyi0, lxi0:lxi1] = (255, 0, 0)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
 
 				listaS = []
 				listaS = definindo_regiao(lxi0,lxi1,lyi1,lye1,imagem_cinza)
 				subImagem[lyi1:lye1, lxi0:lxi1] = (0, 255, 0)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
 
 				listaL = []
 				listaL = definindo_regiao(lxi1,lxe1,lyi0,lyi1,imagem_cinza)
 				subImagem[lyi0:lyi1, lxi1:lxe1] = (0, 0, 255)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
 
 				listaO = []
 				listaO = definindo_regiao(lxe0,lxi0,lyi0,lyi1,imagem_cinza)
 				subImagem[lyi0:lyi1, lxe0:lxi0] = (255, 255, 0)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
 
 				listaNO = []
 				listaNO = definindo_regiao(lxe0,lxi0,lye0,lyi0,imagem_cinza)
 				subImagem[lye0:lyi0, lxe0:lxi0] = (255, 0, 255)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
 
 				listaNL = []
 				listaNL = definindo_regiao(lxi1,lxe1,lye0,lyi0,imagem_cinza)
 				subImagem[lye0:lyi0, lxi1:lxe1] = (0, 255, 255)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
 
 				listaSL = []
 				listaSL = definindo_regiao(lxi1,lxe1,lyi1,lye1,imagem_cinza)
 				subImagem[lyi1:lye1, lxi1:lxe1] = (255, 255, 255)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
 
 				listaSO = []
 				listaSO = definindo_regiao(lxe0,lxi0,lyi1,lye1,imagem_cinza)
 				subImagem[lyi1:lye1, lxe0:lxi0] = (200, 200, 200)
-				mostrar_imagem(subImagem)
+				#mostrar_imagem(subImagem)
 
 				#listaTotal = [listaP,listaNO,listaN,listaNL,listaL,listaSL,listaS,listaSO,listaO]
 				#print (listaTotal)
 				
+				#PAREI DE VERIFICAR AQUI 19/11/2019
 				print ('Definindo media das regiões')
 				listaRegiao = []
 				media = []
