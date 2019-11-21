@@ -225,13 +225,9 @@ def take(elem):
 	return elem[1]
 
 def estimando_regiao(lista,flag):
-	r1 = -1
-	m1 = 0
-	r2 = -1
-	m2 = 0
-	r3 = -1
-	m3 = 0
-
+	r1,r2,r3 = -1,-1,-1
+	m1,m2,m3 = 1,1,1
+	 
 	#print ("-------------------------------------------------------------------------------------------")
 	#print ("Flag ", flag)
 
@@ -254,7 +250,12 @@ def estimando_regiao(lista,flag):
 			if(lista[i] != -1):
 				r3 += i*lista[i]
 				m3 += i
-	'''
+	'''		
+
+	#AQUI É REALIZADO UMA MÉDIA SIMPLES, COMO UMA MEDIDA DE UMA TENDENDCIA CENTRAL DE SEUS VALORES
+	#TALVEZ SEJA A MELHOR ABORDAGEM, JÁ QUE É DIFICIL ESTIMAR QUAL INTERVALO (0-255)  SERIA ESTIMADO COM UM DETERMINADO
+	#VALOR PARA PESOS DIFERENTES
+
 	for i in range(0,len(lista)-1):
 		if (i <= 85):
 			if(lista[i] != -1):
@@ -270,34 +271,25 @@ def estimando_regiao(lista,flag):
 				r3 += lista[i]
 				m3 += 1
 
-	if (m1 == 0):
-		m1 = 1
-	if (m2 == 0):
-		m2 = 1
-	if (m3 == 0):
-		m3 = 1
-	
 	r1 = (r1/m1)
 	r2 = (r2/m2)
 	r3 = (r3/m3)
 		
-	print ("R1: ",r1, "and","M1: ",m1)
-	print ("R2: ",r2, "and","M2: ",m2)
-	print ("R3: ",r3, "and","M3: ",m3)
-
-	#print ("-------------------------------------------------------------------------------")
+	#print ("R1: ",r1, "and","M1: ",m1)
+	#print ("R2: ",r2, "and","M2: ",m2)
+	#print ("R3: ",r3, "and","M3: ",m3)
 
 	listando = []
 	listando.append(("Escuro",r1))
 	listando.append(("Cinza",r2))
 	listando.append(("Claro",r3))
 	listando = sorted(listando,reverse=True,key=take)
-	print (":: ",listando)
+	#print (":: ",listando)
 
 	if (r1 == r2 == r3 == -1):
 		return ("Indefinido",-1)
 	else:
-		print('A',listando[0])
+		#print('A',listando[0])
 		return listando[0]
 	
 def porcentagem(lista,indice):
@@ -550,7 +542,6 @@ if __name__ == "__main__":
 				#listaTotal = [listaP,listaNO,listaN,listaNL,listaL,listaSL,listaS,listaSO,listaO]
 				#print (listaTotal)
 				
-				#PAREI DE VERIFICAR AQUI 19/11/2019
 				print ('Definindo media das regiões')
 				listaRegiao = []
 				media = []
@@ -587,12 +578,13 @@ if __name__ == "__main__":
 				regiao, media = estimando_regiao(listaSO,"SO")
 				listaRegiao.append(('SO',regiao,media))
 
-				#print ('Listando:' , listaRegiao)
+				print (media,regiao)
+
+
+				print('PAREI DE VERIFICAR AQUI 21/11/2019')
 
 				
-				#print('-----------------------------------------------------------------------------------------------------------------------')
-				#print ('Relacionando valores de regiões')
-
+				print ('Relacionando valores de regiões')
 				valor = relacionando_regiao(listaRegiao)
 				#print ("Valor: ",valor)
 				#if (valor > 1):
