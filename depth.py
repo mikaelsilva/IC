@@ -224,33 +224,9 @@ def definindo_regiao(x,x1,y,y1,imagem):
 def take(elem):
 	return elem[1]
 
-def estimando_regiao(lista,flag):
+def estimando_regiao(lista):
 	r1,r2,r3 = -1,-1,-1
 	m1,m2,m3 = 1,1,1
-	 
-	#print ("-------------------------------------------------------------------------------------------")
-	#print ("Flag ", flag)
-
-	'''OBS: Aqui é realizado uma média ponderada, talvez ela não seja interessante para utilização porque fica mais dificil fazer
-		a comparação entre as regiões, enquanto que para uma media normal, apenas pela quantidade daquele intervalo divido pela 
-		quantidade analisada fique melhor de identificar qual região obteve um maior numero de elementos
-		print ("Listando: ",lista)
-
-		for i in range(0,len(lista)-1):
-			if (i <= 85):
-				if(lista[i] != -1):
-				r1 += i*lista[i]
-					m1 += i
-			
-			elif (i > 85 and i <= 170):
-			if(lista[i] != -1):
-				r2 += i*lista[i]
-				m2 += i
-		else:
-			if(lista[i] != -1):
-				r3 += i*lista[i]
-				m3 += i
-	'''		
 
 	#AQUI É REALIZADO UMA MÉDIA SIMPLES, COMO UMA MEDIDA DE UMA TENDENDCIA CENTRAL DE SEUS VALORES
 	#TALVEZ SEJA A MELHOR ABORDAGEM, JÁ QUE É DIFICIL ESTIMAR QUAL INTERVALO (0-255)  SERIA ESTIMADO COM UM DETERMINADO
@@ -291,7 +267,8 @@ def estimando_regiao(lista,flag):
 	else:
 		#print('A',listando[0])
 		return listando[0]
-	
+
+#ESTA FUNÇÃO ESTA TEMPORIAMENTNTE FECHADA,	
 def porcentagem(lista,indice):
 	valor = 1
 
@@ -317,10 +294,11 @@ def relacionando_regiao(lista):
 	listaEs = []
 	listaCi = []
 	listaCl = []
-	valor = 0
+	valor ,indice = 0,0
 	flag = ""
-	indice = 0
 	
+	print("OLHE PARA ESTE VALOR ",lista[0])
+
 	for i in range(0,len(lista)-1):
 		if (lista[i][1] == 'Escuro'):
 			listaEs.append(lista[i])
@@ -333,12 +311,17 @@ def relacionando_regiao(lista):
 		if(lista[i][1] == 'Claro'):
 			listaCl.append(lista[i])
 			flag = "Cl"
+	
+	print("OLHE PARA ESTES OUTROS VALORES ---+-SA-SDA-D=A1=-23-213=-12=-31=-3=2-3")
+	print("Es",listaEs)
+	print("Ci",listaCi)
+	print("Cl",listaCl)
+	
 
 	if(flag == "Es"):
-		for i in range(0,len(listaEs)-1):
-			if(listaEs[i][0] == 'P'):
-				indice = i
-		valor = porcentagem(listaEs,indice)
+		if(listaEs[0][0] == 'P'):
+			indice = i
+			valor = porcentagem(listaEs,indice)
 		
 			
 	if(flag == "Ci"):
@@ -546,43 +529,39 @@ if __name__ == "__main__":
 				listaRegiao = []
 				media = []
 
-				regiao_P, media_P = estimando_regiao(listaP,"P")
+				regiao_P, media_P = estimando_regiao(listaP)
 				listaRegiao.append(('P',regiao_P,media_P))
 				#print ('Principal:',regiao,'\n','Media de:',media)
 
-				regiao, media = estimando_regiao(listaN,"N")
+				regiao, media = estimando_regiao(listaN)
 				listaRegiao.append(('N',regiao,media))
 				#print ('Norte:',regiao,'\n','Media de:',media)
 
-				regiao, media = estimando_regiao(listaS,"S")
+				regiao, media = estimando_regiao(listaS)
 				listaRegiao.append(('S',regiao,media))
 				#print ('Sul:',regiao,'\n','Media de:',media)
 
-				regiao, media = estimando_regiao(listaL,"L")
+				regiao, media = estimando_regiao(listaL)
 				listaRegiao.append(('L',regiao,media))
 				#print ('Leste:',regiao,'\n','Media de:',media)
 
-				regiao, media = estimando_regiao(listaO,"O")
+				regiao, media = estimando_regiao(listaO)
 				listaRegiao.append(('O',regiao,media))
 				#print ('Oeste:',regiao,'\n','Media de:',media)
 
-				regiao, media = estimando_regiao(listaNO,"NO")
+				regiao, media = estimando_regiao(listaNO)
 				listaRegiao.append(('NO',regiao,media))
 
-				regiao, media = estimando_regiao(listaNL,"NL")
+				regiao, media = estimando_regiao(listaNL)
 				listaRegiao.append(('NL',regiao,media))
 
-				regiao, media = estimando_regiao(listaSL,"SL")
+				regiao, media = estimando_regiao(listaSL)
 				listaRegiao.append(('SL',regiao,media))
 
-				regiao, media = estimando_regiao(listaSO,"SO")
+				regiao, media = estimando_regiao(listaSO)
 				listaRegiao.append(('SO',regiao,media))
 
-				print (media,regiao)
-
-
-				print('PAREI DE VERIFICAR AQUI 21/11/2019')
-
+				print (listaRegiao)
 				
 				print ('Relacionando valores de regiões')
 				valor = relacionando_regiao(listaRegiao)
