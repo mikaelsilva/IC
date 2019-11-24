@@ -268,33 +268,28 @@ def estimando_regiao(lista):
 		#print('A',listando[0])
 		return listando[0]
 
-#ESTA FUNÇÃO ESTA TEMPORIAMENTNTE FECHADA,	
+#COMENTAR SABADO 23	
 def porcentagem(lista,indice):
-	valor = 1
+	valor = 0
 
-	for i in range(0,len(lista)-1):
+	for i in range(0,len(lista)):
 		if (i != indice):
-			try:
-				porcent = lista[i][2] / lista[indice][2] #(Valor_menor / Valor_maior)
-			except Exception as e:
-				porcent = lista[i][2] / (-1)
-				
-				'''if(int(lista[i][2]) != 0):
-					porcent = (lista[i][2]/(lista[i][2])*3)
-				else:
-					porcent = lista[i][2]/3
-				pass'''
+			#(Valor_de_outra_regiao / Valor_Principal)
+			porcent = lista[i][2] / lista[indice][2] 
+			
+			#print("Para [%s][%s][%f]" % (lista[i][0],lista[i][1],lista[i][2]))
 
-			if (porcent*100 >= 60):
+			if (porcent*100 >= 60 and porcent*100 < 100):
 				valor += 1
 	return valor
 
 #VERIFICAR PARA PASSAR A LISTA QUE ESTÁ O ELEMENTO PRINCIPAL, PARA QUE OUTRAS ANALISES POSSAM ACONTECER
+#COMENTAR SABADO 23	
 def relacionando_regiao(lista):
 	listaEs = []
 	listaCi = []
 	listaCl = []
-	valor ,indice = 0,0
+	valor = 0
 	flag = ""
 	
 	print("OLHE PARA ESTE VALOR ",lista[0])
@@ -319,38 +314,18 @@ def relacionando_regiao(lista):
 	
 
 	if(flag == "Es"):
-		if(listaEs[0][0] == 'P'):
-			indice = i
-			valor = porcentagem(listaEs,indice)
-		
+		if(listaEs[0][0] == 'P' and listaEs[0][2] > 0):			
+			valor = porcentagem(listaEs,0)
 			
 	if(flag == "Ci"):
-		for i in range(0,len(listaCi)-1):
-			if(listaCi[i][0] == 'P'):
-				indice = i
-		valor = porcentagem(listaCi,indice)
+		if(listaCi[0][0] == 'P' and listaCi[0][2] > 0 ):
+			valor = porcentagem(listaCi,0)
 
 	if(flag == "Cl"):
-		for i in range(0,len(listaCl)-1):
-			if(listaCl[i][0] == 'P'):
-				indice = i
-		valor = porcentagem(listaCl,indice)
+		if(listaCl[0][0] == 'P' and listaCl[0][2] > 0):
+			valor = porcentagem(listaCl,0)
 		
-	'''
-	for i in range(0,len(listaCl)-1):
-		if(listaCl[i][0] == 'P'):
-			valor = porcentagem(listaCl,i)
-			if(valor > 1):
-				return valor
-			else:
-				return 0
-
-
-			if(valor > 1):	
-				return valor
-			else:
-				return 0
-	'''
+	print("VALOR: ",valor)
 	return valor
 
 #Função atualizada, verificar apenas a possibilidade de retornar uma lista ao inves da quantidade
@@ -484,42 +459,42 @@ if __name__ == "__main__":
 
 				listaN = []
 				listaN = definindo_regiao(lxi0,lxi1,lye0,lyi0,imagem_cinza)
-				subImagem[lye0:lyi0, lxi0:lxi1] = (255, 0, 0)
+				#subImagem[lye0:lyi0, lxi0:lxi1] = (255, 0, 0)
 				#mostrar_imagem(subImagem)
 
 				listaS = []
 				listaS = definindo_regiao(lxi0,lxi1,lyi1,lye1,imagem_cinza)
-				subImagem[lyi1:lye1, lxi0:lxi1] = (0, 255, 0)
+				#subImagem[lyi1:lye1, lxi0:lxi1] = (0, 255, 0)
 				#mostrar_imagem(subImagem)
 
 				listaL = []
 				listaL = definindo_regiao(lxi1,lxe1,lyi0,lyi1,imagem_cinza)
-				subImagem[lyi0:lyi1, lxi1:lxe1] = (0, 0, 255)
+				#subImagem[lyi0:lyi1, lxi1:lxe1] = (0, 0, 255)
 				#mostrar_imagem(subImagem)
 
 				listaO = []
 				listaO = definindo_regiao(lxe0,lxi0,lyi0,lyi1,imagem_cinza)
-				subImagem[lyi0:lyi1, lxe0:lxi0] = (255, 255, 0)
+				#subImagem[lyi0:lyi1, lxe0:lxi0] = (255, 255, 0)
 				#mostrar_imagem(subImagem)
 
 				listaNO = []
 				listaNO = definindo_regiao(lxe0,lxi0,lye0,lyi0,imagem_cinza)
-				subImagem[lye0:lyi0, lxe0:lxi0] = (255, 0, 255)
+				#subImagem[lye0:lyi0, lxe0:lxi0] = (255, 0, 255)
 				#mostrar_imagem(subImagem)
 
 				listaNL = []
 				listaNL = definindo_regiao(lxi1,lxe1,lye0,lyi0,imagem_cinza)
-				subImagem[lye0:lyi0, lxi1:lxe1] = (0, 255, 255)
+				#subImagem[lye0:lyi0, lxi1:lxe1] = (0, 255, 255)
 				#mostrar_imagem(subImagem)
 
 				listaSL = []
 				listaSL = definindo_regiao(lxi1,lxe1,lyi1,lye1,imagem_cinza)
-				subImagem[lyi1:lye1, lxi1:lxe1] = (255, 255, 255)
+				#subImagem[lyi1:lye1, lxi1:lxe1] = (255, 255, 255)
 				#mostrar_imagem(subImagem)
 
 				listaSO = []
 				listaSO = definindo_regiao(lxe0,lxi0,lyi1,lye1,imagem_cinza)
-				subImagem[lyi1:lye1, lxe0:lxi0] = (200, 200, 200)
+				#subImagem[lyi1:lye1, lxe0:lxi0] = (200, 200, 200)
 				#mostrar_imagem(subImagem)
 
 				#listaTotal = [listaP,listaNO,listaN,listaNL,listaL,listaSL,listaS,listaSO,listaO]
@@ -565,6 +540,9 @@ if __name__ == "__main__":
 				
 				print ('Relacionando valores de regiões')
 				valor = relacionando_regiao(listaRegiao)
+				subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 0)
+				mostrar_imagem(subImagem)
+			
 				#print ("Valor: ",valor)
 				#if (valor > 1):
 				#	print ('Existem regiões com valores aproximados')
