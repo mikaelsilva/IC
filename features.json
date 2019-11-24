@@ -1,0 +1,49 @@
+friends = [{"NUM_ORIGIN":,
+            "NUM_SUB":i,
+            "NUM_SUB_SUB":j,
+
+            "AREA_ORIGIN":area_Imagem,
+            "AREA_SUB":area_SubImagem,
+            "AREA_SUB_SUB":i,
+
+            "COMPRIMENTO_ORIGIN":i,
+            "COMPRIMENTO_SUB":i,
+            "COMPRIMENTO_SUB_SUB":i,
+
+            "LARGURA_ORIGIN":i+0.0,
+            "LARGURA_SUB":i+0.0,
+            "LARGURA_SUB_SUB":i+0.0,
+
+            "ALTURA_ORIGIN":i+0.0,
+            "ALTURA_SUB":i+0.0,
+            "ALTURA_SUB_SUB":i+0.0,
+
+            "CIRCULARIDADE_SUB":i+0.0,
+            "CIRCULARIDADE_SUB_SUB":i+0.0,
+
+            "REGIAO_P":"R",
+            "REGIAO_N":"R",
+            "REGIAO_S":"R",
+            "REGIAO_L":"R",
+            "REGIAO_O":"R",
+            "REGIAO_NO":"R",
+            "REGIAO_NL":"R",
+            "REGIAO_SO":"R",
+            "REGIAO_SL":"R",
+
+            "MEDIA_REGIOES_P":valor_estimado,
+            "MEDIA_REGIOES_N":valor_estimado,
+            "MEDIA_REGIOES_S":valor_estimado,
+            "MEDIA_REGIOES_L":valor_estimado,
+            "MEDIA_REGIOES_O":valor_estimado,
+            "MEDIA_REGIOES_NO":valor_estimado,
+            "MEDIA_REGIOES_NL":valor_estimado,
+            "MEDIA_REGIOES_SO":valor_estimado,
+            "MEDIA_REGIOES_SL":valor_estimado,
+            }]
+
+            
+["P","N","S","L","O","NL","NO","SL","SO",]
+
+
+
