@@ -268,7 +268,10 @@ def estimando_regiao(lista):
 		#print('A',listando[0])
 		return listando[0]
 
-#COMENTAR SABADO 23	
+#Função responsavel por receber a Sub_Lista onde a região principal se encontra
+#Ela verifica se os outros valores que existem na mesma lista possuem uma porcentagem 
+#significativa em relação a região principal, caso exista, e seja maior que 60%
+#o retorno é a quantidade de vezes que a região principal possui regiões ao seu redor
 def porcentagem(lista,indice):
 	valor = 0
 
@@ -283,8 +286,14 @@ def porcentagem(lista,indice):
 				valor += 1
 	return valor
 
-#VERIFICAR PARA PASSAR A LISTA QUE ESTÁ O ELEMENTO PRINCIPAL, PARA QUE OUTRAS ANALISES POSSAM ACONTECER
-#COMENTAR SABADO 23	
+#Esta funcao recebe como parametro a lista contendo as tuplas de três elementos das caracteristicas de cada região principal e 
+#seus arredores
+#Essa tupla é compostas por ('SIGLA_REGIAO','TIPO_DE_COR_REGIAO','VALOR_MEDIA_DA_COR_DA_REGIAO')
+#Percorrendo essa lista, é separado então de acordo com os 'TIPOS_DE_COR_REGIAO' todas as tuplas
+#Depois verifica se em qual das listas está o elemento principal 'lista[0]' e se o seu valor de MÉDIA é maior que zero
+#Caso a condição seja verdadeira, a função 'PORCENTAGEM' é chamada e o seu valor de retorno é um valor indicando se 
+#a lista que contém a região principal, possui regiões ao seu redor que estão proximas se deu valor, isso pode indicar
+#que aquela região não necessariamente é um buraco, pode ser apenas uma mancha, ou alguma outra coisa qualquer que 
 def relacionando_regiao(lista):
 	listaEs = []
 	listaCi = []
