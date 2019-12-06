@@ -10,16 +10,16 @@ friends = [{"NUM_ORIGIN":,
             "COMPRIMENTO_SUB":i,
             "COMPRIMENTO_SUB_SUB":i,
 
-            "LARGURA_ORIGIN":i+0.0,
-            "LARGURA_SUB":i+0.0,
-            "LARGURA_SUB_SUB":i+0.0,
+            "LARGURA_ORIGIN":i+0.
+            "LARGURA_SUB":i+0.
+            "LARGURA_SUB_SUB":i+0.
 
-            "ALTURA_ORIGIN":i+0.0,
-            "ALTURA_SUB":i+0.0,
-            "ALTURA_SUB_SUB":i+0.0,
+            "ALTURA_ORIGIN":i+0.
+            "ALTURA_SUB":i+0.
+            "ALTURA_SUB_SUB":i+0.
 
-            "CIRCULARIDADE_SUB":i+0.0,
-            "CIRCULARIDADE_SUB_SUB":i+0.0,
+            "CIRCULARIDADE_SUB":i+0.
+            "CIRCULARIDADE_SUB_SUB":i+0.
 
             "REGIAO_P":"R",
             "REGIAO_N":"R",
@@ -47,3 +47,22 @@ friends = [{"NUM_ORIGIN":,
 
 
 
+[[
+    P
+ 
+    N
+ 
+    S
+ 
+    L
+ 
+    O
+ 
+    NO
+ 
+    NL
+ 
+    SL
+ 
+    SO
+ 

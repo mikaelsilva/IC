@@ -193,7 +193,7 @@ if __name__ == "__main__":
 		lista = [[]]
 
 		i = int(img[0:-5])
-		imagem = cv.imread(origem+img)
+		imagem = cv.imread(origem2+img)
 
 		#Recortando imagem
 		imagem = imagem[256:512,0:512]

@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+from random import randint
 import pandas as pd
 import numpy as np
 import cv2 as cv
@@ -287,8 +288,6 @@ def relacionando_regiao(lista):
 	listaCl = []
 	valor = 0
 	flag = ""
-	
-	print("OLHE PARA ESTE VALOR ",lista[0])
 
 	for i in range(0,len(lista)-1):
 		if (lista[i][1] == 'Escuro'):
@@ -303,15 +302,14 @@ def relacionando_regiao(lista):
 			listaCl.append(lista[i])
 			flag = "Cl"
 	
-	print("OLHE PARA ESTES OUTROS VALORES ---+-SA-SDA-D=A1=-23-213=-12=-31=-3=2-3")
-	print("Es",listaEs)
-	print("Ci",listaCi)
-	print("Cl",listaCl)
+	#print("Es",listaEs)
+	#print("Ci",listaCi)
+	#print("Cl",listaCl)
 	
-
 	if(flag == "Es"):
 		if(listaEs[0][0] == 'P' and listaEs[0][2] > 0):			
 			valor = porcentagem(listaEs,0)
+		
 			
 	if(flag == "Ci"):
 		if(listaCi[0][0] == 'P' and listaCi[0][2] > 0 ):
@@ -320,7 +318,9 @@ def relacionando_regiao(lista):
 	if(flag == "Cl"):
 		if(listaCl[0][0] == 'P' and listaCl[0][2] > 0):
 			valor = porcentagem(listaCl,0)
-		
+			
+
+			
 	print("VALOR: ",valor)
 	return valor
 
@@ -408,7 +408,7 @@ if __name__ == "__main__":
 		listandoContornos = []
 		
 		count = contando_subimagens(cast[0],arquivo)
-		print ("AQUI [%d] ate [%d]" %(1,count))
+		print ("Imagem [%d] possui [%d] subImagens" %(num,count))
 
 		#REDEFINIR O FOR PARA A ENTRADA DOS VALORES
 		for i in range(1,count+1):
@@ -449,11 +449,12 @@ if __name__ == "__main__":
 
 			imagema,imagem_contorno,imagemc = contornos(imagem)
 			
-			#INICIANDO CORREÇÃO DO CÓDIGO ABAIXO
 			#-----------------------------------------------------------------------------------
 
 			#RESPONSAVEL POR PERCORRER CADA SubSubImagem que foi encontrada na SubImagem que pode ser um possivel buraco/mancha/rachadura
 			for j in range(0,len(imagem_contorno)-1):
+
+				#-------------------------------------------------------
 				subImagem = cor.copy()
 
 				teste = imagem_contorno[j]
@@ -463,13 +464,14 @@ if __name__ == "__main__":
 				novos_contornos = np.int0(novos_contornos)
 
 				a = area(novos_contornos)
-				#print(a)
+				#--------------------------------------------------------
 				
-				print ("Definindo regiões e seus valores")
 
+				print ("\nDefinindo regiões e seus valores\n")
+				#--------------------------------------------------------------------------------------------------------------#
 				#RESPONSAVEL POR DEFINIR OS LIMITES EM (x,y) DA SubSubImagem
 				lxi0, lyi0, lxi1, lyi1 = limites(height,width,novos_contornos)
-				print(lxi0, lyi0, lxi1, lyi1)
+
 				#Aqui são definidos alguns parametros da SubSubImagem (area,comprimento,circularidade,lagura,comprimento)       
 				area_SubSubImagem = (lxi1-lxi0) * (lyi1-lyi0)    #width * height
 				comp_SubSubImagem = comprimento(teste)
@@ -477,118 +479,47 @@ if __name__ == "__main__":
 				width_SubSubImagem = (lxi1-lxi0)
 				height_SubSubImagem = (lyi1-lyi0)
 
-				#RESPONSAVEL POR DEFIIR A REGIÃO DE ANALISE AO REDOR DA SubSubImagem, DE ACORDO COM O TAMANHO ORIGINAL DA IMAGEM
+				#RESPONSAVEL POR DEFINIR A REGIÃO DE ANALISE AO REDOR DA SubSubImagem, DE ACORDO COM O TAMANHO ORIGINAL DA IMAGEM
 				lxe0, lye0, lxe1, lye1 = limites_externos(height_SubImagem,width_SubImagem,height_SubSubImagem,width_SubSubImagem,lxi0,lyi0,lxi1,lyi1)
-
-				#print (height,width)
-				#print ('lxi0:',lxi0,'lyi0:',lyi0,'lxi1:',lxi1,'lyi1:',lyi1)
-				#print ('lxe0:',lxe0,'lye0:',lye0,'lxe1:',lxe1,'lye1:',lye1)
 
 				#RESPONSAVEL POR PERCORRER AS REGIÕES AO REDOR DA REGIÃO PRINCIPAL PARA FUTURAMENTE TENTAR ESTIMAR
 				#ALGUMAS INFORMAÇÕES A MAIS A PARTIR DA RELAÇÃO ENTRE ELAS E A PARTE PRINCIPAL
 				#AO TOD ESTÃO DEFINIDOS A REGIÃO PRINCIPAL (P), E MAIS 8 REGIÕES (Norte,Sul,Leste,Oeste,Nordeste,Noroeste,Sudeste,Sudoeste)
 				
-				listaP = []
-				listaP = definindo_regiao(lxi0,lxi1,lyi0,lyi1,imagem_cinza)
-				subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 0)
-				#mostrar_imagem(subImagem)
-			
+				listaPosicoes = [['P',[lxi0,lxi1,lyi0,lyi1]],['N',[lxi0,lxi1,lye0,lyi0]],['S',[lxi0,lxi1,lyi1,lye1]],
+								['L',[lxi1,lxe1,lyi0,lyi1]],['O',[lxe0,lxi0,lyi0,lyi1]],['NO',[lxe0,lxi0,lye0,lyi0]],
+								['NL',[lxi1,lxe1,lye0,lyi0]],['SL',[lxi1,lxe1,lyi1,lye1]],['SO',[lxe0,lxi0,lyi1,lye1]]]
 
-				listaN = []
-				listaN = definindo_regiao(lxi0,lxi1,lye0,lyi0,imagem_cinza)
-				#subImagem[lye0:lyi0, lxi0:lxi1] = (255, 0, 0)
-				#mostrar_imagem(subImagem)
+				listaTotal = []
+				for d_r in listaPosicoes:
+					a = d_r[1]
+					aux = definindo_regiao(a[0],a[1],a[2],a[3],imagem_cinza)
+					#subImagem[a[2]:a[3],a[0]:a[1]] = (randint(0,254),randint(0,254),randint(0,254))
+					#mostrar_imagem(subImagem)
+					listaTotal.append([d_r[0],aux])
 
-				listaS = []
-				listaS = definindo_regiao(lxi0,lxi1,lyi1,lye1,imagem_cinza)
-				#subImagem[lyi1:lye1, lxi0:lxi1] = (0, 255, 0)
-				#mostrar_imagem(subImagem)
-
-				listaL = []
-				listaL = definindo_regiao(lxi1,lxe1,lyi0,lyi1,imagem_cinza)
-				#subImagem[lyi0:lyi1, lxi1:lxe1] = (0, 0, 255)
-				#mostrar_imagem(subImagem)
-
-				listaO = []
-				listaO = definindo_regiao(lxe0,lxi0,lyi0,lyi1,imagem_cinza)
-				#subImagem[lyi0:lyi1, lxe0:lxi0] = (255, 255, 0)
-				#mostrar_imagem(subImagem)
-
-				listaNO = []
-				listaNO = definindo_regiao(lxe0,lxi0,lye0,lyi0,imagem_cinza)
-				#subImagem[lye0:lyi0, lxe0:lxi0] = (255, 0, 255)
-				#mostrar_imagem(subImagem)
-
-				listaNL = []
-				listaNL = definindo_regiao(lxi1,lxe1,lye0,lyi0,imagem_cinza)
-				#subImagem[lye0:lyi0, lxi1:lxe1] = (0, 255, 255)
-				#mostrar_imagem(subImagem)
-
-				listaSL = []
-				listaSL = definindo_regiao(lxi1,lxe1,lyi1,lye1,imagem_cinza)
-				#subImagem[lyi1:lye1, lxi1:lxe1] = (255, 255, 255)
-				#mostrar_imagem(subImagem)
-
-				listaSO = []
-				listaSO = definindo_regiao(lxe0,lxi0,lyi1,lye1,imagem_cinza)
-				#subImagem[lyi1:lye1, lxe0:lxi0] = (200, 200, 200)
-				#mostrar_imagem(subImagem)
-
-				listaTotal = [['P',listaP],['N',listaN],['S',listaS],['L',listaL],['O',listaO],['NL',listaNL],['NO',listaNO],['SL',listaSL],['SO',listaSO]]
-
-				print (listaTotal)
+				#listaTotal = [['P',listaP],['N',listaN],['S',listaS],['L',listaL],['O',listaO],['NO',listaNO],['NL',listaNL],['SL',listaSL],['SO',listaSO]]
+				#--------------------------------------------------------------------------------------------------------------#
 				
-				print ('Definindo media das regiões')
+				
+				print ('Definindo media das regiões\n')
+				#--------------------------------------------------------------------------------------------------------------#
 				listaRegiao = []
 				media = []
 
-				'''
-				TENTATIVA DE DIMINUIR O CÓDIGO ABAIXO, TAMBÉMS SERÁ REALIZADO UMA REDUÇAÕ COMO ESTÁ NA PASSAGEM DE CÓDIGO ACIMA
+				#Percorre a lista de tuplas que indicam a posição da regiao e sua lista definida por "definindo_regiao"
 				for estimando in listaTotal:
 					regiao, media = estimando_regiao(estimando[1])
 					listaRegiao.append((estimando[0],regiao,media))
-					print (estimando[0])
-				'''
-
-				regiao_P, media_P = estimando_regiao(listaP)
-				listaRegiao.append(('P',regiao_P,media_P))
-				print ('Principal 2:',regiao,'\n','Media de:',media)
-
-				regiao, media = estimando_regiao(listaN)
-				listaRegiao.append(('N',regiao,media))
-				print ('Norte:',regiao,'\n','Media de:',media)
-
-				regiao, media = estimando_regiao(listaS)
-				listaRegiao.append(('S',regiao,media))
-				print ('Sul:',regiao,'\n','Media de:',media)
-
-				regiao, media = estimando_regiao(listaL)
-				listaRegiao.append(('L',regiao,media))
-				print ('Leste:',regiao,'\n','Media de:',media)
-
-				regiao, media = estimando_regiao(listaO)
-				listaRegiao.append(('O',regiao,media))
-				print ('Oeste:',regiao,'\n','Media de:',media)
-
-				regiao, media = estimando_regiao(listaNO)
-				listaRegiao.append(('NO',regiao,media))
-
-				regiao, media = estimando_regiao(listaNL)
-				listaRegiao.append(('NL',regiao,media))
-
-				regiao, media = estimando_regiao(listaSL)
-				listaRegiao.append(('SL',regiao,media))
-
-				regiao, media = estimando_regiao(listaSO)
-				listaRegiao.append(('SO',regiao,media))
-
-				print (listaRegiao)
+					#print ("Relacionando as regiões: [%s] | [%f] | [%f]" ,estimando[0],regiao,media)
 				
-				print ('Relacionando valores de regiões')
+				#--------------------------------------------------------------------------------------------------------------#
+				print ('\nRelacionando valores de regiões\n')
 				valor = relacionando_regiao(listaRegiao)
-				subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 0)
-				mostrar_imagem(subImagem)
-
+				#subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 0)
+				#mostrar_imagem(subImagem)
+				#--------------------------------------------------------------------------------------------------------------#
+				
 				if (valor > 0):
 					print ('Existem regiões com valores aproximados')
 				else:
@@ -602,9 +533,9 @@ if __name__ == "__main__":
 				
 				#---------------------------------------------------------------------------------------------------------------------
 				area_final = (area(novos_contornos)/area_SubImagem)
-				print(area_final)
-				cv.drawContours(subImagem,[novos_contornos],0,(0,0,255),3)
-				mostrar_imagem(subImagem)
+				#print(area_final)
+				#cv.drawContours(subImagem,[novos_contornos],0,(0,0,255),3)
+				#mostrar_imagem(subImagem)
 
 				area_Imagem = 512*256
 				#area_SubImagem =  Já tem
@@ -631,10 +562,10 @@ if __name__ == "__main__":
 				
 				#regiao_P,media_P
 
-				if(area_Final >= 0.003 and valor < 1):
-					#print ('Imagem atual:')
+				#if(area_Final >= 0.003 and valor < 1):
+				#print ('Imagem atual:')
 					
-					friends = [{"NUM_ORIGIN":i,
+				friends = [{"NUM_ORIGIN":i,
 								"NUM_SUB":i,
 								"NUM_SUB_SUB":j,
 
@@ -678,22 +609,21 @@ if __name__ == "__main__":
 								"MEDIA_REGIOES_SL":0,
 									}]
 
-					df = pd.DataFrame(friends)
-					df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIOES_P","MEDIA_REGIOES_N","MEDIA_REGIOES_S","MEDIA_REGIOES_L","MEDIA_REGIOES_O","MEDIA_REGIOES_NO","MEDIA_REGIOES_NL","MEDIA_REGIOES_SO","MEDIA_REGIOES_SL"]]				
-					print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
-					df.to_csv('ic.csv',header=False, mode='a',index=False)
-					
-					#print ('Comprimento:',comprimento(teste))
-					#print ('Altura:',altura(teste))
-					#print ('Area:',area_final)
-					#print ('largura:',largura(teste))
-					#print ('Circularidade:',circularidade(teste))
-
-					imagem_aux = desenhando(subImagem,novos_contornos)
-					#mostrar_imagem(imagem_aux)
-					tag = str(i) + "." + str(j)	
-					salvar(imagem_aux,num,tag,'4_Contornos/')
-					listandoContornos.append((novos_contornos,i))
+				df = pd.DataFrame(friends)
+				df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIOES_P","MEDIA_REGIOES_N","MEDIA_REGIOES_S","MEDIA_REGIOES_L","MEDIA_REGIOES_O","MEDIA_REGIOES_NO","MEDIA_REGIOES_NL","MEDIA_REGIOES_SO","MEDIA_REGIOES_SL"]]				
+				print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
+				df.to_csv('ic.csv',header=False, mode='a',index=False)
+				
+				#print ('Comprimento:',comprimento(teste))
+				#print ('Altura:',altura(teste))
+				#print ('Area:',area_final)
+				#print ('largura:',largura(teste))
+				#print ('Circularidade:',circularidade(teste))
+				imagem_aux = desenhando(subImagem,novos_contornos)
+				#mostrar_imagem(imagem_aux)
+				tag = str(i) + "." + str(j)	
+				salvar(imagem_aux,num,tag,'4_Contornos/')
+				listandoContornos.append((novos_contornos,i))
 				
 		
 
@@ -741,7 +671,7 @@ if __name__ == "__main__":
 
 			#print (lista[0][1], ' and ',num)
 			salvar(imagem_aux,lista[0][1],0,'5_Finalizadas/')
-			print ('Finalizado nº: ',num)
+			print ('Processamento da imagem [%d] foi finalizado... \n '%(num))
 		#else:
 			#salvar(imagem_aux,i,len(listandoContornos),'5_Finalizadas/')
 
