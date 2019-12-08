@@ -282,7 +282,7 @@ def porcentagem(lista,indice):
 #Caso a condição seja verdadeira, a função 'PORCENTAGEM' é chamada e o seu valor de retorno é um valor indicando se 
 #a lista que contém a região principal, possui regiões ao seu redor que estão proximas se deu valor, isso pode indicar
 #que aquela região não necessariamente é um buraco, pode ser apenas uma mancha, ou alguma outra coisa qualquer que 
-def relacionando_regiao(lista):
+def relacionando_regiao(lista):	
 	listaEs = []
 	listaCi = []
 	listaCl = []
@@ -346,55 +346,58 @@ if __name__ == "__main__":
 	especial = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
 
 	tabela = [{"NUM_ORIGIN":1,
-            "NUM_SUB":1,
-            "NUM_SUB_SUB":1,
+           	   "NUM_SUB":1,
+               "NUM_SUB_SUB":1,
 
-            "AREA_ORIGIN":0,
-            "AREA_SUB":0,
-            "AREA_SUB_SUB":0,
+               "AREA_ORIGIN":0,
+               "AREA_SUB":0,
+               "AREA_SUB_SUB":0,
 
-            "COMPRIMENTO_ORIGIN":0,
-            "COMPRIMENTO_SUB":0,
-            "COMPRIMENTO_SUB_SUB":0,
+               "COMPRIMENTO_ORIGIN":0,
+               "COMPRIMENTO_SUB":0,
+               "COMPRIMENTO_SUB_SUB":0,
 
-            "LARGURA_ORIGIN":0,
-            "LARGURA_SUB":0,
-            "LARGURA_SUB_SUB":0,
+               "LARGURA_ORIGIN":0,
+               "LARGURA_SUB":0,
+               "LARGURA_SUB_SUB":0,
 
-            "ALTURA_ORIGIN":0,
-            "ALTURA_SUB":0,
-            "ALTURA_SUB_SUB":0,
+               "ALTURA_ORIGIN":0,
+               "ALTURA_SUB":0,
+               "ALTURA_SUB_SUB":0,
 
-            "CIRCULARIDADE_SUB":0,
-            "CIRCULARIDADE_SUB_SUB":0,
+               "CIRCULARIDADE_SUB":0,
+               "CIRCULARIDADE_SUB_SUB":0,
 
-            "REGIAO_P":"R",
-            "REGIAO_N":"R",
-            "REGIAO_S":"R",
-            "REGIAO_L":"R",
-            "REGIAO_O":"R",
-            "REGIAO_NO":"R",
-            "REGIAO_NL":"R",
-            "REGIAO_SO":"R",
-            "REGIAO_SL":"R",
+			   "AREA_SUB_ORIGINAL":0,
+			   "AREA_SUBSUB_ORIGINAL":0,
+			   "AREA_SUBSUB_SUB_IMAGEM":0,
 
-            "MEDIA_REGIOES_P":0,
-            "MEDIA_REGIOES_N":0,
-            "MEDIA_REGIOES_S":0,
-            "MEDIA_REGIOES_L":0,
-            "MEDIA_REGIOES_O":0,
-            "MEDIA_REGIOES_NO":0,
-            "MEDIA_REGIOES_NL":0,
-            "MEDIA_REGIOES_SO":0,
-            "MEDIA_REGIOES_SL":0,
+               "REGIAO_P":"null",
+               "REGIAO_N":"null",
+               "REGIAO_S":"null",
+               "REGIAO_L":"null",
+               "REGIAO_O":"null",
+               "REGIAO_NO":"null",
+               "REGIAO_NL":"null",
+               "REGIAO_SO":"null",
+               "REGIAO_SL":"null",
+
+               "MEDIA_REGIAO_P":0,
+               "MEDIA_REGIAO_N":0,
+               "MEDIA_REGIAO_S":0,
+               "MEDIA_REGIAO_L":0,
+               "MEDIA_REGIAO_O":0,
+               "MEDIA_REGIAO_NO":0,
+               "MEDIA_REGIAO_NL":0,
+               "MEDIA_REGIAO_SO":0,
+               "MEDIA_REGIAO_SL":0,
             }]
 
 	df = pd.DataFrame(tabela)
-	df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIOES_P","MEDIA_REGIOES_N","MEDIA_REGIOES_S","MEDIA_REGIOES_L","MEDIA_REGIOES_O","MEDIA_REGIOES_NO","MEDIA_REGIOES_NL","MEDIA_REGIOES_SO","MEDIA_REGIOES_SL"]]				
+	df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","AREA_SUB_ORIGINAL","AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_P","MEDIA_REGIAO_N","MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL"]]				
 	df.to_csv('ic.csv',header=True,index=False)
 	
-
-	for _, _, quantidade in os.walk(origem2):
+	for _, _, quantidade in os.walk(origem):
 		pass
 
 	for _, _, arquivo in os.walk(subimagem):
@@ -541,76 +544,81 @@ if __name__ == "__main__":
 				#area_SubImagem =  Já tem
 				#area_SubSubImagem = Já tem
 
-				comp_Imagem = 512
+				comp_Imagem = 4*512
 				#width_SubImagem = já tem
 				#comp_SubSubImagem = já tem 
 
-				#larg_Imagem = 512	
-				#larg_SubImagem = 
-				#larg_SubSubImagem =  
+				larg_Imagem = 512	#informação correta em pid.py
+				#larg_SubImagem = width_SubImagem
+				#larg_SubSubImagem =  já tem
 
 				#VERIFICAR
 				height_Imagem = 256
-				#height_SubImagem = já tem 
+				#height_SubImagem = já tem
 				#height_SubSubImagem = height
 
+				#circ_SubImagem = informação contida no pid.py 
 				#circ_SubSubImagem = já tem 
 
-				#area_SubOriginal = (area_Subimagem/area_Imagem)
-				#area_SubSub = (area_SubSub/area_Imagem)
-				#area_SubSubOriginal = (area_SubSubImagem/area_Imagem )
+				area_SubOriginal = (area_SubImagem/area_Imagem)
+				area_SubSubOriginal = (area_SubSubImagem/area_Imagem)
+				area_SubSub_SubImagem = (area_SubSubImagem/area_SubImagem )
 				
 				#regiao_P,media_P
 
 				#if(area_Final >= 0.003 and valor < 1):
 				#print ('Imagem atual:')
 					
-				friends = [{"NUM_ORIGIN":i,
-								"NUM_SUB":i,
-								"NUM_SUB_SUB":j,
+				friends = [{"NUM_ORIGIN":num,
+							"NUM_SUB":i,
+							"NUM_SUB_SUB":j,
 
-								"AREA_ORIGIN":area_Imagem,
-								"AREA_SUB":area_SubImagem,
-								"AREA_SUB_SUB":i,
+							"AREA_ORIGIN":area_Imagem,
+							"AREA_SUB":area_SubImagem,
+							"AREA_SUB_SUB":area_SubSubImagem,
 
-								"COMPRIMENTO_ORIGIN":i,
-								"COMPRIMENTO_SUB":i,
-								"COMPRIMENTO_SUB_SUB":i,
+							"COMPRIMENTO_ORIGIN":comp_Imagem,
+							"COMPRIMENTO_SUB":width_SubImagem,
+							"COMPRIMENTO_SUB_SUB":comp_SubSubImagem,
 
-								"LARGURA_ORIGIN":i+0.0,
-								"LARGURA_SUB":i+0.0,
-								"LARGURA_SUB_SUB":i+0.0,
+							"LARGURA_ORIGIN":larg_Imagem,
+							"LARGURA_SUB":width_SubImagem,
+							"LARGURA_SUB_SUB":width_SubSubImagem,
 
-								"ALTURA_ORIGIN":i+0.0,
-								"ALTURA_SUB":i+0.0,
-								"ALTURA_SUB_SUB":i+0.0,
+							"ALTURA_ORIGIN":height_Imagem,
+							"ALTURA_SUB":height_SubImagem,
+							"ALTURA_SUB_SUB":height_SubSubImagem,
 
-								"CIRCULARIDADE_SUB":i+0.0,
-								"CIRCULARIDADE_SUB_SUB":i+0.0,
+							"CIRCULARIDADE_SUB":0,
+							"CIRCULARIDADE_SUB_SUB":circ_SubSubImagem,
 
-								"REGIAO_P":"R",
-								"REGIAO_N":"R",
-								"REGIAO_S":"R",
-								"REGIAO_L":"R",
-								"REGIAO_O":"R",
-								"REGIAO_NO":"R",
-								"REGIAO_NL":"R",
-								"REGIAO_SO":"R",
-								"REGIAO_SL":"R",
+							"AREA_SUB_ORIGINAL":area_SubOriginal,
+							"AREA_SUBSUB_ORIGINAL":area_SubSubOriginal,
+							"AREA_SUBSUB_SUB_IMAGEM":area_SubSub_SubImagem,
 
-								"MEDIA_REGIOES_P":0,
-								"MEDIA_REGIOES_N":0,
-								"MEDIA_REGIOES_S":0,
-								"MEDIA_REGIOES_L":0,
-								"MEDIA_REGIOES_O":0,
-								"MEDIA_REGIOES_NO":0,
-								"MEDIA_REGIOES_NL":0,
-								"MEDIA_REGIOES_SO":0,
-								"MEDIA_REGIOES_SL":0,
-									}]
+							"REGIAO_P":listaRegiao[0][1],
+							"REGIAO_N":listaRegiao[1][1],
+							"REGIAO_S":listaRegiao[2][1],
+							"REGIAO_L":listaRegiao[3][1],
+							"REGIAO_O":listaRegiao[4][1],
+							"REGIAO_NO":listaRegiao[5][1],
+							"REGIAO_NL":listaRegiao[6][1],
+							"REGIAO_SL":listaRegiao[7][1],
+							"REGIAO_SO":listaRegiao[8][1],
+
+							"MEDIA_REGIAO_P":listaRegiao[0][2],
+							"MEDIA_REGIAO_N":listaRegiao[1][2],
+							"MEDIA_REGIAO_S":listaRegiao[2][2],
+							"MEDIA_REGIAO_L":listaRegiao[3][2],
+							"MEDIA_REGIAO_O":listaRegiao[4][2],
+							"MEDIA_REGIAO_NO":listaRegiao[5][2],
+							"MEDIA_REGIAO_NL":listaRegiao[6][2],
+							"MEDIA_REGIAO_SL":listaRegiao[7][2],
+							"MEDIA_REGIAO_SO":listaRegiao[8][2],
+						}]
 
 				df = pd.DataFrame(friends)
-				df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIOES_P","MEDIA_REGIOES_N","MEDIA_REGIOES_S","MEDIA_REGIOES_L","MEDIA_REGIOES_O","MEDIA_REGIOES_NO","MEDIA_REGIOES_NL","MEDIA_REGIOES_SO","MEDIA_REGIOES_SL"]]				
+				df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","AREA_SUB_ORIGINAL","AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_P","MEDIA_REGIAO_N","MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL"]]				
 				print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
 				df.to_csv('ic.csv',header=False, mode='a',index=False)
 				
@@ -633,7 +641,7 @@ if __name__ == "__main__":
 		
 		limite = len(listandoContornos)
 		#print ("LIMITE: ", limite)
-		arq = open(destino + '0_Listas_Posicoes/' + 'lista' + '3' + '.txt', 'r')
+		arq = open(destino + '0_Listas_Posicoes/' + 'lista' + str(num) + '.txt', 'r')
 
 		texto = arq.read()
 

@@ -183,7 +183,7 @@ if __name__ == "__main__":
 	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 	openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 
-	for _, _, arquivo in os.walk(origem2):
+	for _, _, arquivo in os.walk(origem):
 		pass
 
 	#print (arquivo)
@@ -193,20 +193,20 @@ if __name__ == "__main__":
 		lista = [[]]
 
 		i = int(img[0:-5])
-		imagem = cv.imread(origem2+img)
+		imagem = cv.imread(origem+img)
 
 		#Recortando imagem
 		imagem = imagem[256:512,0:512]
-		mostrar_imagem(imagem)
+		#mostrar_imagem(imagem)
 		
 		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
-		mostrar_imagem(imagem_cinza)
+		#mostrar_imagem(imagem_cinza)
 
 		imagem_tratada = reducao_ruido(i,imagem_cinza)
-		mostrar_imagem(imagem_tratada)
+		#mostrar_imagem(imagem_tratada)
 		
 		imagem_canny = encontrando_contornos(imagem_tratada)
-		mostrar_imagem(imagem_canny)
+		#mostrar_imagem(imagem_canny)
 
 		#VERIFICAR A FUNÇÃO definindo_caracteristicas()
 		imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
