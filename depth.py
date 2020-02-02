@@ -7,11 +7,6 @@ import math
 import os
 
 
-def area(contornos):
-    a = cv.contourArea(contornos)
-    if a == None:
-        a = 0.0
-    return a
 
 #A relação entre as duas areas ocorre de forma a identificar qual a área da subimagem em relação a imagem maior/anterior
 #(Sub_Imagem / Imagem_Original) , (SubSub_Imagem / Sub_Imagem) ,(SubSub_Imagem / Imagem_Original)
@@ -23,6 +18,13 @@ def area_interesse(area_Imagem,area_SubImagem):
 		return area
 	except:
 		return -1
+
+#Nome das funções auto-explicativas
+def area(contornos):
+    a = cv.contourArea(contornos)
+    if a == None:
+        a = 0.0
+    return a
 		
 def comprimento(contornos):
     c = cv.arcLength(contornos,True)
@@ -35,7 +37,6 @@ def largura(contornos):
     if w == None:
         w = 0.0
     return w
-
 
 def altura(contornos):
     x,y,w,h = cv.boundingRect(contornos)
@@ -73,30 +74,6 @@ def salvar(imagem, i,j,flag):
 
 	cv.imwrite(final,imagem)
 
-
-
-
-
-def limpar(imagem):
-	dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
-	return dst
-
-def equalizar(imagem):
-	clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(5,5))
-	cl1 = clahe.apply(imagem)
-	return cl1
-
-#VERIFICADA, RESPONSAVEL POR RECEBER A SUB-IMAGEM CINZA E GERAR UMA 
-#EROSAO E UMA DILATAÇÃO EM SEGUIDA PARA REDUZIR O RUIDO
-def erosao(imagem):
-	kernel = np.ones((8,8),np.uint8)
-
-	#BLOCO EM ANALISE -----------------------------------------
-	opening = cv.morphologyEx(imagem, cv.MORPH_OPEN,kernel) 
-	#erosao = cv.erode(opening,kernel,iterations = 1) #VERIFICAR ESSA ALTERALÇÃO DO CL1 POR DST
-
-	return opening
-
 def thresholding(imagem):
 	ret,th = cv.threshold(imagem,0,255,cv.THRESH_BINARY + cv.THRESH_OTSU)
 	#th2 = cv.adaptiveThreshold(imagem,255,cv.ADAPTIVE_THRESH_MEAN_C,cv.THRESH_BINARY,11,2)
@@ -116,13 +93,34 @@ def desenhando(imagem,contornos):
 	cv.drawContours(imagem,[contornos],0,(0,0,255),3)
 	return imagem
 
+def limpar(imagem):
+	dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
+	return dst
+
+def equalizar(imagem):
+	clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(5,5))
+	cl1 = clahe.apply(imagem)
+	return cl1
+#----------------------------------------------------------------
+
+#VERIFICADA, RESPONSAVEL POR RECEBER A SUB_IMAGEM CINZA E GERAR UMA 
+#EROSAO E UMA DILATAÇÃO EM SEGUIDA PARA REDUZIR O RUIDO
+def erosao(imagem):
+	kernel = np.ones((8,8),np.uint8)
+
+	#BLOCO EM ANALISE -----------------------------------------
+	opening = cv.morphologyEx(imagem, cv.MORPH_OPEN,kernel) 
+	#erosao = cv.erode(opening,kernel,iterations = 1) #VERIFICAR ESSA ALTERALÇÃO DO CL1 POR DST
+
+	return opening
+
+
 #RESPONSAVEL POR ENCONTRAR OS LIMITES DA SUBIMAGEM
 def limites(height,width,lista):
 	listaX = []
 	listaY = []
 
 	#Verificar o porque em alguns casos os novo_contorno termina por acusar um valor fora da faixa do tamanho da uma imagem
-
 	for i in range(0,4):
 		x , y = lista[i]
 		listaX.append(x)
@@ -132,13 +130,13 @@ def limites(height,width,lista):
 	y1,y2 = min(listaY),max(listaY)
 
 	if (x2 > width):
-		x2 = width
+		x2 = width-1
 	
 	if(x1 < 0):
 		x1 = 0
 	
 	if (y2 > height):
-		y2 = height
+		y2 = height-1
 	
 	if(y1 < 0):
 		y1 = 0 
@@ -146,9 +144,9 @@ def limites(height,width,lista):
 	#print ("Limites na função:", x1,x2,y1,y2)
 	return x1,y1,x2,y2
 
-#RESPONSAVEL PELA IDENTIFICAÇÃO DASOS VALORES QUE EXCEDEM A 
+#RESPONSAVEL PELA IDENTIFICAÇÃO DOS VALORES QUE EXCEDEM A 
 # SUB_SUB_IMAGEM  FORMANDO AS 6 REGIÕES AO REDOR DA REGIÃO 
-# #IDENTIFICADA COMO UMA POSSIVEL ANOMALIA NA ESTRADA
+# IDENTIFICADA COMO UMA POSSIVEL ANOMALIA NA ESTRADA
 def limites_externos(height,width,height_Regiao,width_Regiao,x,y,x1,y1):
 
 	if(x - int(width_Regiao/2) >= 0):
@@ -172,9 +170,7 @@ def limites_externos(height,width,height_Regiao,width_Regiao,x,y,x1,y1):
 	else:
 		y1 = height
 
-
 	#print ("|Iniciais: ",x,'|',y,"|Finais:",'|',x1,'|',y1)
-
 	return x,y,x1,y1
 
 #FUNÇÃO RESPONSAVEL POR PERCORRER OS LIMITES INTERNOS -> EXTERNOS da SubSubImagem
@@ -187,23 +183,31 @@ def definindo_regiao(x,x1,y,y1,imagem):
 		lista.append(-1)
 	i=0
 
-	#print ('Limites:','[',x,'-',x1,']','|','[',y,'-',y1,']')
-	#print ("Valores: ",[width,height])
+	print ('Limites:','[',x,'-',x1,']','|','[',y,'-',y1,']')
+	print ("Valores: ",[width,height])
 	
 	if(x == x1 or y == y1):
 		return (lista)
 	else:
 		for i in range(y,y1): #height
 			for j in range(x,x1): #width
+				
 				if (imagem[i][j] == -1):
+					imagem[i][j]
 					indice = imagem[i][j]
-					lista[indice] += 2
+					indice = indeice + 2
+					lista.append([indice]) += 2
 				else:
+					print(imagem[i][j])
 					indice = imagem[i][j]
-					lista[indice] += 1
-		#plt.plot(lista)
-		#plt.ylabel('Gauss')
-		#plt.show()
+					indice = indeice + 2
+					lista.append([indice]) += 1
+
+		print(lista)			
+		plt.plot(lista)
+		plt.ylabel('Gauss')
+		plt.show()
+
 
 		return (lista)
 
@@ -633,7 +637,6 @@ if __name__ == "__main__":
 				salvar(imagem_aux,num,tag,'4_Contornos/')
 				listandoContornos.append((novos_contornos,i))
 				
-		
 
 		leitura = 0
 		listXY = []
