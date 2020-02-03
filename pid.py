@@ -97,7 +97,7 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	num = 1
 	
-	imagem2, contornos, hierarquia = cv.findContours(imagem_canny, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
+	contornos, hierarquia = cv.findContours(imagem_canny, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
 	imagem_contornosQuadrados = imagem.copy()
 
 	for i in range(len(contornos)):
@@ -167,8 +167,9 @@ def mostrar_imagens(imagem1,imagem2,imagem3,imagem4):
 	return 0
 
 def salvar(pasta,imagem,nome):
-	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
-	final = destino + pasta + '/' + nome + '.png'
+	destino = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\'
+	#destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
+	final = destino + pasta + '\\' + nome + '.png'
 
 	cv.imwrite(final,imagem)
 
@@ -177,17 +178,21 @@ def salvar(pasta,imagem,nome):
 
 if __name__ == "__main__":
 
-	origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
-	origem2 = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem_Fake/'
+	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem\\"
+	#origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Origem/'
+	
+	origem2 = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem_Fake\\'
+	#origem2 = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Origem_Fake/'
 
-	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
-	openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
+	destino = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\'
+	#destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Imagens_F/'
+	
+	openn = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\'
+	#openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Imagens_F/'
 
 	for _, _, arquivo in os.walk(origem):
+		print ("Aqui",arquivo)
 		pass
-
-	#print (arquivo)
-	#print (origem + arquivo[0])
 
 	for img in arquivo:
 		lista = [[]]
@@ -221,7 +226,7 @@ if __name__ == "__main__":
 
 		try:
 			print(lista)
-			arq = open(destino + "0_Listas_Posicoes/"+ "lista" +str(i) + ".txt", 'w')
+			arq = open(destino + "0_Listas_Posicoes\\"+ "lista" +str(i) + ".txt", 'w')
 			del lista[0]
 			saida = str(lista).replace('array','').replace('(','').replace(')','').replace('\n','').replace(' ','')
 			arq.write(saida)

@@ -86,8 +86,8 @@ def canny(imagem):
 	return teste
 
 def contornos(imagem):
-	imagem2, contornos, hierarquia = cv.findContours(imagem, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
-	return (imagem2,contornos,hierarquia)
+	contornos, hierarquia = cv.findContours(imagem, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
+	return (contornos,hierarquia)
 
 def desenhando(imagem,contornos):
 	cv.drawContours(imagem,[contornos],0,(0,0,255),3)
@@ -195,18 +195,18 @@ def definindo_regiao(x,x1,y,y1,imagem):
 				if (imagem[i][j] == -1):
 					imagem[i][j]
 					indice = imagem[i][j]
-					indice = indeice + 2
-					lista.append([indice]) += 2
+					indice = indice + 2
+					lista.append(indice)
 				else:
 					print(imagem[i][j])
 					indice = imagem[i][j]
-					indice = indeice + 2
-					lista.append([indice]) += 1
+					indice = indice + 2
+					lista.append(indice)
 
 		print(lista)			
-		plt.plot(lista)
-		plt.ylabel('Gauss')
-		plt.show()
+		#plt.plot(lista)
+		#plt.ylabel('Gauss')
+		#plt.show()
 
 
 		return (lista)
@@ -226,15 +226,18 @@ def estimando_regiao(lista):
 	for i in range(0,len(lista)-1):
 		if (i <= 85):
 			if(lista[i] != -1):
+				print(lista[i])
 				r1 += lista[i]
 				m1 += 1
 			
 		elif (i > 85 and i <= 170):
 			if(lista[i] != -1):
+				print(lista[i])
 				r2 += lista[i]
 				m2 += 1
 		else:
 			if(lista[i] != -1):
+				print(lista[i])
 				r3 += lista[i]
 				m3 += 1
 
@@ -342,12 +345,21 @@ def contando_subimagens(num,arquivo):
 	return count 
 
 if __name__ == "__main__":
-	origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
-	origem2 = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem_Fake/'
-	subimagem ='/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/3_SubImagens/'
 
-	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
-	especial = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
+	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem\\"
+	#origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
+	
+	origem2 = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem_Fake\\"
+	#origem2 = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem_Fake/'
+
+	subimagem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\3_SubImagens\\"
+	#subimagem ='/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/3_SubImagens/'
+
+	destino = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\"
+	#destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
+	
+	especial = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem\\"
+	#especial = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
 
 	tabela = [{"NUM_ORIGIN":1,
            	   "NUM_SUB":1,
@@ -454,7 +466,7 @@ if __name__ == "__main__":
 			imagem = canny(imagem_thresh)
 			#mostrar_imagem(imagem)
 
-			imagema,imagem_contorno,imagemc = contornos(imagem)
+			imagem_contorno,imagemc = contornos(imagem)
 			
 			#-----------------------------------------------------------------------------------
 
@@ -634,7 +646,7 @@ if __name__ == "__main__":
 				imagem_aux = desenhando(subImagem,novos_contornos)
 				#mostrar_imagem(imagem_aux)
 				tag = str(i) + "." + str(j)	
-				salvar(imagem_aux,num,tag,'4_Contornos/')
+				salvar(imagem_aux,num,tag,'4_Contornos\\')
 				listandoContornos.append((novos_contornos,i))
 				
 
@@ -644,11 +656,12 @@ if __name__ == "__main__":
 		
 		limite = len(listandoContornos)
 		#print ("LIMITE: ", limite)
-		arq = open(destino + '0_Listas_Posicoes/' + 'lista' + str(num) + '.txt', 'r')
+		arq = open(destino + '0_Listas_Posicoes\\' + 'lista' + str(num) + '.txt', 'r')
 
 		texto = arq.read()
 
 		if(texto != 'NaN'):
+			#CORRIGIR ESTA EXPRESSAO
 			lista = list(eval(texto.split()[0]))
 
 			#print ("NOVA LISTA:" ,lista)
@@ -681,7 +694,7 @@ if __name__ == "__main__":
 						cv.drawContours(imagem_aux,[contorno],0,(0,0,255),3)
 
 			#print (lista[0][1], ' and ',num)
-			salvar(imagem_aux,lista[0][1],0,'5_Finalizadas/')
+			salvar(imagem_aux,lista[0][1],0,'5_Finalizadas\\')
 			print ('Processamento da imagem [%d] foi finalizado... \n '%(num))
 		#else:
 			#salvar(imagem_aux,i,len(listandoContornos),'5_Finalizadas/')
