@@ -68,10 +68,11 @@ def mostrar_imagens(imagem1,imagem2,imagem3,imagem4):
 	return 0
 
 def salvar(imagem, i,j,flag):
-	destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
-
+	#destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
+	destino = "c:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\"
 	final = destino + flag + 'Contorno_' + str(i) + '.' + str(j) + '.png'
 
+	print(final)
 	cv.imwrite(final,imagem)
 
 def thresholding(imagem):
@@ -183,8 +184,8 @@ def definindo_regiao(x,x1,y,y1,imagem):
 		lista.append(-1)
 	i=0
 
-	print ('Limites:','[',x,'-',x1,']','|','[',y,'-',y1,']')
-	print ("Valores: ",[width,height])
+	#print ('Limites:','[',x,'-',x1,']','|','[',y,'-',y1,']')
+	#print ("Valores: ",[width,height])
 	
 	if(x == x1 or y == y1):
 		return (lista)
@@ -198,12 +199,12 @@ def definindo_regiao(x,x1,y,y1,imagem):
 					indice = indice + 2
 					lista.append(indice)
 				else:
-					print(imagem[i][j])
+					#print(imagem[i][j])
 					indice = imagem[i][j]
 					indice = indice + 2
 					lista.append(indice)
 
-		print(lista)			
+		#print(lista)			
 		#plt.plot(lista)
 		#plt.ylabel('Gauss')
 		#plt.show()
@@ -226,18 +227,18 @@ def estimando_regiao(lista):
 	for i in range(0,len(lista)-1):
 		if (i <= 85):
 			if(lista[i] != -1):
-				print(lista[i])
+				#print(lista[i])
 				r1 += lista[i]
 				m1 += 1
 			
 		elif (i > 85 and i <= 170):
 			if(lista[i] != -1):
-				print(lista[i])
+				#print(lista[i])
 				r2 += lista[i]
 				m2 += 1
 		else:
 			if(lista[i] != -1):
-				print(lista[i])
+				#print(lista[i])
 				r3 += lista[i]
 				m3 += 1
 
@@ -277,7 +278,7 @@ def porcentagem(lista,indice):
 			#print("Para [%s][%s][%f]" % (lista[i][0],lista[i][1],lista[i][2]))
 
 			if (porcent*100 >= 60):
-				print(porcent*100)
+				#print(porcent*100)
 				valor += 1
 	return valor
 
@@ -328,7 +329,7 @@ def relacionando_regiao(lista):
 			
 
 			
-	print("VALOR: ",valor)
+	#print("VALOR: ",valor)
 	return valor
 
 #Função atualizada, verificar apenas a possibilidade de retornar uma lista ao inves da quantidade
@@ -427,7 +428,7 @@ if __name__ == "__main__":
 		listandoContornos = []
 		
 		count = contando_subimagens(cast[0],arquivo)
-		print ("Imagem [%d] possui [%d] subImagens" %(num,count))
+		#print ("Imagem [%d] possui [%d] subImagens" %(num,count))
 
 		#REDEFINIR O FOR PARA A ENTRADA DOS VALORES
 		for i in range(1,count+1):
@@ -662,7 +663,8 @@ if __name__ == "__main__":
 
 		if(texto != 'NaN'):
 			#CORRIGIR ESTA EXPRESSAO
-			lista = list(eval(texto.split()[0]))
+			lista = list(eval(texto))
+			print(lista[0][1])
 
 			#print ("NOVA LISTA:" ,lista)
 

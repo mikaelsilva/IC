@@ -111,8 +111,8 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 
 		#VERIFICAR A RETIRADA DA CONDIÇÃO DE "largura e altura" 28/10/2019 23:50
 		#if (area(novos_contornos) >  100 and largura(novos_contornos) > 15 and altura(novos_contornos) > 15):
-		print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
-		print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
+		#print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
+		#print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
 
 		#cv.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
 		#cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
@@ -127,7 +127,7 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 			nome = str(num_imagem) + '_' + str(num)
 			salvar(pasta,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
 			#nome = 0
-			lista.append([novos_contornos,num_imagem,num])
+			lista.append([novos_contornos.tolist(),num_imagem,num])
 			num +=1
 
 
@@ -225,10 +225,11 @@ if __name__ == "__main__":
 		#arq2.close()
 
 		try:
-			print(lista)
+			#print(lista)
 			arq = open(destino + "0_Listas_Posicoes\\"+ "lista" +str(i) + ".txt", 'w')
-			del lista[0]
-			saida = str(lista).replace('array','').replace('(','').replace(')','').replace('\n','').replace(' ','')
+			saida = str(lista[1:])
+			if i == 2:
+				print(lista[1:])
 			arq.write(saida)
 			
 			arq.close()
@@ -236,3 +237,4 @@ if __name__ == "__main__":
 		except Exception as e:
 			print ("ERRO:",img)
 			pass
+
