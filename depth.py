@@ -8,6 +8,246 @@ import os
 
 
 
+def limpar(imagem):
+	dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
+	return dst
+
+#VERIFICADA, RESPONSAVEL POR RECEBER A SUB_IMAGEM CINZA E GERAR UMA 
+#EROSAO E UMA DILATAÇÃO EM SEGUIDA PARA REDUZIR O RUIDO
+def erosao(imagem):
+	kernel = np.ones((8,8),np.uint8)
+
+	#BLOCO EM ANALISE -----------------------------------------
+	opening = cv.morphologyEx(imagem, cv.MORPH_OPEN,kernel) 
+	#erosao = cv.erode(opening,kernel,iterations = 1) #VERIFICAR ESSA ALTERALÇÃO DO CL1 POR DST
+
+	return opening
+
+def thresholding(imagem):
+	ret,th = cv.threshold(imagem,0,255,cv.THRESH_BINARY + cv.THRESH_OTSU)
+	#th2 = cv.adaptiveThreshold(imagem,255,cv.ADAPTIVE_THRESH_MEAN_C,cv.THRESH_BINARY,11,2)
+	#th3 = cv.adaptiveThreshold(imagem,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+
+	return th
+
+def canny(imagem):
+	teste = cv.Canny(imagem,100,200)
+	return teste
+
+def contornos(imagem):
+	contornos, hierarquia = cv.findContours(imagem, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
+	return (contornos,hierarquia)
+
+
+#RESPONSAVEL POR ENCONTRAR OS LIMITES DA SUBIMAGEM
+def limites(height,width,lista):
+	listaX = []
+	listaY = []
+
+	#Verificar o porque em alguns casos os novo_contorno termina por acusar um valor fora da faixa do tamanho da uma imagem
+	for i in range(0,4):
+		x , y = lista[i]
+		listaX.append(x)
+		listaY.append(y)
+
+	x1,x2 = min(listaX),max(listaX)
+	y1,y2 = min(listaY),max(listaY)
+
+	if (x2 > width):
+		x2 = width-1
+	
+	if(x1 < 0):
+		x1 = 0
+	
+	if (y2 > height):
+		y2 = height-1
+	
+	if(y1 < 0):
+		y1 = 0 
+	
+	#print ("Limites na função:", x1,x2,y1,y2)
+	return x1,y1,x2,y2
+
+#RESPONSAVEL PELA IDENTIFICAÇÃO DOS VALORES QUE EXCEDEM A 
+# SUB_SUB_IMAGEM  FORMANDO AS 6 REGIÕES AO REDOR DA REGIÃO 
+# IDENTIFICADA COMO UMA POSSIVEL ANOMALIA NA ESTRADA
+def limites_externos(height,width,height_Regiao,width_Regiao,x,y,x1,y1):
+
+	if(x - int(width_Regiao/2) >= 0):
+		x -= int(width_Regiao/2)
+	else:
+		x = 0
+
+	if(x1 + int(width_Regiao/2) < width):
+		x1 += int(width_Regiao/2)
+	else:
+		x1 = width
+
+
+	if(y - int(height_Regiao/2) >= 0):
+		y -= int(height_Regiao/2)
+	else:
+		y = 0
+
+	if(y1 + int(height_Regiao/2) < height):
+		y1 += int(height_Regiao/2)
+	else:
+		y1 = height
+
+	#print ("|Iniciais: ",x,'|',y,"|Finais:",'|',x1,'|',y1)
+	return x,y,x1,y1
+
+
+#FUNÇÃO RESPONSAVEL POR PERCORRER OS LIMITES INTERNOS ate os EXTERNOS da SubSubImagem
+#PARA IDENTIFICAR A DISTRIBUIÇÃO DOS VALORES [0-255] NA ESCALA EM CINZA DA SUBIMAGEM
+def definindo_regiao(x,x1,y,y1,imagem): 
+	dicio = {} 
+	lista = []
+	
+	#height,width = imagem.shape[:2]
+	for i in range(0,255):
+		dicio[str(i)] = 0
+
+	#print ('Limites:','[',x,'-',x1,']','|','[',y,'-',y1,']')
+	#print ("Valores: ",[width,height])
+	
+	if(x == x1 or y == y1):
+		for val in dicio.values():
+			lista.append(val)
+		return (lista)
+	
+	else:
+		for height in range(y,y1): #height
+			for width in range(x,x1): #width
+
+				indice = imagem[height][width]
+				dicio[str(indice)] = dicio[str(indice)] + 1
+
+		#print(lista)			
+		#plt.plot(lista)
+		#plt.ylabel('Gauss')
+		#plt.show()
+		for val in dicio.values():
+			lista.append(val)
+		return (lista)
+
+#AQUI É REALIZADO UMA MÉDIA SIMPLES, COMO UMA MEDIDA DE UMA TENDENDCIA CENTRAL DE SEUS VALORES
+#TALVEZ SEJA A MELHOR ABORDAGEM, JÁ QUE É DIFICIL ESTIMAR QUAL INTERVALO (0-255)  SERIA ESTIMADO COM UM DETERMINADO
+# #VALOR PARA PESOS DIFERENTES
+def estimando_regiao(lista):
+	r1,r2,r3 = -1,-1,-1
+	m1,m2,m3 = 1,1,1
+
+	for i in range(0,len(lista)-1):
+		if (i <= 85):
+			if(lista[i] != 0):
+				#print(lista[i])
+				r1 += lista[i]
+				m1 += 1
+			
+		elif (i > 85 and i <= 170):
+			if(lista[i] != 0):
+				#print(lista[i])
+				r2 += lista[i]
+				m2 += 1
+		else:
+			if(lista[i] != 0):
+				#print(lista[i])
+				r3 += lista[i]
+				m3 += 1
+
+	r1 = (r1/m1)
+	r2 = (r2/m2)
+	r3 = (r3/m3)
+		
+	#print ("R1: ",r1, "and","M1: ",m1)
+	#print ("R2: ",r2, "and","M2: ",m2)
+	#print ("R3: ",r3, "and","M3: ",m3)
+
+	listando = []
+	listando.append(("Escuro",r1))
+	listando.append(("Cinza",r2))
+	listando.append(("Claro",r3))
+	listando = sorted(listando,reverse=True,key=take)
+	#print (":: ",listando)
+
+	if (r1 == r2 == r3 == -1.0):
+		return ("Indefinido",-1.0)
+	else:
+		#print('A',listando[0])
+		return listando[0]
+
+
+def take(elem):
+	return elem[1]
+
+#Função responsavel por receber a Sub_Lista onde a região principal se encontra
+#Ela verifica se os outros valores que existem na mesma lista possuem uma porcentagem 
+#significativa em relação a região principal, caso exista, e seja maior que 60%
+#o retorno é a quantidade de vezes que a região principal possui regiões ao seu redor
+def porcentagem(lista):
+	valor = 0
+
+	for i in range(1,len(lista)):
+		#(Valor_de_outra_regiao / Valor_Principal)
+		porcent = lista[i][2] / lista[0][2] 
+
+		#print("Para [%s][%s][%f]" % (lista[i][0],lista[i][1],lista[i][2]))
+		if (porcent*100 >= 50):
+			#print(porcent*100)
+			valor += 1
+
+	return valor
+
+
+#Esta funcao recebe como parametro a lista contendo as tuplas de três elementos das caracteristicas de cada região principal e 
+#seus arredores
+#Essa tupla é compostas por ('SIGLA_REGIAO','TIPO_DE_COR_REGIAO','VALOR_MEDIA_DA_COR_DA_REGIAO')
+#Percorrendo essa lista, é separado então de acordo com os 'TIPOS_DE_COR_REGIAO' todas as tuplas
+#Depois verifica se em qual das listas está o elemento principal 'lista[0]' e se o seu valor de MÉDIA é maior que zero
+#Caso a condição seja verdadeira, a função 'PORCENTAGEM' é chamada e o seu valor de retorno é um valor indicando se 
+#a lista que contém a região principal, possui regiões ao seu redor que estão proximas de deu valor, isso pode indicar
+#que aquela região não necessariamente é um buraco, pode ser apenas uma mancha, ou alguma outra coisa qualquer que 
+def relacionando_regiao(lista):	
+	listaEs = []
+	listaCi = []
+	listaCl = []
+	valor = 0
+	flag = ""
+
+	for i in range(0,len(lista)-1):
+		if (lista[i][1] == 'Escuro'):
+			listaEs.append(lista[i])
+			flag = "Es"
+		
+		if(lista[i][1] == 'Cinza'):
+			listaCi.append(lista[i])
+			flag = "Ci"
+		
+		if(lista[i][1] == 'Claro'):
+			listaCl.append(lista[i])
+			flag = "Cl"
+	
+	#print("Es",listaEs)
+	#print("Ci",listaCi)
+	#print("Cl",listaCl)
+	
+	if(flag == "Es"):
+		if(listaEs[0][0] == 'P' and listaEs[0][2] > 0):			
+			valor = porcentagem(listaEs)
+	
+	if(flag == "Ci"):
+		if(listaCi[0][0] == 'P' and listaCi[0][2] > 0 ):
+			valor = porcentagem(listaCi)
+
+	if(flag == "Cl"):
+		if(listaCl[0][0] == 'P' and listaCl[0][2] > 0):
+			valor = porcentagem(listaCl)
+						
+	#print("VALOR: ",valor)
+	return valor
+
+
 #A relação entre as duas areas ocorre de forma a identificar qual a área da subimagem em relação a imagem maior/anterior
 #(Sub_Imagem / Imagem_Original) , (SubSub_Imagem / Sub_Imagem) ,(SubSub_Imagem / Imagem_Original)
 def area_interesse(area_Imagem,area_SubImagem):
@@ -75,28 +315,16 @@ def salvar(imagem, i,j,flag):
 	print(final)
 	cv.imwrite(final,imagem)
 
-def thresholding(imagem):
-	ret,th = cv.threshold(imagem,0,255,cv.THRESH_BINARY + cv.THRESH_OTSU)
-	#th2 = cv.adaptiveThreshold(imagem,255,cv.ADAPTIVE_THRESH_MEAN_C,cv.THRESH_BINARY,11,2)
-	#th3 = cv.adaptiveThreshold(imagem,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
-	return th
 
-def canny(imagem):
-	teste = cv.Canny(imagem,100,200)
-	return teste
 
-def contornos(imagem):
-	contornos, hierarquia = cv.findContours(imagem, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
-	return (contornos,hierarquia)
+
 
 def desenhando(imagem,contornos):
 	cv.drawContours(imagem,[contornos],0,(0,0,255),3)
 	return imagem
 
-def limpar(imagem):
-	dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
-	return dst
+
 
 def equalizar(imagem):
 	clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(5,5))
@@ -104,233 +332,19 @@ def equalizar(imagem):
 	return cl1
 #----------------------------------------------------------------
 
-#VERIFICADA, RESPONSAVEL POR RECEBER A SUB_IMAGEM CINZA E GERAR UMA 
-#EROSAO E UMA DILATAÇÃO EM SEGUIDA PARA REDUZIR O RUIDO
-def erosao(imagem):
-	kernel = np.ones((8,8),np.uint8)
-
-	#BLOCO EM ANALISE -----------------------------------------
-	opening = cv.morphologyEx(imagem, cv.MORPH_OPEN,kernel) 
-	#erosao = cv.erode(opening,kernel,iterations = 1) #VERIFICAR ESSA ALTERALÇÃO DO CL1 POR DST
-
-	return opening
 
 
-#RESPONSAVEL POR ENCONTRAR OS LIMITES DA SUBIMAGEM
-def limites(height,width,lista):
-	listaX = []
-	listaY = []
-
-	#Verificar o porque em alguns casos os novo_contorno termina por acusar um valor fora da faixa do tamanho da uma imagem
-	for i in range(0,4):
-		x , y = lista[i]
-		listaX.append(x)
-		listaY.append(y)
-
-	x1,x2 = min(listaX),max(listaX)
-	y1,y2 = min(listaY),max(listaY)
-
-	if (x2 > width):
-		x2 = width-1
-	
-	if(x1 < 0):
-		x1 = 0
-	
-	if (y2 > height):
-		y2 = height-1
-	
-	if(y1 < 0):
-		y1 = 0 
-	
-	#print ("Limites na função:", x1,x2,y1,y2)
-	return x1,y1,x2,y2
-
-#RESPONSAVEL PELA IDENTIFICAÇÃO DOS VALORES QUE EXCEDEM A 
-# SUB_SUB_IMAGEM  FORMANDO AS 6 REGIÕES AO REDOR DA REGIÃO 
-# IDENTIFICADA COMO UMA POSSIVEL ANOMALIA NA ESTRADA
-def limites_externos(height,width,height_Regiao,width_Regiao,x,y,x1,y1):
-
-	if(x - int(width_Regiao/2) >= 0):
-		x -= int(width_Regiao/2)
-	else:
-		x = 0
-
-	if(x1 + int(width_Regiao/2) < width):
-		x1 += int(width_Regiao/2)
-	else:
-		x1 = width
 
 
-	if(y - int(height_Regiao/2) >= 0):
-		y -= int(height_Regiao/2)
-	else:
-		y = 0
-
-	if(y1 + int(height_Regiao/2) < height):
-		y1 += int(height_Regiao/2)
-	else:
-		y1 = height
-
-	#print ("|Iniciais: ",x,'|',y,"|Finais:",'|',x1,'|',y1)
-	return x,y,x1,y1
-
-#FUNÇÃO RESPONSAVEL POR PERCORRER OS LIMITES INTERNOS -> EXTERNOS da SubSubImagem
-#PARA TENTAR TIRAR UMA GAUSSIANA DE SEUS VALORES
-def definindo_regiao(x,x1,y,y1,imagem):
-	lista = []
-	
-	height,width = imagem.shape[:2]
-	for i in range(0,255):
-		lista.append(-1)
-	i=0
-
-	#print ('Limites:','[',x,'-',x1,']','|','[',y,'-',y1,']')
-	#print ("Valores: ",[width,height])
-	
-	if(x == x1 or y == y1):
-		return (lista)
-	else:
-		for i in range(y,y1): #height
-			for j in range(x,x1): #width
-				
-				if (imagem[i][j] == -1):
-					imagem[i][j]
-					indice = imagem[i][j]
-					indice = indice + 2
-					lista.append(indice)
-				else:
-					#print(imagem[i][j])
-					indice = imagem[i][j]
-					indice = indice + 2
-					lista.append(indice)
-
-		#print(lista)			
-		#plt.plot(lista)
-		#plt.ylabel('Gauss')
-		#plt.show()
 
 
-		return (lista)
 
 
-def take(elem):
-	return elem[1]
 
-def estimando_regiao(lista):
-	r1,r2,r3 = -1,-1,-1
-	m1,m2,m3 = 1,1,1
 
-	#AQUI É REALIZADO UMA MÉDIA SIMPLES, COMO UMA MEDIDA DE UMA TENDENDCIA CENTRAL DE SEUS VALORES
-	#TALVEZ SEJA A MELHOR ABORDAGEM, JÁ QUE É DIFICIL ESTIMAR QUAL INTERVALO (0-255)  SERIA ESTIMADO COM UM DETERMINADO
-	#VALOR PARA PESOS DIFERENTES
 
-	for i in range(0,len(lista)-1):
-		if (i <= 85):
-			if(lista[i] != -1):
-				#print(lista[i])
-				r1 += lista[i]
-				m1 += 1
-			
-		elif (i > 85 and i <= 170):
-			if(lista[i] != -1):
-				#print(lista[i])
-				r2 += lista[i]
-				m2 += 1
-		else:
-			if(lista[i] != -1):
-				#print(lista[i])
-				r3 += lista[i]
-				m3 += 1
 
-	r1 = (r1/m1)
-	r2 = (r2/m2)
-	r3 = (r3/m3)
-		
-	#print ("R1: ",r1, "and","M1: ",m1)
-	#print ("R2: ",r2, "and","M2: ",m2)
-	#print ("R3: ",r3, "and","M3: ",m3)
 
-	listando = []
-	listando.append(("Escuro",r1))
-	listando.append(("Cinza",r2))
-	listando.append(("Claro",r3))
-	listando = sorted(listando,reverse=True,key=take)
-	#print (":: ",listando)
-
-	if (r1 == r2 == r3 == -1):
-		return ("Indefinido",-1)
-	else:
-		#print('A',listando[0])
-		return listando[0]
-
-#Função responsavel por receber a Sub_Lista onde a região principal se encontra
-#Ela verifica se os outros valores que existem na mesma lista possuem uma porcentagem 
-#significativa em relação a região principal, caso exista, e seja maior que 60%
-#o retorno é a quantidade de vezes que a região principal possui regiões ao seu redor
-def porcentagem(lista,indice):
-	valor = 0
-
-	for i in range(0,len(lista)):
-		if (i != indice):
-			#(Valor_de_outra_regiao / Valor_Principal)
-			porcent = lista[i][2] / lista[indice][2] 
-			
-			#print("Para [%s][%s][%f]" % (lista[i][0],lista[i][1],lista[i][2]))
-
-			if (porcent*100 >= 60):
-				#print(porcent*100)
-				valor += 1
-	return valor
-
-#Esta funcao recebe como parametro a lista contendo as tuplas de três elementos das caracteristicas de cada região principal e 
-#seus arredores
-#Essa tupla é compostas por ('SIGLA_REGIAO','TIPO_DE_COR_REGIAO','VALOR_MEDIA_DA_COR_DA_REGIAO')
-#Percorrendo essa lista, é separado então de acordo com os 'TIPOS_DE_COR_REGIAO' todas as tuplas
-#Depois verifica se em qual das listas está o elemento principal 'lista[0]' e se o seu valor de MÉDIA é maior que zero
-#Caso a condição seja verdadeira, a função 'PORCENTAGEM' é chamada e o seu valor de retorno é um valor indicando se 
-#a lista que contém a região principal, possui regiões ao seu redor que estão proximas se deu valor, isso pode indicar
-#que aquela região não necessariamente é um buraco, pode ser apenas uma mancha, ou alguma outra coisa qualquer que 
-def relacionando_regiao(lista):	
-	listaEs = []
-	listaCi = []
-	listaCl = []
-	valor = 0
-	flag = ""
-
-	for i in range(0,len(lista)-1):
-		if (lista[i][1] == 'Escuro'):
-			listaEs.append(lista[i])
-			flag = "Es"
-		
-		if(lista[i][1] == 'Cinza'):
-			listaCi.append(lista[i])
-			flag = "Ci"
-		
-		if(lista[i][1] == 'Claro'):
-			listaCl.append(lista[i])
-			flag = "Cl"
-	
-	#print("Es",listaEs)
-	#print("Ci",listaCi)
-	#print("Cl",listaCl)
-	
-	if(flag == "Es"):
-		if(listaEs[0][0] == 'P' and listaEs[0][2] > 0):			
-			valor = porcentagem(listaEs,0)
-		
-			
-	if(flag == "Ci"):
-		if(listaCi[0][0] == 'P' and listaCi[0][2] > 0 ):
-			valor = porcentagem(listaCi,0)
-
-	if(flag == "Cl"):
-		if(listaCl[0][0] == 'P' and listaCl[0][2] > 0):
-			valor = porcentagem(listaCl,0)
-			
-
-			
-	#print("VALOR: ",valor)
-	return valor
 
 #Função atualizada, verificar apenas a possibilidade de retornar uma lista ao inves da quantidade
 def contando_subimagens(num,arquivo):
@@ -344,6 +358,8 @@ def contando_subimagens(num,arquivo):
 			#lista.append(arquivo[i])
 
 	return count 
+
+
 
 if __name__ == "__main__":
 
@@ -362,13 +378,8 @@ if __name__ == "__main__":
 	especial = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem\\"
 	#especial = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
 
-	tabela = [{"NUM_ORIGIN":1,
-           	   "NUM_SUB":1,
-               "NUM_SUB_SUB":1,
-
-               "AREA_ORIGIN":0,
-               "AREA_SUB":0,
-               "AREA_SUB_SUB":0,
+	tabela = [{"NUM_ORIGIN":1,"NUM_SUB":1,"NUM_SUB_SUB":1,
+               "AREA_ORIGIN":0,"AREA_SUB":0,"AREA_SUB_SUB":0,
 
                "COMPRIMENTO_ORIGIN":0,
                "COMPRIMENTO_SUB":0,
@@ -419,7 +430,6 @@ if __name__ == "__main__":
 
 	for _, _, arquivo in os.walk(subimagem):
 		pass
-
 
 	count = 0
 	for cast in quantidade:
@@ -476,17 +486,13 @@ if __name__ == "__main__":
 
 				#-------------------------------------------------------
 				subImagem = cor.copy()
-
 				teste = imagem_contorno[j]
-				
 				quadrado = cv.minAreaRect(teste)
 				novos_contornos = cv.boxPoints(quadrado)
 				novos_contornos = np.int0(novos_contornos)
-
 				a = area(novos_contornos)
 				#--------------------------------------------------------
 				
-
 				print ("\nDefinindo regiões e seus valores\n")
 				#--------------------------------------------------------------------------------------------------------------#
 				#RESPONSAVEL POR DEFINIR OS LIMITES EM (x,y) DA SubSubImagem
@@ -512,15 +518,14 @@ if __name__ == "__main__":
 
 				listaTotal = []
 				for d_r in listaPosicoes:
-					a = d_r[1]
-					aux = definindo_regiao(a[0],a[1],a[2],a[3],imagem_cinza)
-					#subImagem[a[2]:a[3],a[0]:a[1]] = (randint(0,254),randint(0,254),randint(0,254))
+					pos = d_r[1]
+					aux = definindo_regiao(pos[0],pos[1],pos[2],pos[3],imagem_cinza)
+					#subImagem[pos[2]:pos[3],pos[0]:pos[1]] = (randint(0,254),randint(0,254),randint(0,254))
 					#mostrar_imagem(subImagem)
 					listaTotal.append([d_r[0],aux])
 
 				#listaTotal = [['P',listaP],['N',listaN],['S',listaS],['L',listaL],['O',listaO],['NO',listaNO],['NL',listaNL],['SL',listaSL],['SO',listaSO]]
 				#--------------------------------------------------------------------------------------------------------------#
-				
 				
 				print ('Definindo media das regiões\n')
 				#--------------------------------------------------------------------------------------------------------------#
@@ -552,7 +557,7 @@ if __name__ == "__main__":
 				area_Final = area_interesse(area_SubImagem,area_SubSubImagem)
 				
 				#---------------------------------------------------------------------------------------------------------------------
-				area_final = (area(novos_contornos)/area_SubImagem)
+				#area_final = (area(novos_contornos)/area_SubImagem)
 				#print(area_final)
 				#cv.drawContours(subImagem,[novos_contornos],0,(0,0,255),3)
 				#mostrar_imagem(subImagem)
@@ -579,20 +584,15 @@ if __name__ == "__main__":
 
 				area_SubOriginal = (area_SubImagem/area_Imagem)
 				area_SubSubOriginal = (area_SubSubImagem/area_Imagem)
-				area_SubSub_SubImagem = (area_SubSubImagem/area_SubImagem )
+				area_SubSub_SubImagem = (area_SubSubImagem/area_SubImagem)
 				
 				#regiao_P,media_P
 
 				#if(area_Final >= 0.003 and valor < 1):
 				#print ('Imagem atual:')
 					
-				friends = [{"NUM_ORIGIN":num,
-							"NUM_SUB":i,
-							"NUM_SUB_SUB":j,
-
-							"AREA_ORIGIN":area_Imagem,
-							"AREA_SUB":area_SubImagem,
-							"AREA_SUB_SUB":area_SubSubImagem,
+				tabela = [{"NUM_ORIGIN":num,"NUM_SUB":i,"NUM_SUB_SUB":j,
+							"AREA_ORIGIN":area_Imagem,"AREA_SUB":area_SubImagem,"AREA_SUB_SUB":area_SubSubImagem,
 
 							"COMPRIMENTO_ORIGIN":comp_Imagem,
 							"COMPRIMENTO_SUB":width_SubImagem,
@@ -634,7 +634,7 @@ if __name__ == "__main__":
 							"MEDIA_REGIAO_SO":listaRegiao[8][2],
 						}]
 
-				df = pd.DataFrame(friends)
+				df = pd.DataFrame(tabela)
 				df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","AREA_SUB_ORIGINAL","AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_P","MEDIA_REGIAO_N","MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL"]]				
 				print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
 				df.to_csv('ic.csv',header=False, mode='a',index=False)
@@ -650,7 +650,6 @@ if __name__ == "__main__":
 				salvar(imagem_aux,num,tag,'4_Contornos\\')
 				listandoContornos.append((novos_contornos,i))
 				
-
 		leitura = 0
 		listXY = []
 		listaFinal = []
@@ -666,8 +665,6 @@ if __name__ == "__main__":
 			lista = list(eval(texto))
 			print(lista[0][1])
 
-			#print ("NOVA LISTA:" ,lista)
-
 			leitura = especial + str(lista[0][1]) + '.jfif'
 			imagem_aux = cv.imread(leitura)
 
@@ -677,7 +674,8 @@ if __name__ == "__main__":
 			for k in range(0,len(lista)):
 				for j in range(inicioJ,limite):
 
-					if (lista[k][2] == listandoContornos[j][1]): #A comparação é realizada de acordo com os indices das imagens e não dos contornos
+					#A comparação é realizada de acordo com os indices das imagens e não dos contornos
+					if (lista[k][2] == listandoContornos[j][1]): 
 						menorX,menorY,lix,lix2 = limites(height,width,lista[k][0])
 
 						x = menorX + listandoContornos[j][0][0][0] 
@@ -697,7 +695,7 @@ if __name__ == "__main__":
 
 			#print (lista[0][1], ' and ',num)
 			salvar(imagem_aux,lista[0][1],0,'5_Finalizadas\\')
-			print ('Processamento da imagem [%d] foi finalizado... \n '%(num))
+			print ('Processamento da imagem [%d] foi finalizado...	\n '%(num))
 		#else:
 			#salvar(imagem_aux,i,len(listandoContornos),'5_Finalizadas/')
 

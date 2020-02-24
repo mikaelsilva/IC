@@ -1,15 +1,15 @@
 from matplotlib import pyplot as plt
 import numpy as np
-import cv2 as cv
+import cv2
 import math
 import os
 
 #Verificada e deixando apenas em função da erosao
 def reducao_ruido(num,imagem):
 	kernel = np.ones((10,15),np.uint8)
-	#dst = cv.fastNlMeansDenoising(imagem,None,10,7,21)
+	#dst = cv2.fastNlMeansDenoising(imagem,None,10,7,21)
 
-	erosao = cv.erode(imagem,kernel,iterations = 1)
+	erosao = cv2.erode(imagem,kernel,iterations = 1)
 
 	pasta = '1_Especial'
 	nome = str(num) + '.1'
@@ -18,40 +18,44 @@ def reducao_ruido(num,imagem):
 	return erosao
 
 def encontrando_contornos(imagem):
-	imagem2 = cv.Canny(imagem,100,200)
-
+	imagem2 = cv2.Canny(imagem,100,200) #Verificar a função da forma cv2.Canny(imagem) somente
 	return imagem2
 
+'''
+Atualmente não está em uso
 def area(contornos):
-    a = cv.contourArea(contornos)
+    a = cv2.contourArea(contornos)
     if a == None:
         a = 0.0
     return a
 
 def comprimento(contornos):
-    c = cv.arcLength(contornos,True)
+    c = cv2.arcLength(contornos,True)
     if c == None:
         c = 0.0
     return c
 
 def largura(contornos):
-    x,y,w,h = cv.boundingRect(contornos)
+    x,y,w,h = cv2.boundingRect(contornos)
     if w == None:
         w = 0.0
     return w
 
 def altura(contornos):
-    x,y,w,h = cv.boundingRect(contornos)
+    x,y,w,h = cv2.boundingRect(contornos)
     if h == None:
        h = 0.0
     return h
 
 def circularidade(contornos):
-    c =(4*math.pi*cv.contourArea(contornos))/((cv.arcLength(contornos,True)**2))
+    c =(4*math.pi*cv2.contourArea(contornos))/((cv2.arcLength(contornos,True)**2))
     if c == None:
         c = 0.0
     return c
 
+'''
+
+#MELHORAR ESSE TRECHO DE CÓDIGO .. . . . . . . . . .... . .  ..  . . .
 def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 	listaX=[]
 	listaY=[]
@@ -80,7 +84,7 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 		#mostrar_imagem(imagem_fatia)
 
 		#VERIFICAR A POSSIBILIDADE DO RESIZE NA IMAGEM "28/10/2019 00:00"
-		#res = cv.resize(imagem_fatia,(10*width, 10*height), interpolation = cv.INTER_CUBIC)
+		#res = cv2.resize(imagem_fatia,(10*width, 10*height), interpolation = cv2.INTER_CUBIC)
 		#mostrar_imagem(res)
 
 		#if (area_final >= 0.01):
@@ -93,11 +97,10 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 
 	return 0
 
-#MELHORAR ESSE TRECHO DE CÓDIGO .. . . . . . . . . .... . .  ..  . . .
 def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	num = 1
 	
-	contornos, hierarquia = cv.findContours(imagem_canny, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
+	contornos, hierarquia = cv2.findContours(imagem_canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 	imagem_contornosQuadrados = imagem.copy()
 
 	for i in range(len(contornos)):
@@ -105,8 +108,8 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 		imagem_contorno = imagem.copy()
 		imagem_quadrado = imagem.copy()
 
-		quadrado = cv.minAreaRect(teste)
-		novos_contornos = cv.boxPoints(quadrado)
+		quadrado = cv2.minAreaRect(teste)
+		novos_contornos = cv2.boxPoints(quadrado)
 		novos_contornos = np.int0(novos_contornos)
 
 		#VERIFICAR A RETIRADA DA CONDIÇÃO DE "largura e altura" 28/10/2019 23:50
@@ -114,25 +117,25 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 		#print ("A1: %f | P1: %f | W1: %f | H1: %f" %(area(teste),comprimento(teste),largura(teste),altura(teste)))
 		#print ("A2: %f | P2: %f | W2: %f | H2: %f" %(area(novos_contornos),comprimento(novos_contornos),largura(novos_contornos),altura(novos_contornos)))
 
-		#cv.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
-		#cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
+		#cv2.drawContours(imagem_contorno,[teste],0,(255,0,0),3)
+		#cv2.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3)
 
 		#mostrar_imagem(imagem_contorno)
 		#mostrar_imagem(imagem_quadrado)
 
 		if (reanalizando_contornos(imagem,novos_contornos,num_imagem,num) == 1):
 
-			cv.drawContours(imagem_contornosQuadrados,[novos_contornos],0,(0,0,255),3)
+			cv2.drawContours(imagem_contornosQuadrados,[novos_contornos],0,(0,0,255),3)
 			pasta = '2_Tratadas'
 			nome = str(num_imagem) + '_' + str(num)
-			salvar(pasta,cv.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
+			salvar(pasta,cv2.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
 			#nome = 0
 			lista.append([novos_contornos.tolist(),num_imagem,num])
 			num +=1
 
 
 	imagem_contornosCanny = imagem.copy()
-	cv.drawContours(imagem_contornosCanny,contornos,-1,(0,255,255),3)
+	cv2.drawContours(imagem_contornosCanny,contornos,-1,(0,255,255),3)
 
 	pasta = '1_Especial'
 	nome = str(num_imagem) + '_2'
@@ -149,11 +152,12 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	return imagem,num,lista
 
 
+#Funções Auxiliares
 def mostrar_imagem(imagem):
 
-	cv.imshow('Imagem',imagem)
-	cv.waitKey(0)
-	cv.destroyAllWindows()
+	cv2.imshow('Imagem',imagem)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
 
 	return 0
 
@@ -171,7 +175,7 @@ def salvar(pasta,imagem,nome):
 	#destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 	final = destino + pasta + '\\' + nome + '.png'
 
-	cv.imwrite(final,imagem)
+	cv2.imwrite(final,imagem)
 
 	return 0
 
@@ -198,13 +202,13 @@ if __name__ == "__main__":
 		lista = [[]]
 
 		i = int(img[0:-5])
-		imagem = cv.imread(origem+img)
+		imagem = cv2.imread(origem+img)
 
 		#Recortando imagem
 		imagem = imagem[256:512,0:512]
 		#mostrar_imagem(imagem)
 		
-		imagem_cinza = cv.cvtColor(imagem,cv.COLOR_RGB2GRAY)
+		imagem_cinza = cv2.cvtColor(imagem,cv2.COLOR_RGB2GRAY)
 		#mostrar_imagem(imagem_cinza)
 
 		imagem_tratada = reducao_ruido(i,imagem_cinza)
