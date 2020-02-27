@@ -312,7 +312,7 @@ def salvar(imagem, i,j,flag):
 	destino = "c:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\"
 	final = destino + flag + 'Contorno_' + str(i) + '.' + str(j) + '.png'
 
-	print(final)
+	#print(final)
 	cv.imwrite(final,imagem)
 
 
@@ -654,29 +654,29 @@ if __name__ == "__main__":
 		listXY = []
 		listaFinal = []
 		
-		limite = len(listandoContornos)
 		#print ("LIMITE: ", limite)
 		arq = open(destino + '0_Listas_Posicoes\\' + 'lista' + str(num) + '.txt', 'r')
 
 		texto = arq.read()
 
 		if(texto != 'NaN'):
-			#CORRIGIR ESTA EXPRESSAO
-			lista = list(eval(texto))
-			print(lista[0][1])
+			listaFinal = list(eval(texto))
+			#print(lista[0][1])
 
-			leitura = especial + str(lista[0][1]) + '.jfif'
+			leitura = especial + str(listaFinal[0][1]) + '.jfif'
 			imagem_aux = cv.imread(leitura)
 
 			#AQUI COMEÇA A COMPARAÇÃO COM OS VALORES DA LISTA ENCONTRADA AQUI E DA LISTA ORIGINAL
-			inicioJ = 0
+			print(listaFinal)
+			print("LISTA")
+			print(listandoContornos)
 
-			for k in range(0,len(lista)):
-				for j in range(inicioJ,limite):
+			for k in range(0,len(listaFinal)):
+				for j in range(0,len(listandoContornos)):
 
 					#A comparação é realizada de acordo com os indices das imagens e não dos contornos
-					if (lista[k][2] == listandoContornos[j][1]): 
-						menorX,menorY,lix,lix2 = limites(height,width,lista[k][0])
+					if (listaFinal[k][2] == listandoContornos[j][1]): 
+						menorX,menorY,_,_ = limites(height,width,listaFinal[k][0])
 
 						x = menorX + listandoContornos[j][0][0][0] 
 						y = menorY + listandoContornos[j][0][0][1] + 256
@@ -694,7 +694,7 @@ if __name__ == "__main__":
 						cv.drawContours(imagem_aux,[contorno],0,(0,0,255),3)
 
 			#print (lista[0][1], ' and ',num)
-			salvar(imagem_aux,lista[0][1],0,'5_Finalizadas\\')
+			salvar(imagem_aux,listaFinal[0][1],0,'5_Finalizadas\\')
 			print ('Processamento da imagem [%d] foi finalizado...	\n '%(num))
 		#else:
 			#salvar(imagem_aux,i,len(listandoContornos),'5_Finalizadas/')
