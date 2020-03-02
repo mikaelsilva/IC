@@ -5,7 +5,7 @@ import math
 import os
 
 #Verificada e deixando apenas em função da erosao
-def reducao_ruido(num,imagem):
+def reducao_ruido(num,imagem):	
 	kernel = np.ones((10,15),np.uint8)
 	#dst = cv2.fastNlMeansDenoising(imagem,None,10,7,21)
 
@@ -92,8 +92,9 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 		nome = str(num_imagem) + '_' + str(num)
 		salvar(pasta,imagem_fatia,nome)
 		return 1
-			
-	imagem_fatia = 0
+	else:
+		print("FORA")		
+		imagem_fatia = 0
 
 	return 0
 
@@ -204,12 +205,15 @@ if __name__ == "__main__":
 		i = int(img[0:-5])
 		imagem = cv2.imread(origem+img)
 
+		#mostrar_imagem(imagem)
 		#Recortando imagem
 		imagem = imagem[256:512,0:512]
 		#mostrar_imagem(imagem)
+		salvar('1_Especial',imagem,str(i)+'_Cut')
 		
 		imagem_cinza = cv2.cvtColor(imagem,cv2.COLOR_RGB2GRAY)
 		#mostrar_imagem(imagem_cinza)
+		salvar('1_Especial',imagem_cinza,str(i)+"_Gray")
 
 		imagem_tratada = reducao_ruido(i,imagem_cinza)
 		#mostrar_imagem(imagem_tratada)

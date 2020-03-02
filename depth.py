@@ -44,7 +44,7 @@ def limites(height,width,lista):
 	listaX = []
 	listaY = []
 
-	#Verificar o porque em alguns casos os novo_contorno termina por acusar um valor fora da faixa do tamanho da uma imagem
+	#Verificar o porque em alguns casos os novo_contorno termina por acusar um valor fora da faixa do tamanho da sua sub_imagem
 	for i in range(0,4):
 		x , y = lista[i]
 		listaX.append(x)
@@ -69,7 +69,7 @@ def limites(height,width,lista):
 	return x1,y1,x2,y2
 
 #RESPONSAVEL PELA IDENTIFICAÇÃO DOS VALORES QUE EXCEDEM A 
-# SUB_SUB_IMAGEM  FORMANDO AS 6 REGIÕES AO REDOR DA REGIÃO 
+# SUB_SUB_IMAGEM  FORMANDO AS 8 REGIÕES AO REDOR DA REGIÃO 
 # IDENTIFICADA COMO UMA POSSIVEL ANOMALIA NA ESTRADA
 def limites_externos(height,width,height_Regiao,width_Regiao,x,y,x1,y1):
 
@@ -445,14 +445,17 @@ if __name__ == "__main__":
 
 			leitura = subimagem + str(num)+ '_' +str(i) + '.png'
 			cor = cv.imread(leitura)
-			#mostrar_imagem(cor)
+			#
+			# 
+			# 
+			# mostrar_imagem(cor)
 
 			#width = int(cor.shape[1] *2)
 			#height = int(cor.shape[0] * 2)
 			#cor = cv.resize(cor, (width,height), interpolation = cv.INTER_LINEAR)
 			
 			imagem = cv.cvtColor(cor,cv.COLOR_RGB2GRAY)
-			#mostrar_imagem(imagem)
+			mostrar_imagem(imagem)
 
 			height, width = cor.shape[:2]
 
@@ -520,8 +523,8 @@ if __name__ == "__main__":
 				for d_r in listaPosicoes:
 					pos = d_r[1]
 					aux = definindo_regiao(pos[0],pos[1],pos[2],pos[3],imagem_cinza)
-					#subImagem[pos[2]:pos[3],pos[0]:pos[1]] = (randint(0,254),randint(0,254),randint(0,254))
-					#mostrar_imagem(subImagem)
+					subImagem[pos[2]:pos[3],pos[0]:pos[1]] = (randint(0,254),randint(0,254),randint(0,254))
+					mostrar_imagem(subImagem)
 					listaTotal.append([d_r[0],aux])
 
 				#listaTotal = [['P',listaP],['N',listaN],['S',listaS],['L',listaL],['O',listaO],['NO',listaNO],['NL',listaNL],['SL',listaSL],['SO',listaSO]]
