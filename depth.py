@@ -119,16 +119,19 @@ def definindo_regiao(x,x1,y,y1,imagem):
 	else:
 		for height in range(y,y1): #height
 			for width in range(x,x1): #width
-
 				indice = imagem[height][width]
 				dicio[str(indice)] = dicio[str(indice)] + 1
 
 		#print(lista)			
-		#plt.plot(lista)
+		
 		#plt.ylabel('Gauss')
 		#plt.show()
 		for val in dicio.values():
 			lista.append(val)
+		
+		
+		#plt.bar(range(255),lista)
+		#plt.show()
 		return (lista)
 
 #AQUI É REALIZADO UMA MÉDIA SIMPLES, COMO UMA MEDIDA DE UMA TENDENDCIA CENTRAL DE SEUS VALORES
@@ -147,6 +150,7 @@ def estimando_regiao(lista):
 			
 		elif (i > 85 and i <= 170):
 			if(lista[i] != 0):
+				
 				#print(lista[i])
 				r2 += lista[i]
 				m2 += 1
@@ -450,12 +454,12 @@ if __name__ == "__main__":
 			# 
 			# mostrar_imagem(cor)
 
-			#width = int(cor.shape[1] *2)
-			#height = int(cor.shape[0] * 2)
+			#width = int(cor.shape[1] *10)
+			#height = int(cor.shape[0] * 10)
 			#cor = cv.resize(cor, (width,height), interpolation = cv.INTER_LINEAR)
 			
 			imagem = cv.cvtColor(cor,cv.COLOR_RGB2GRAY)
-			mostrar_imagem(imagem)
+			#mostrar_imagem(imagem)
 
 			height, width = cor.shape[:2]
 
@@ -523,8 +527,8 @@ if __name__ == "__main__":
 				for d_r in listaPosicoes:
 					pos = d_r[1]
 					aux = definindo_regiao(pos[0],pos[1],pos[2],pos[3],imagem_cinza)
-					subImagem[pos[2]:pos[3],pos[0]:pos[1]] = (randint(0,254),randint(0,254),randint(0,254))
-					mostrar_imagem(subImagem)
+					#subImagem[pos[2]:pos[3],pos[0]:pos[1]] = (randint(0,254),randint(0,254),randint(0,254))
+					#mostrar_imagem(subImagem)
 					listaTotal.append([d_r[0],aux])
 
 				#listaTotal = [['P',listaP],['N',listaN],['S',listaS],['L',listaL],['O',listaO],['NO',listaNO],['NL',listaNL],['SL',listaSL],['SO',listaSO]]
@@ -638,7 +642,10 @@ if __name__ == "__main__":
 						}]
 
 				df = pd.DataFrame(tabela)
-				df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","AREA_SUB_ORIGINAL","AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_P","MEDIA_REGIAO_N","MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL"]]				
+				df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB",
+				"LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","AREA_SUB_ORIGINAL",
+				"AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL",
+				"MEDIA_REGIAO_P","MEDIA_REGIAO_N","MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL"]]				
 				print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
 				df.to_csv('ic.csv',header=False, mode='a',index=False)
 				
