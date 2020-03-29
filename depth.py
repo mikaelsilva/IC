@@ -138,48 +138,39 @@ def definindo_regiao(x,x1,y,y1,imagem):
 #TALVEZ SEJA A MELHOR ABORDAGEM, JÁ QUE É DIFICIL ESTIMAR QUAL INTERVALO (0-255)  SERIA ESTIMADO COM UM DETERMINADO
 # #VALOR PARA PESOS DIFERENTES
 def estimando_regiao(lista):
-	r1,r2,r3 = -1,-1,-1
-	m1,m2,m3 = 1,1,1
+	r1,r2,r3 = 1,1,1
 
 	for i in range(0,len(lista)-1):
 		if (i <= 85):
 			if(lista[i] != 0):
-				#print(lista[i])
 				r1 += lista[i]
-				m1 += 1
-			
+
 		elif (i > 85 and i <= 170):
 			if(lista[i] != 0):
-				
-				#print(lista[i])
-				r2 += lista[i]
-				m2 += 1
+				r2 += lista[i] 
+
 		else:
 			if(lista[i] != 0):
-				#print(lista[i])
-				r3 += lista[i]
-				m3 += 1
+				r3 += lista[i] 
 
-	r1 = (r1/m1)
-	r2 = (r2/m2)
-	r3 = (r3/m3)
+	media_1 = r1/85
+	media_2 = r2/85
+	media_3 = r3/85
 		
-	#print ("R1: ",r1, "and","M1: ",m1)
-	#print ("R2: ",r2, "and","M2: ",m2)
-	#print ("R3: ",r3, "and","M3: ",m3)
-
 	listando = []
-	listando.append(("Escuro",r1))
-	listando.append(("Cinza",r2))
-	listando.append(("Claro",r3))
+	listando.append(("Escuro",media_1))
+	listando.append(("Cinza",media_2))
+	listando.append(("Claro",media_3))
 	listando = sorted(listando,reverse=True,key=take)
 	#print (":: ",listando)
 
-	if (r1 == r2 == r3 == -1.0):
+	if (media_1 == media_2 == media_3 == -1.0):
 		return ("Indefinido",-1.0)
 	else:
-		#print('A',listando[0])
-		return listando[0]
+		if(listando[0][1] == listando[1][1] == listando[2][1]):
+			return ("Iguais",listando[0][1])
+		else:	
+			return listando[0]
 
 
 def take(elem):
@@ -216,8 +207,13 @@ def relacionando_regiao(lista):
 	listaEs = []
 	listaCi = []
 	listaCl = []
+	listaIn = []
+	listaIg = []
+
 	valor = 0
 	flag = ""
+
+	print(lista)
 
 	for i in range(0,len(lista)-1):
 		if (lista[i][1] == 'Escuro'):
@@ -231,24 +227,46 @@ def relacionando_regiao(lista):
 		if(lista[i][1] == 'Claro'):
 			listaCl.append(lista[i])
 			flag = "Cl"
-	
-	#print("Es",listaEs)
-	#print("Ci",listaCi)
-	#print("Cl",listaCl)
+		
+		if(lista[i][1] == 'Indefinido'):
+			listaIn.append(lista[i])
+			flag = "In"
+
+		if(lista[i][1] == 'Iguais'):
+			listaIg.append(lista[i])
+			flag = "Ig"
+
+	print("Es",listaEs,"Valor",len(listaEs))
+	print("Ci",listaCi,"Valor",len(listaCi))
+	print("Cl",listaCl,"Valor",len(listaCl))
+	print("In",listaIn,"Valor",len(listaIn))
+	print("Ig",listaIg,"Valor",len(listaIg))
 	
 	if(flag == "Es"):
-		if(listaEs[0][0] == 'P' and listaEs[0][2] > 0):			
-			valor = porcentagem(listaEs)
-	
+		if(listaEs[0][0] == 'P'):			
+			#print("Es",listaEs,"Valor",len(listaEs))
+			valor = len(listaEs)	
+			
 	if(flag == "Ci"):
-		if(listaCi[0][0] == 'P' and listaCi[0][2] > 0 ):
-			valor = porcentagem(listaCi)
-
+		if(listaCi[0][0] == 'P'):
+			#print("Ci",listaCi,"Valor",len(listaCi))
+			valor = len(listaCi)
+			
 	if(flag == "Cl"):
-		if(listaCl[0][0] == 'P' and listaCl[0][2] > 0):
-			valor = porcentagem(listaCl)
-						
-	#print("VALOR: ",valor)
+		if(listaCl[0][0] == 'P'):
+			#print("Cl",listaCl,"Valor",len(listaCl))
+			valor = len(listaCl)
+			
+	if(flag == "In"):
+		if(listaIn[0][0] == 'P'):
+			#print("In",listaIn,"Valor",len(listaIn))
+			valor = len(listaIn)
+					
+	if(flag == "Ig"):
+		if(listaIg[0][0] == 'P'):
+			#print("Ig",listaIg,"Valor",len(listaIg))
+			valor = len(listaIg)
+			
 	return valor
 
 
@@ -321,9 +339,6 @@ def salvar(imagem, i,j,flag):
 
 
 
-
-
-
 def desenhando(imagem,contornos):
 	cv.drawContours(imagem,[contornos],0,(0,0,255),3)
 	return imagem
@@ -335,18 +350,6 @@ def equalizar(imagem):
 	cl1 = clahe.apply(imagem)
 	return cl1
 #----------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -405,28 +408,37 @@ if __name__ == "__main__":
 			   "AREA_SUBSUB_SUB_IMAGEM":0,
 
                "REGIAO_P":"null",
-               "REGIAO_N":"null",
-               "REGIAO_S":"null",
-               "REGIAO_L":"null",
-               "REGIAO_O":"null",
-               "REGIAO_NO":"null",
-               "REGIAO_NL":"null",
-               "REGIAO_SO":"null",
-               "REGIAO_SL":"null",
+			   "MEDIA_REGIAO_P":0,
 
-               "MEDIA_REGIAO_P":0,
-               "MEDIA_REGIAO_N":0,
-               "MEDIA_REGIAO_S":0,
-               "MEDIA_REGIAO_L":0,
-               "MEDIA_REGIAO_O":0,
-               "MEDIA_REGIAO_NO":0,
-               "MEDIA_REGIAO_NL":0,
-               "MEDIA_REGIAO_SO":0,
-               "MEDIA_REGIAO_SL":0,
+               "REGIAO_N":"null",
+			   "MEDIA_REGIAO_N":0,
+
+               "REGIAO_S":"null",
+			   "MEDIA_REGIAO_S":0,
+
+               "REGIAO_L":"null",
+			   "MEDIA_REGIAO_L":0,
+
+               "REGIAO_O":"null",
+			   "MEDIA_REGIAO_O":0,
+
+               "REGIAO_NO":"null",
+			   "MEDIA_REGIAO_NO":0,
+
+               "REGIAO_NL":"null",
+			   "MEDIA_REGIAO_NL":0,
+
+               "REGIAO_SO":"null",
+			   "MEDIA_REGIAO_SO":0,
+
+               "REGIAO_SL":"null",
+			   "MEDIA_REGIAO_SL":0,
+
+			   "QTD_REGIOES"=0
             }]
 
 	df = pd.DataFrame(tabela)
-	df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","AREA_SUB_ORIGINAL","AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_P","MEDIA_REGIAO_N","MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL"]]				
+	df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB","LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","AREA_SUB_ORIGINAL","AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SO","MEDIA_REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_SL","QTD_REGIOES"]]				
 	df.to_csv('ic.csv',header=True,index=False)
 	
 	for _, _, quantidade in os.walk(origem):
@@ -552,10 +564,13 @@ if __name__ == "__main__":
 				#mostrar_imagem(subImagem)
 				#--------------------------------------------------------------------------------------------------------------#
 				
-				if (valor > 0):
-					print ('Existem regiões com valores aproximados')
+				if(valor is None):
+					print("Valor None Retornado")
+					valor = 'None'
+				elif(valor > 0):
+					print ("Existem regiões com valores aproximados")
 				else:
-					print ('Não existem regiões com valores aproximados')
+					print ("Não existem regiões com valores aproximados")
 
 				print('-----------------------------------------------------------------------------------------------------------------------')
 
@@ -621,31 +636,40 @@ if __name__ == "__main__":
 							"AREA_SUBSUB_SUB_IMAGEM":area_SubSub_SubImagem,
 
 							"REGIAO_P":listaRegiao[0][1],
-							"REGIAO_N":listaRegiao[1][1],
-							"REGIAO_S":listaRegiao[2][1],
-							"REGIAO_L":listaRegiao[3][1],
-							"REGIAO_O":listaRegiao[4][1],
-							"REGIAO_NO":listaRegiao[5][1],
-							"REGIAO_NL":listaRegiao[6][1],
-							"REGIAO_SL":listaRegiao[7][1],
-							"REGIAO_SO":listaRegiao[8][1],
-
 							"MEDIA_REGIAO_P":listaRegiao[0][2],
+
+							"REGIAO_N":listaRegiao[1][1],
 							"MEDIA_REGIAO_N":listaRegiao[1][2],
+
+							"REGIAO_S":listaRegiao[2][1],
 							"MEDIA_REGIAO_S":listaRegiao[2][2],
+
+							"REGIAO_L":listaRegiao[3][1],
 							"MEDIA_REGIAO_L":listaRegiao[3][2],
+							
+							"REGIAO_O":listaRegiao[4][1],
 							"MEDIA_REGIAO_O":listaRegiao[4][2],
+							
+							"REGIAO_NO":listaRegiao[5][1],
 							"MEDIA_REGIAO_NO":listaRegiao[5][2],
+
+							"REGIAO_NL":listaRegiao[6][1],
 							"MEDIA_REGIAO_NL":listaRegiao[6][2],
+
+							"REGIAO_SL":listaRegiao[7][1],
 							"MEDIA_REGIAO_SL":listaRegiao[7][2],
+							
+							"REGIAO_SO":listaRegiao[8][1],
 							"MEDIA_REGIAO_SO":listaRegiao[8][2],
+
+							"QTD_REGIOES"=valor
 						}]
 
 				df = pd.DataFrame(tabela)
 				df = df[["NUM_ORIGIN","NUM_SUB","NUM_SUB_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","COMPRIMENTO_SUB_SUB",
 				"LARGURA_ORIGIN","LARGURA_SUB","LARGURA_SUB_SUB","ALTURA_ORIGIN","ALTURA_SUB","ALTURA_SUB_SUB","CIRCULARIDADE_SUB","CIRCULARIDADE_SUB_SUB","AREA_SUB_ORIGINAL",
-				"AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","REGIAO_N","REGIAO_S","REGIAO_L","REGIAO_O","REGIAO_NO","REGIAO_NL","REGIAO_SO","REGIAO_SL",
-				"MEDIA_REGIAO_P","MEDIA_REGIAO_N","MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL"]]				
+				"AREA_SUBSUB_ORIGINAL","AREA_SUBSUB_SUB_IMAGEM","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L","REGIAO_O",
+				"MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SO","MEDIA_REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_SL","QTD_REGIOES"]]				
 				print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
 				df.to_csv('ic.csv',header=False, mode='a',index=False)
 				
