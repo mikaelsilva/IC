@@ -204,80 +204,48 @@ def porcentagem(lista):
 #a lista que contém a região principal, possui regiões ao seu redor que estão proximas de deu valor, isso pode indicar
 #que aquela região não necessariamente é um buraco, pode ser apenas uma mancha, ou alguma outra coisa qualquer que 
 def relacionando_regiao(lista):	
-	listaEs = []
-	listaCi = []
-	listaCl = []
-	listaIn = []
-	listaIg = []
-
+	listaEs,listaCi,listaCl,listaIn,listaIg = [], [], [], [], []
 	valor = 0
 	flag = ""
 
-	print(lista)
-
-	for i in range(0,len(lista)-1):
-		if (lista[i][1] == 'Escuro'):
-			listaEs.append(lista[i])
-			flag = "Es"
+	for lis in lista:
+		if (lis[1] == 'Escuro'):
+			listaEs.append(lis)
+			flag = "Escuro"
 		
-		if(lista[i][1] == 'Cinza'):
-			listaCi.append(lista[i])
-			flag = "Ci"
+		if(lis[1] == 'Cinza'):
+			listaCi.append(lis)
+			flag = "Cinza"
 		
-		if(lista[i][1] == 'Claro'):
-			listaCl.append(lista[i])
-			flag = "Cl"
+		if(lis[1] == 'Claro'):
+			listaCl.append(lis)
+			flag = "Claro"
 		
-		if(lista[i][1] == 'Indefinido'):
-			listaIn.append(lista[i])
-			flag = "In"
+		if(lis[1] == 'Indefinido'):
+			listaIn.append(lis)
+			flag = "Indefinido"
 
-		if(lista[i][1] == 'Iguais'):
-			listaIg.append(lista[i])
-			flag = "Ig"
+		if(lis[1] == 'Iguais'):
+			listaIg.append(lis)
+			flag = "Iguais"
 
-	print("Es",listaEs,"Valor",len(listaEs))
-	print("Ci",listaCi,"Valor",len(listaCi))
-	print("Cl",listaCl,"Valor",len(listaCl))
-	print("In",listaIn,"Valor",len(listaIn))
-	print("Ig",listaIg,"Valor",len(listaIg))
-	
-	if(flag == "Es"):
-		if(listaEs[0][0] == 'P'):			
-			#print("Es",listaEs,"Valor",len(listaEs))
-			valor = len(listaEs)	
-			
-	if(flag == "Ci"):
-		if(listaCi[0][0] == 'P'):
-			#print("Ci",listaCi,"Valor",len(listaCi))
-			valor = len(listaCi)
-			
-	if(flag == "Cl"):
-		if(listaCl[0][0] == 'P'):
-			#print("Cl",listaCl,"Valor",len(listaCl))
-			valor = len(listaCl)
-			
-	if(flag == "In"):
-		if(listaIn[0][0] == 'P'):
-			#print("In",listaIn,"Valor",len(listaIn))
-			valor = len(listaIn)
-					
-	if(flag == "Ig"):
-		if(listaIg[0][0] == 'P'):
-			#print("Ig",listaIg,"Valor",len(listaIg))
-			valor = len(listaIg)
-			
+	for i in [listaEs,listaCi,listaCl,listaIn,listaIg]:
+		try:
+			if(i[0][0] == 'P'):
+				return len(i)
+		except:
+			pass
+
 	return valor
 
 
 #A relação entre as duas areas ocorre de forma a identificar qual a área da subimagem em relação a imagem maior/anterior
 #(Sub_Imagem / Imagem_Original) , (SubSub_Imagem / Sub_Imagem) ,(SubSub_Imagem / Imagem_Original)
 def area_interesse(area_Imagem,area_SubImagem):
-
 	try:
-		area = area_SubImagem / area_Imagem 
-		area = area_SubImagem*100
-		return area
+		area = area_Imagem - area_SubImagem
+		variacao_porcent = (area*100)/area_Imagem
+		return variacao_porcent
 	except:
 		return -1
 
@@ -338,11 +306,9 @@ def salvar(imagem, i,j,flag):
 	cv.imwrite(final,imagem)
 
 
-
 def desenhando(imagem,contornos):
 	cv.drawContours(imagem,[contornos],0,(0,0,255),3)
 	return imagem
-
 
 
 def equalizar(imagem):
@@ -350,8 +316,6 @@ def equalizar(imagem):
 	cl1 = clahe.apply(imagem)
 	return cl1
 #----------------------------------------------------------------
-
-
 
 #Função atualizada, verificar apenas a possibilidade de retornar uma lista ao inves da quantidade
 def contando_subimagens(num,arquivo):
@@ -434,7 +398,7 @@ if __name__ == "__main__":
                "REGIAO_SL":"null",
 			   "MEDIA_REGIAO_SL":0,
 
-			   "QTD_REGIOES"=0
+			   "QTD_REGIOES":0
             }]
 
 	df = pd.DataFrame(tabela)
@@ -512,7 +476,7 @@ if __name__ == "__main__":
 				a = area(novos_contornos)
 				#--------------------------------------------------------
 				
-				print ("\nDefinindo regiões e seus valores\n")
+				#print ("\nDefinindo regiões e seus valores\n")
 				#--------------------------------------------------------------------------------------------------------------#
 				#RESPONSAVEL POR DEFINIR OS LIMITES EM (x,y) DA SubSubImagem
 				lxi0, lyi0, lxi1, lyi1 = limites(height,width,novos_contornos)
@@ -546,7 +510,7 @@ if __name__ == "__main__":
 				#listaTotal = [['P',listaP],['N',listaN],['S',listaS],['L',listaL],['O',listaO],['NO',listaNO],['NL',listaNL],['SL',listaSL],['SO',listaSO]]
 				#--------------------------------------------------------------------------------------------------------------#
 				
-				print ('Definindo media das regiões\n')
+				#print ('Definindo media das regiões\n')
 				#--------------------------------------------------------------------------------------------------------------#
 				listaRegiao = []
 				media = []
@@ -558,7 +522,7 @@ if __name__ == "__main__":
 					#print ("Relacionando as regiões: [%s] | [%f] | [%f]" ,estimando[0],regiao,media)
 				
 				#--------------------------------------------------------------------------------------------------------------#
-				print ('\nRelacionando valores de regiões\n')
+				#print ('\nRelacionando valores de regiões\n')
 				valor = relacionando_regiao(listaRegiao)
 				#subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 0)
 				#mostrar_imagem(subImagem)
@@ -566,18 +530,18 @@ if __name__ == "__main__":
 				
 				if(valor is None):
 					print("Valor None Retornado")
-					valor = 'None'
-				elif(valor > 0):
+					valor = "None"
+				elif(valor > 1):
 					print ("Existem regiões com valores aproximados")
 				else:
-					print ("Não existem regiões com valores aproximados")
+					print ("Não existem regiões com valores aproximados -> ",valor)
 
 				print('-----------------------------------------------------------------------------------------------------------------------')
 
 				#print (listaRegiao)
 
 				area_Final = area_interesse(area_SubImagem,area_SubSubImagem)
-				
+				print("area_Final",area_Final)
 				#---------------------------------------------------------------------------------------------------------------------
 				#area_final = (area(novos_contornos)/area_SubImagem)
 				#print(area_final)
@@ -612,7 +576,7 @@ if __name__ == "__main__":
 
 				#if(area_Final >= 0.003 and valor < 1):
 				#print ('Imagem atual:')
-					
+				
 				tabela = [{"NUM_ORIGIN":num,"NUM_SUB":i,"NUM_SUB_SUB":j,
 							"AREA_ORIGIN":area_Imagem,"AREA_SUB":area_SubImagem,"AREA_SUB_SUB":area_SubSubImagem,
 
@@ -662,7 +626,7 @@ if __name__ == "__main__":
 							"REGIAO_SO":listaRegiao[8][1],
 							"MEDIA_REGIAO_SO":listaRegiao[8][2],
 
-							"QTD_REGIOES"=valor
+							"QTD_REGIOES":valor
 						}]
 
 				df = pd.DataFrame(tabela)
@@ -701,9 +665,9 @@ if __name__ == "__main__":
 			imagem_aux = cv.imread(leitura)
 
 			#AQUI COMEÇA A COMPARAÇÃO COM OS VALORES DA LISTA ENCONTRADA AQUI E DA LISTA ORIGINAL
-			print(listaFinal)
-			print("LISTA")
-			print(listandoContornos)
+			#print(listaFinal)
+			#print("LISTA")
+			#print(listandoContornos)
 
 			for k in range(0,len(listaFinal)):
 				for j in range(0,len(listandoContornos)):
