@@ -1,0 +1,98 @@
+"NUM_ORIGIN":num: Numero da imagem do banco de dadas
+"NUM_SUB":j[2]: Numero da SubImagem gerada a partir da imagem Original
+
+"AREA_ORIGIN":area_Imagem: Area da imagem Original
+"AREA_SUB":area_SubImagem: Area da SubImagem gerada a partir da imagem Original
+
+"COMPRIMENTO_ORIGIN":comp_Imagem: Comprimento da imagem Original
+"COMPRIMENTO_SUB":width_SubImagem: Comprimento da Subimagem gerada a partir da imagem Original
+
+"LARGURA_ORIGIN":larg_Imagem: Largura da imagem Original
+"LARGURA_SUB":width_SubImagem: Largura da SubImagem gerada a partir da imagem Original
+
+"ALTURA_ORIGIN":height_Imagem: Altura da imagem Original
+"ALTURA_SUB":height_SubImagem: Altura da SubImagem gerada a partir da imagem Original
+
+"CIRCULARIDADE_SUB":0: Circularidade da SubImagem gerada a partir da imagem Original
+
+"AREA_SUB_ORIGINAL":area_SubOriginal: Valor da '%' entre a Area_SubImagem e a Area_Original
+
+"REGIAO_P":listaRegiao[0][1]: Tipo da região PRINCIPAL, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_P":listaRegiao[0][2]: Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"REGIAO_N":listaRegiao[1][1]: Tipo da região NORTE, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_N":listaRegiao[1][2]:  Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"REGIAO_S":listaRegiao[2][1]: Tipo da região SUL, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_S":listaRegiao[2][2]: Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"REGIAO_L":listaRegiao[3][1]: Tipo da região LESTE, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_L":listaRegiao[3][2]: Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"REGIAO_O":listaRegiao[4][1]: Tipo da região OESTE, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_O":listaRegiao[4][2]: Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"REGIAO_NO":listaRegiao[5][1]: Tipo da região NORDESTE, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_NO":listaRegiao[5][2]: Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"REGIAO_NL":listaRegiao[6][1]: Tipo da região NOROESTE, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_NL":listaRegiao[6][2]: Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"REGIAO_SL":listaRegiao[7][1]: Tipo da região SUDOESTE, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_SL":listaRegiao[7][2]: Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"REGIAO_SO":listaRegiao[8][1]: Tipo da região SUDESTE, (Escuro, Cinza,Claro,Iguais,Indefinido)
+"MEDIA_REGIAO_SO":listaRegiao[8][2]: Representa a maior média dos valores das regiões que definiu o seu tipo
+
+"QTD_REGIOES":valor
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+"NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB","CIRCULARIDADE_SUB",
+"AREA_SUB_ORIGINAL","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O",
+"REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SO","MEDIA_REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_SL","QTD_REGIOES"
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+"NUM_ORIGIN":num                                 ->  OK
+"NUM_SUB":j[2]                                   ->  OK
+"AREA_ORIGIN":area_Imagem                         -> OK
+"AREA_SUB":area_SubImagem                         -> OK
+"COMPRIMENTO_ORIGIN":comp_Imagem                  -> OK
+"COMPRIMENTO_SUB":width_SubImagem                 -> OK
+"LARGURA_ORIGIN":larg_Imagem                      -> OK
+"LARGURA_SUB":width_SubImagem                     -> OK
+"ALTURA_ORIGIN":height_Imagem                    ->  OK
+"ALTURA_SUB":height_SubImagem                    ->  OK
+"CIRCULARIDADE_SUB":0                            ->  -
+"AREA_SUB_ORIGINAL":area_SubOriginal            ->   OK
+
+"REGIAO_P":listaRegiao[0][1]                    ->   OK
+"MEDIA_REGIAO_P":listaRegiao[0][2]               ->  OK
+"REGIAO_N":listaRegiao[1][1]                    ->   OK
+"MEDIA_REGIAO_N":listaRegiao[1][2]             ->    OK
+"REGIAO_S":listaRegiao[2][1]                    ->   OK
+"MEDIA_REGIAO_S":listaRegiao[2][2]             ->    OK
+"REGIAO_L":listaRegiao[3][1]                    ->   OK
+"MEDIA_REGIAO_L":listaRegiao[3][2]             ->    OK
+"REGIAO_O":listaRegiao[4][1]                    ->   OK
+"MEDIA_REGIAO_O":listaRegiao[4][2]             ->    OK
+"REGIAO_NO":listaRegiao[5][1]                   ->   OK
+"MEDIA_REGIAO_NO":listaRegiao[5][2]             ->   OK
+"REGIAO_NL":listaRegiao[6][1]                    ->  OK
+"MEDIA_REGIAO_NL":listaRegiao[6][2]             ->   OK
+"REGIAO_SL":listaRegiao[7][1]                   ->   OK
+"MEDIA_REGIAO_SL":listaRegiao[7][2]             ->   OK
+"REGIAO_SO":listaRegiao[8][1]                    ->  OK
+"MEDIA_REGIAO_SO":listaRegiao[8][2]             ->   OK
+
+"QTD_REGIOES":valor                              ->  OK
+
+
+
+
+
+
+
+
