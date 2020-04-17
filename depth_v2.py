@@ -33,10 +33,7 @@ def contornos(imagem):
 	contornos, hierarquia = cv.findContours(imagem, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
 	return (contornos,hierarquia)
 
-
 #----------------------------------------------------------------------------------------------------------------------------------------------
-
-
 #RESPONSAVEL POR ENCONTRAR OS LIMITES DA SUBIMAGEM
 def limites(height, width, lista):
 	listaX = []
@@ -92,7 +89,6 @@ def limites_externos(height,width,height_Regiao,width_Regiao,x_min,y_min,x1_max,
 	#print ("|Iniciais: ",x,'|',y,"|Finais:",'|',x1,'|',y1)
 	return x_min,y_min,x1_max,y1_max
 
-
 #FUNÇÃO RESPONSAVEL POR PERCORRER OS LIMITES 'INTERNOS' ATE OS 'EXTERNOS' da SubImagem PARA IDENTIFICAR A DISTRIBUIÇÃO DOS VALORES [0-255]
 def definindo_regiao(x,x1,y,y1,imagem): 
 	dicio = {} 
@@ -125,7 +121,6 @@ def definindo_regiao(x,x1,y,y1,imagem):
 		#plt.bar(range(255),lista)
 		#plt.show()
 		return (lista)
-
 
 def take(elem):
 	return elem[1]
@@ -173,7 +168,6 @@ def estimando_regiao(width_subImagem,height_subImagem,lista):
 		else:	
 			return listando[0]
 
-
 #Esta funcao recebe como parametro a lista contendo ('SIGLA_REGIAO','TIPO_DE_COR_REGIAO','VALOR_MEDIA_DA_COR_DA_REGIAO')
 #Percorrendo essa lista, é separado as tuplas que possuem os mesmos 'TIPOS_DE_COR_REGIAO' 
 #Depois é verificado em qual das listas está a 'SIGLA_REGIAO' -> 'P', então ,é retornado o tamanho da lista que contém a região principal 'P' 
@@ -211,7 +205,6 @@ def relacionando_regiao(lista):
 			pass
 
 	return valor
-
 
 #A relação entre as duas areas ocorre de forma a identificar qual a área da subimagem em relação a sua imagem mae
 #(Imagem_Original / Sub_Imagem)
@@ -294,6 +287,7 @@ if __name__ == "__main__":
 			   
 			   "AREA_ORIGIN":0,
 			   "AREA_SUB":0,
+			   "AREA_SUB_ORIGINAL":0,
 
 			   "COMPRIMENTO_ORIGIN":0,
 			   "COMPRIMENTO_SUB":0,
@@ -305,8 +299,6 @@ if __name__ == "__main__":
 			   "ALTURA_SUB":0,
 
 			   "CIRCULARIDADE_SUB":0,
-
-			   "AREA_SUB_ORIGINAL":0,
 
 			   "REGIAO_P":"null",
 			   "MEDIA_REGIAO_P":0,
@@ -339,8 +331,8 @@ if __name__ == "__main__":
 			}]
 
 	df = pd.DataFrame(tabela)
-	df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB",
-			 "CIRCULARIDADE_SUB","AREA_SUB_ORIGINAL","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L",
+	df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB",
+			 "CIRCULARIDADE_SUB","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L",
 			 "REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SO","MEDIA_REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_SL","QTD_REGIOES"]]				
 	df.to_csv('ic_death_v2.csv',header=True,index=False)
 	
@@ -439,7 +431,7 @@ if __name__ == "__main__":
 			#cv.drawContours(subImagem,[novos_contornos],0,(0,0,255),3)
 			#mostrar_imagem(subImagem)
 
-			area_Imagem = height*height
+			area_Imagem = height*width
 			area_SubImagem =  height_SubImagem * width_SubImagem
 
 			comp_Imagem = 4*height
@@ -452,13 +444,14 @@ if __name__ == "__main__":
 			alt_SubImagem = height_SubImagem
 							
 			area_SubOriginal = area_interesse(area_Imagem, area_SubImagem)
-			print("1 -|",area_Imagem, "2 -|",area_SubImagem, "3 -|",area_SubOriginal)
 
 			tabela = [{"NUM_ORIGIN":num,
 					   "NUM_SUB":j[2],
 					   
 					   "AREA_ORIGIN":area_Imagem,
 					   "AREA_SUB":area_SubImagem,
+  					   "AREA_SUB_ORIGINAL":area_SubOriginal,
+
 					   
 					   "COMPRIMENTO_ORIGIN":comp_Imagem,
 					   "COMPRIMENTO_SUB":width_SubImagem,
@@ -469,10 +462,8 @@ if __name__ == "__main__":
 					   "ALTURA_ORIGIN":alt_Imagem,
 					   "ALTURA_SUB":alt_SubImagem,
 					   
-					   "CIRCULARIDADE_SUB":0,
-					   
-					   "AREA_SUB_ORIGINAL":area_SubOriginal,
-					   
+					   "CIRCULARIDADE_SUB":j[3],
+					   					   
 					   "REGIAO_P":listaRegiao[0][1],
 					   "MEDIA_REGIAO_P":listaRegiao[0][2],
 					   
@@ -503,14 +494,10 @@ if __name__ == "__main__":
 					}]
 
 			df = pd.DataFrame(tabela)
-			df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB",
-					 "CIRCULARIDADE_SUB","AREA_SUB_ORIGINAL","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L",
+			df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB",
+					 "CIRCULARIDADE_SUB","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L",
 					 "REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SO","MEDIA_REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_SL",
 					 "QTD_REGIOES"]]				
 			##print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
 			df.to_csv('ic_death_v2.csv',header=False, mode='a',index=False)
 			
-
-
-
-

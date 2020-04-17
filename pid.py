@@ -55,6 +55,15 @@ def circularidade(contornos):
 
 '''
 
+def circularidade(contornos):
+	try:
+		c = ((4*math.pi*cv2.contourArea(contornos))/(cv2.arcLength(contornos,True)**2))
+		if (c == None):
+			c = 0.0
+		return c
+	except:
+		return 0.0
+
 #MELHORAR ESSE TRECHO DE CÓDIGO .. . . . . . . . . .... . .  ..  . . .
 def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 	listaX=[]
@@ -124,6 +133,7 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 		#mostrar_imagem(imagem_contorno)
 		#mostrar_imagem(imagem_quadrado)
 
+
 		if (reanalizando_contornos(imagem,novos_contornos,num_imagem,num) == 1):
 
 			cv2.drawContours(imagem_contornosQuadrados,[novos_contornos],0,(0,0,255),3)
@@ -131,7 +141,7 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 			nome = str(num_imagem) + '_' + str(num)
 			salvar(pasta,cv2.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
 			#nome = 0
-			lista.append([novos_contornos.tolist(),num_imagem,num])
+			lista.append([novos_contornos.tolist(),num_imagem,num,circularidade(novos_contornos)])
 			num +=1
 
 
