@@ -474,7 +474,7 @@ if __name__ == "__main__":
 				novos_contornos = cv.boxPoints(quadrado)
 				novos_contornos = np.int0(novos_contornos)
 				a = area(novos_contornos)
-								
+				print("CONTORNOS: ",novos_contornos)
 				#--------------------------------------------------------
 				
 				#print ("\nDefinindo regiões e seus valores\n")
@@ -504,8 +504,8 @@ if __name__ == "__main__":
 				for d_r in listaPosicoes:
 					pos = d_r[1]
 					aux = definindo_regiao(pos[0],pos[1],pos[2],pos[3],imagem_cinza)
-					#subImagem[pos[2]:pos[3],pos[0]:pos[1]] = (randint(0,254),randint(0,254),randint(0,254))
-					#mostrar_imagem(subImagem)
+					subImagem[pos[2]:pos[3],pos[0]:pos[1]] = (randint(0,254),randint(0,254),randint(0,254))
+					mostrar_imagem(subImagem)
 					listaTotal.append([d_r[0],aux])
 
 				#listaTotal = [['P',listaP],['N',listaN],['S',listaS],['L',listaL],['O',listaO],['NO',listaNO],['NL',listaNL],['SL',listaSL],['SO',listaSO]]

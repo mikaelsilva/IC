@@ -200,11 +200,11 @@ def relacionando_regiao(lista):
 	for i in [listaEs,listaCi,listaCl,listaIn,listaIg]:
 		try:
 			if(i[0][0] == 'P'):
-				return len(i)
+				return len(i),[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)]
 		except:
 			pass
 
-	return valor
+	return valor,[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)]
 
 #A relação entre as duas areas ocorre de forma a identificar qual a área da subimagem em relação a sua imagem mae
 #(Imagem_Original / Sub_Imagem)
@@ -282,59 +282,50 @@ if __name__ == "__main__":
 	destino = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\"
 	#destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
 
-	tabela = [{"NUM_ORIGIN":1,
-			   "NUM_SUB":1,
-			   
-			   "AREA_ORIGIN":0,
-			   "AREA_SUB":0,
-			   "AREA_SUB_ORIGINAL":0,
+	tabela = [{"NUM_ORIGIN":0,
+				"NUM_SUB":0,
+        
+        	  "AREA_ORIGIN":0,
+              "AREA_SUB":0,
+              "AREA_SUB_ORIGINAL":0,
 
-			   "COMPRIMENTO_ORIGIN":0,
-			   "COMPRIMENTO_SUB":0,
+        
+        	  "COMPRIMENTO_ORIGIN":0,
+        	  "COMPRIMENTO_SUB":0,
+	 
+        	  "LARGURA_ORIGIN":0,
+        	  "LARGURA_SUB":0,
+	 
+        	  "ALTURA_ORIGIN":0,
+        	  "ALTURA_SUB":0,
+        
+        	  "CIRCULARIDADE_SUB":0,
 
-			   "LARGURA_ORIGIN":0,
-			   "LARGURA_SUB":0,
+        	  "QTD_REGIOES_ESCURO": 0,
+        	  "QTD_REGIOES_CINZA": 0,
+        	  "QTD_REGIOES_CLARO": 0,
+        	  "QTD_REGIOES_IGUAIS": 0,
+       	   	  "QTD_REGIOES_INDEFINIDO": 0,	
+        
+        	  "MEDIA_REGIAO_P":0,
+        	  "MEDIA_REGIAO_N":0,
+        	  "MEDIA_REGIAO_S":0, 
+        	  "MEDIA_REGIAO_L":0,
+        	  "MEDIA_REGIAO_O":0,
+        	  "MEDIA_REGIAO_NO":0, 
+        	  "MEDIA_REGIAO_NL":0,
+        	  "MEDIA_REGIAO_SL":0,
+        	  "MEDIA_REGIAO_SO":0,
 
-			   "ALTURA_ORIGIN":0,
-			   "ALTURA_SUB":0,
-
-			   "CIRCULARIDADE_SUB":0,
-
-			   "REGIAO_P":"null",
-			   "MEDIA_REGIAO_P":0,
-
-			   "REGIAO_N":"null",
-			   "MEDIA_REGIAO_N":0,
-
-			   "REGIAO_S":"null",
-			   "MEDIA_REGIAO_S":0,
-
-			   "REGIAO_L":"null",
-			   "MEDIA_REGIAO_L":0,
-
-			   "REGIAO_O":"null",
-			   "MEDIA_REGIAO_O":0,
-
-			   "REGIAO_NO":"null",
-			   "MEDIA_REGIAO_NO":0,
-
-			   "REGIAO_NL":"null",
-			   "MEDIA_REGIAO_NL":0,
-
-			   "REGIAO_SO":"null",
-			   "MEDIA_REGIAO_SO":0,
-
-			   "REGIAO_SL":"null",
-			   "MEDIA_REGIAO_SL":0,
-
-			   "QTD_REGIOES":0
-			}]
+       		  "QTD_REGIOES":0
+     }]
 
 	df = pd.DataFrame(tabela)
-	df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB",
-			 "CIRCULARIDADE_SUB","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L",
-			 "REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SO","MEDIA_REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_SL","QTD_REGIOES"]]				
-	df.to_csv('ic_death_v2.csv',header=True,index=False)
+	df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB",    
+    		"CIRCULARIDADE_SUB","QTD_REGIOES_ESCURO","QTD_REGIOES_CINZA","QTD_REGIOES_CLARO","QTD_REGIOES_IGUAIS","QTD_REGIOES_INDEFINIDO","MEDIA_REGIAO_P","MEDIA_REGIAO_N",
+    		"MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL","QTD_REGIOES"]]
+
+	df.to_csv('ic_ia.csv',header=True,index=False)
 	
 	for _, _, quantidade in os.walk(origem):
 		pass
@@ -412,7 +403,9 @@ if __name__ == "__main__":
 				
 			#--------------------------------------------------------------------------------------------------------------#
 			print ('\nRelacionando valores de regiões\n')
-			valor = relacionando_regiao(listaRegiao)
+			valor,qtd_regioes = relacionando_regiao(listaRegiao)
+
+			print("AQUI: ",qtd_regioes)
 
 			#IMAGEM PRETO DO CONTORNO
 			#subImagem[lyi0:lyi1, lxi0:lxi1] = (0, 0, 0)
@@ -463,41 +456,30 @@ if __name__ == "__main__":
 					   "ALTURA_SUB":alt_SubImagem,
 					   
 					   "CIRCULARIDADE_SUB":j[3],
-					   					   
-					   "REGIAO_P":listaRegiao[0][1],
+
+					   "QTD_REGIOES_ESCURO": qtd_regioes[0],
+					   "QTD_REGIOES_CINZA": qtd_regioes[1],
+					   "QTD_REGIOES_CLARO": qtd_regioes[2],
+					   "QTD_REGIOES_IGUAIS": qtd_regioes[3],
+					   "QTD_REGIOES_INDEFINIDO": qtd_regioes[4],	
+					   
 					   "MEDIA_REGIAO_P":listaRegiao[0][2],
-					   
-					   "REGIAO_N":listaRegiao[1][1],
 					   "MEDIA_REGIAO_N":listaRegiao[1][2],
-					   
-					   "REGIAO_S":listaRegiao[2][1],
-					   "MEDIA_REGIAO_S":listaRegiao[2][2],
-					   
-					   "REGIAO_L":listaRegiao[3][1],
+					   "MEDIA_REGIAO_S":listaRegiao[2][2], 
 					   "MEDIA_REGIAO_L":listaRegiao[3][2],
-					   
-					   "REGIAO_O":listaRegiao[4][1],
 					   "MEDIA_REGIAO_O":listaRegiao[4][2],
-					   
-					   "REGIAO_NO":listaRegiao[5][1],
-					   "MEDIA_REGIAO_NO":listaRegiao[5][2],
-					   
-					   "REGIAO_NL":listaRegiao[6][1],
+					   "MEDIA_REGIAO_NO":listaRegiao[5][2], 
 					   "MEDIA_REGIAO_NL":listaRegiao[6][2],
-					   "REGIAO_SL":listaRegiao[7][1],
 					   "MEDIA_REGIAO_SL":listaRegiao[7][2],
-  
-					   "REGIAO_SO":listaRegiao[8][1],
 					   "MEDIA_REGIAO_SO":listaRegiao[8][2],
   
 					   "QTD_REGIOES":valor
 					}]
 
 			df = pd.DataFrame(tabela)
-			df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB",
-					 "CIRCULARIDADE_SUB","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L",
-					 "REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SO","MEDIA_REGIAO_SO","REGIAO_SL","MEDIA_REGIAO_SL",
-					 "QTD_REGIOES"]]				
+			df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB",    
+    			"CIRCULARIDADE_SUB","QTD_REGIOES_ESCURO","QTD_REGIOES_CINZA","QTD_REGIOES_CLARO","QTD_REGIOES_IGUAIS","QTD_REGIOES_INDEFINIDO","MEDIA_REGIAO_P","MEDIA_REGIAO_N",
+    				"MEDIA_REGIAO_S","MEDIA_REGIAO_L","MEDIA_REGIAO_O","MEDIA_REGIAO_NO","MEDIA_REGIAO_NL","MEDIA_REGIAO_SO","MEDIA_REGIAO_SL","QTD_REGIOES"]]				
 			##print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
-			df.to_csv('ic_death_v2.csv',header=False, mode='a',index=False)
+			df.to_csv('ic_ia.csv',header=False, mode='a',index=False)
 			
