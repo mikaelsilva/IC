@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import random
 import numpy as np
 import cv2
 import math
@@ -6,16 +7,36 @@ import os
 
 #Verificada e deixando apenas em função da erosao
 def reducao_ruido(num,imagem):	
-	kernel = np.ones((10,15),np.uint8)
-	#dst = cv2.fastNlMeansDenoising(imagem,None,10,7,21)
-
+	kernel = np.ones((9,9),np.uint8)
+	
 	erosao = cv2.erode(imagem,kernel,iterations = 1)
-
+	
 	pasta = '1_Especial'
 	nome = str(num) + '.1'
-	salvar(pasta,erosao,nome)
+	print("erosao")
+	#salvar(pasta,erosao,nome)
 
 	return erosao
+
+def transform_image(img):
+	thresh = 127
+	maxValue = 255
+	kernel = np.ones((5,5),np.uint8)
+	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+	ret, th = cv2.threshold(gray,thresh,maxValue,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+	opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel)
+	erosion = cv2.erode(opening,kernel,iterations = 1)
+	erosion = cv2.bitwise_not(erosion)
+	contours, hierarchy = cv2.findContours(erosion, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+	a = cv2.drawContours(img,contours,-1,(255,0,0),3)
+	mostrar_imagem(a)
+	print("CONTORNOS:", contours)
+	print("HIERARCHY:",hierarchy)
+	
+	return 0
+
+	
 
 def encontrando_contornos(imagem):
 	imagem2 = cv2.Canny(imagem,100,200) #Verificar a função da forma cv2.Canny(imagem) somente
@@ -61,6 +82,18 @@ def circularidade(contornos):
 		if (c == None):
 			c = 0.0
 		return c
+	except:
+		return 0.0
+
+def standard_deviation(contornos):
+	try:
+		(means, std) = cv2.meanStdDev(contornos)
+		for k in std:
+			for m in k:
+				std = m
+		if std == None:
+			std = 0.0
+		return std
 	except:
 		return 0.0
 
@@ -114,7 +147,7 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	imagem_contornosQuadrados = imagem.copy()
 
 	for i in range(len(contornos)):
-		teste = contornos[i]
+		teste = contornos[i] 
 		imagem_contorno = imagem.copy()
 		imagem_quadrado = imagem.copy()
 
@@ -141,7 +174,7 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 			nome = str(num_imagem) + '_' + str(num)
 			salvar(pasta,cv2.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
 			#nome = 0
-			lista.append([novos_contornos.tolist(),num_imagem,num,circularidade(novos_contornos)])
+			lista.append([novos_contornos.tolist(),num_imagem,num,round(circularidade(novos_contornos),2),round(standard_deviation(novos_contornos),2)])
 			num +=1
 
 
@@ -191,9 +224,40 @@ def salvar(pasta,imagem,nome):
 	return 0
 
 
+
+def thresh_callback(val,src_gray):
+	threshold = val
+	print("THRESHOLD")
+	# Detect edges using Canny
+	canny_output = cv2.Canny(src_gray, threshold, (threshold * 2 ) + 55)
+	mostrar_imagem(canny_output)
+
+	# Find contours
+	contours, hie = cv2.findContours(canny_output, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+	# Find the convex hull object for each contour
+	hull_list = []
+	for i in range(len(contours)):
+		hull = cv2.convexHull(contours[i])
+		hull_list.append(hull)
+
+	# Draw contours + hull results
+	drawing = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
+	drawing_2 = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
+	for i in range(len(contours)):
+		color = (random.randint(0,256),random.randint(0,256),random.randint(0,256))
+		cv2.drawContours(drawing, contours, i, color)
+		cv2.drawContours(drawing_2, hull_list, i, color)
+
+	# Show in a window
+	mostrar_imagens(src_gray,canny_output,drawing,drawing_2)
+
+
 if __name__ == "__main__":
 
-	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem\\"
+	h = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Potholes_Cracks_Patches\\Source\\Cropped_Resized_Data\\"
+
+	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Features_Imagens\\"
 	#origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Origem/'
 	
 	origem2 = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem_Fake\\'
@@ -206,13 +270,12 @@ if __name__ == "__main__":
 	#openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Imagens_F/'
 
 	for _, _, arquivo in os.walk(origem):
-		print ("Aqui",arquivo)
 		pass
 
 	for img in arquivo:
 		lista = [[]]
 
-		i = int(img[0:-5])
+		i = int(img.split('.')[0])
 		imagem = cv2.imread(origem+img)
 
 		#mostrar_imagem(imagem)
@@ -223,16 +286,28 @@ if __name__ == "__main__":
 		
 		imagem_cinza = cv2.cvtColor(imagem,cv2.COLOR_RGB2GRAY)
 		#mostrar_imagem(imagem_cinza)
-		salvar('1_Especial',imagem_cinza,str(i)+"_Gray")
+		
+		clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(20,20))
+		cl1 = clahe.apply(imagem_cinza)
 
-		imagem_tratada = reducao_ruido(i,imagem_cinza)
+		clahe2 = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(3,3 ))
+		cl2 = clahe2.apply(imagem_cinza)
+
+		#mostrar_imagens(imagem,imagem_cinza,cl1,cl2)
+		
+		salvar('1_Especial',cl1,str(i)+"_Gray")
+
+		print("REDUZINDO RUIDO")
+		imagem_tratada = reducao_ruido(i,cl1)
 		#mostrar_imagem(imagem_tratada)
 		
+		#thresh_callback(100,imagem_tratada)
+
 		imagem_canny = encontrando_contornos(imagem_tratada)
 		#mostrar_imagem(imagem_canny)
 
 		#VERIFICAR A FUNÇÃO definindo_caracteristicas()
-		imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
+		imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)	
 		#mostrar_imagem(imagem_finalizada)
 
 		print("TERMINOU")
@@ -242,6 +317,7 @@ if __name__ == "__main__":
 		#print(a)
 		#arq2.close()
 
+		
 		try:
 			#print(lista)
 			arq = open(destino + "0_Listas_Posicoes\\"+ "lista" +str(i) + ".txt", 'w')
@@ -252,7 +328,7 @@ if __name__ == "__main__":
 			
 			arq.close()
 
-		except Exception as e:
+		except Exception as e:                
 			print ("ERRO:",img)
 			pass
-
+		
