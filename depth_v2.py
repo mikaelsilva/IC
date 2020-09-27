@@ -137,10 +137,11 @@ def estimando_regiao(width_subImagem,height_subImagem,lista):
 		elif (i > 85 and i <= 170):
 			if(lista[i] != 0):
 				r2 += lista[i] 
-
-		else:
+		elif(i > 170):
 			if(lista[i] != 0):
-				r3 += lista[i] 
+				r3 += lista[i]
+		else:
+			pass 
 
 	'''OBS: VERIFICAR A POSSIBILIDADE DE UMA ANALISE POR R1/(WIDTH_SUBIMAGEM * HEIGHT_SUBIMAGEM), TALVEZ RELACIONANDO A QUANTIDADE DE PIXELS NOS SEUS RESPECTIVOS VALORES DE [0,255]
 			PELO TOTAL DE PIXELS DA REGIÃO DA SUBIMAGEM,  TRAGA UMA TAXA MELHOR DE QUAL REGIÃO ESTÁ MAIS REPRESENTADA DE ACORDO COM OS CORTES E AS QUANTIDADES TOTAIS'''
@@ -174,6 +175,41 @@ def estimando_regiao(width_subImagem,height_subImagem,lista):
 		else:	
 			return listando[0]
 
+def consecutivo(lista):
+	l = {'N':0,'NL':0,'L':0,'SL':0,'S':0,'SO':0,'O':0,'NO':0}
+	atual,value,a1,a2 = 0,0,0,0
+
+	for i in lista:
+		if(i[0] != 'P'):
+			l[i[0]] = 1
+		else:
+			pass
+
+	r = {}
+	for i in l.values():
+		if(i == 1):
+			atual += 1
+		elif(i == 0):
+			if(r.get(atual) ==  True):
+				r[atual] += 1
+				atual = 0
+			else:
+				r[atual] = 1
+				atual = 0
+		else:
+  			pass
+	
+	r[atual] = 1
+
+	#print("AAOUDHIUSBDAU SD: ",l)
+	#print("ASDKANODIANDOIA ASDOIAIDONAID: ",r)
+	value = dict(sorted(r.items()))
+	#print("AS DAJBDAIUBD: ",value)
+	a1,a2 = list(value.items())[-1]
+
+	return a1,a2
+
+
 #Esta funcao recebe como parametro a lista contendo ('SIGLA_REGIAO','TIPO_DE_COR_REGIAO','VALOR_MEDIA_DA_COR_DA_REGIAO')
 #Percorrendo essa lista, é separado as tuplas que possuem os mesmos 'TIPOS_DE_COR_REGIAO' 
 #Depois é verificado em qual das listas está a 'SIGLA_REGIAO' -> 'P', então ,é retornado o tamanho da lista que contém a região principal 'P' 
@@ -181,6 +217,10 @@ def relacionando_regiao(lista):
 	listaEs,listaCi,listaCl,listaIn,listaIg = [], [], [], [], []
 	valor = 0
 	flag = ""
+	qtd_consecutivo = 0 
+	qtd_aparece = 0
+
+	#print("MINHA LISTA ------------------------------ \n",lista)
 
 	for lis in lista:
 		if (lis[1] == 'Escuro'):
@@ -202,15 +242,35 @@ def relacionando_regiao(lista):
 		if(lis[1] == 'Iguais'):
 			listaIg.append(lis)
 			flag = "Iguais"
+	
+	listaTotal = []
+	for j in [listaEs,listaCi,listaCl,listaIn,listaIg]:
+		if(len(j) != 0):
+			listaTotal.append(j)
+	
+	#print("HAHAHAHAH\n")
+	#print(listaTotal)
+	#print(len(listaTotal))
+	#print(listaTotal[0][0][0])
 
-	for i in [listaEs,listaCi,listaCl,listaIn,listaIg]:
+	if(len(listaTotal) == 1 and listaTotal[0][0][0] == 'P'):
+		#print('O VALOR VEIO PARA CA \n')
+		qtd_consecutivo,qtd_aparece = consecutivo(listaTotal[0])
+		return len(listaTotal[0]),[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)],qtd_consecutivo,qtd_aparece
+
+	for i in listaTotal:
+		#print('TESTE:\n',i)
 		try:
+			#print('EITAAAAAA :' , i[0][0])
 			if(i[0][0] == 'P'):
-				return len(i),[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)]
+				#print('PORQUE NAO DEU CERTO')
+				qtd_consecutivo,qtd_aparece = consecutivo(i)
+				valor = len(i)
+				return len(i),[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)],qtd_consecutivo,qtd_aparece
 		except:
 			pass
-
-	return valor,[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)]
+	#print("NENHUMA LISTA FUNCIONOU -------------------------------------------------")
+	return valor,[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)],qtd_consecutivo,qtd_aparece
 
 #A relação entre as duas areas ocorre de forma a identificar qual a área da subimagem em relação a sua imagem mae
 #(Imagem_Original / Sub_Imagem)
@@ -259,7 +319,7 @@ def mostrar_imagens(imagem1,imagem2,imagem3,imagem4):
 	plt.subplot(223), plt.imshow(imagem3, 'gray')
 	plt.subplot(224), plt.imshow(imagem4,'gray')
 	plt.show()
-
+	
 	return 0
 
 def salvar(imagem, i,j,flag):
@@ -277,7 +337,7 @@ def desenhando(imagem,contornos):
 
 if __name__ == "__main__":
 
-	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Features_Imagens\\"
+	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\FEATURES\\"
 	#origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Origem/'
 	
 	subimagem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\3_SubImagens\\"
@@ -290,6 +350,9 @@ if __name__ == "__main__":
 
 	tabela = [{"NUM_ORIGIN":0,
 			  "NUM_SUB":0,
+
+			  "X_POS":0,
+			  "Y_POS":0,
         
         	  "AREA_ORIGIN":0,
               "AREA_SUB":0,
@@ -341,17 +404,20 @@ if __name__ == "__main__":
 			  "MEDIA_REGIAO_SO":0,
 
        		  "QTD_REGIOES":0,
+			  "QTD_REGIOES_VALIDAS":0,
+			  "QTD_REGIEOS_CONSECUTIVO":0,
+			  "QTD_APARECE":0,
 			  "CLASSE":0
      }]
 
 	df = pd.DataFrame(tabela)
-	df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN",
+	df = df[["NUM_ORIGIN","NUM_SUB","X_POS","Y_POS","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN",
     		 "LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB","CIRCULARIDADE_SUB","DESVIO_PADRAO_SUB","QTD_REGIOES_ESCURO","QTD_REGIOES_CINZA","QTD_REGIOES_CLARO",
      		 "QTD_REGIOES_IGUAIS","QTD_REGIOES_INDEFINIDO","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S",
      		 "REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SL",
-     		 "MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","CLASSE"]]
+     		 "MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","QTD_REGIOES_VALIDAS","QTD_REGIEOS_CONSECUTIVO","QTD_APARECE","CLASSE"]]
 
-	df.to_csv('prov.csv',header=True,index=False)
+	df.to_csv('prov_all4.csv',header=True,index=False)
 	
 	for _, _, quantidade in os.walk(origem):
 		pass
@@ -361,10 +427,15 @@ if __name__ == "__main__":
 
 	for _, _, listas in os.walk(listasPosicoes):
 		pass
+
 	
 	print(quantidade)
 	print(subimagem)
 	print(listas)
+	q0 = 0
+	q1 = 0
+	
+	#quantidade = ["167","175", "179" , "278" , "285" , "322" , "343" , "356" , "359" , "360" , "373" , "376" , "388" , "393" , "394" , "395" , "399" , "400" , "401" , "402" , "403" , "404" , "406" , "410" , "432"]
 	
 	for im in quantidade:
 		print("*******************************************************",im,"*******************************************************")
@@ -379,9 +450,18 @@ if __name__ == "__main__":
 		imagem = cv.imread(leitura)
 		cor = imagem[256:512,0:512]                                                                    
 
+		leitura2 = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\1_Especial\\" + im.split('.')[0] + "_1.png"
+		#leitura2 = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\1_Especial\\" + im + "_1.png"
+		print('------------------ ', leitura2)
+		a = cv.imread(leitura2)
+		print('++++++++++++++++++ ',a.shape)
+		b = cv.cvtColor(a,cv.COLOR_RGB2GRAY)
+		print('++++++++++++++++++ ',b.shape)
 		imagem_cinza = cv.cvtColor(cor,cv.COLOR_RGB2GRAY)
-		#mostrar_imagem(cor)
+		print('++++++++++++++++++ ',imagem_cinza.shape)
+		#mostrar_imagem(b)
 
+		imagem_cinza = b
 		height, width = cor.shape[:2]
 		listandoContornos = []
 		
@@ -436,14 +516,15 @@ if __name__ == "__main__":
 				
 			#--------------------------------------------------------------------------------------------------------------#
 			print ('\nRelacionando valores de regiões\n')
-			valor,qtd_regioes = relacionando_regiao(listaRegiao)
+			valor,qtd_regioes,qtd_quant,qtd_num = relacionando_regiao(listaRegiao)
 
-			print("VERIFICANDO ESSA PARTE:",listaRegiao)
 			print("AQUI: ",qtd_regioes)			
 			#--------------------------------------------------------------------------------------------------------------#
-			if(valor is None):
+			if(valor is None or valor == 0):
 				print("Valor None Retornado")
 				valor = "None"
+				#input('VALOR: ')
+				#ahha = input('Teste uma entrada: ')
 			elif(valor > 1):
 				print ("Existem regiões com valores aproximados")
 			else:
@@ -466,23 +547,72 @@ if __name__ == "__main__":
 			alt_SubImagem = height_SubImagem
 							
 			area_SubOriginal = area_interesse(area_Imagem, area_SubImagem)
-			print("POSICOES -> | ",lxi0,lxi1,lyi0,lyi1)
+			print("POSICOES [x0, x1 | y0, y1] ||| ",lxi0,lxi1,lyi0,lyi1)
+			print('Area -> | ',area_SubImagem)
+			print('QTD_REGIOES -> |' , valor)
 			
-			classe = 0
-			if((height_SubImagem > 4 * width_SubImagem) or (width_SubImagem > 4 * height_SubImagem) or (area_SubImagem < 600)):
-				classe = 0
-			else:
-				sub = subImagem
-				sub2 = cor.copy()
-				sub[lyi0:lyi1,lxi0:lxi1] = (0, 0, 0)
-				cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(255,0,100),3)
-				mostrar_imagens(imagem, imagem_cinza,sub,sub2)
-				classe = input("QUAL O VALOR CORRETO: ")
-				if(classe is None):
-					classe = 1
 
-			tabela = [{"NUM_ORIGIN":num,
+			classe = 0
+			#if((height_SubImagem > 4 * width_SubImagem) or (width_SubImagem > 4 * height_SubImagem) or (area_SubImagem < 600)):
+			#	classe = 0
+			#else:
+				#sub = subImagem
+				#sub2 = cor.copy()
+				#sub[lyi0:lyi1,lxi0:lxi1] = (0, 0, 0)
+				#cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(255,0,100),3)
+				#mostrar_imagens(imagem, imagem_cinza,sub,sub2)
+				#classe = input("QUAL O VALOR CORRETO: ")
+				#if(classe is None):
+				#	classe = 0
+			#if(area_SubImagem > 250):
+			#	if(lxi0 <= 256 and (246 <= (lxi0 + lyi0))):
+			#		sub = subImagem0
+			#		sub2 = cor.copy()
+			#		sub[lyi0:lyi1,lxi0:lxi1] = (0, 0, 0)0
+			#		cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(255,0,100),3)
+			#		mostrar_imagens(imagem, imagem_cinza,sub,sub2)
+			#		classe = input("Digite o valor E: ")
+			#	elif(lxi0 > 256 and ((lxi1 - lyi0) <= 266)):
+			#		sub = subImagem
+			#		sub2 = cor.copy()
+			#		sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
+			#		cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,255),3)
+			#		mostrar_imagens(imagem, imagem_cinza,sub,sub2)
+			#		classe = input("Digite o valor D: ")0
+			#	else:
+			#		classe = 0
+			#else:
+			classe = 0
+			if(area_SubImagem > 300):
+				if((lxi0 <= 256 and (246 <= (lxi0 + lyi0))) or (lxi0 > 256 and ((lxi1 - lyi0) <= 266))):
+					if(valor <= 5):
+						sub = subImagem
+						sub2 = cor.copy()
+						sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
+						cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,255),3)
+						mostrar_imagens(imagem, imagem_cinza,sub,sub2)
+						classe = input("POSSIVEL BURACO?: ")
+						
+						q1 += 1
+
+					else:
+						sub = subImagem
+						sub2 = cor.copy()
+						sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
+						cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,255),3)
+						mostrar_imagens(imagem, imagem_cinza,sub,sub2)
+						classe = input("O QUE É ISSO?: ")
+						q0 += 0 
+					
+					if(classe is None):
+						classe = 0
+
+
+					#if(q0 <= 500 or (q1 <= 200 and classe == 1)):
+					tabela = [{"NUM_ORIGIN":num,
 					   "NUM_SUB":j[2],
+					   "X_POS":lxi0,
+					   "Y_POS":lyi0,
 					   
 					   "AREA_ORIGIN":area_Imagem,
 					   "AREA_SUB":area_SubImagem,
@@ -535,15 +665,18 @@ if __name__ == "__main__":
                        "MEDIA_REGIAO_SO":listaRegiao[8][2],
   
 					   "QTD_REGIOES":valor,
+					   "QTD_REGIOES_VALIDAS": 9 - qtd_regioes[4],
+					   "QTD_REGIEOS_CONSECUTIVO":qtd_quant,
+					   "QTD_APARECE":qtd_num,
 					   "CLASSE":classe
-					}]
+						}]
 
-			df = pd.DataFrame(tabela)
-			df = df[["NUM_ORIGIN","NUM_SUB","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN",
+					df = pd.DataFrame(tabela)
+					df = df[["NUM_ORIGIN","NUM_SUB","X_POS","Y_POS","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN",
      				 "LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB","CIRCULARIDADE_SUB","DESVIO_PADRAO_SUB","QTD_REGIOES_ESCURO","QTD_REGIOES_CINZA","QTD_REGIOES_CLARO",
      				 "QTD_REGIOES_IGUAIS","QTD_REGIOES_INDEFINIDO","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S",
      				 "REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SL",
-     				 "MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","CLASSE"]]				
-			##print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")7
-			df.to_csv('prov.csv',header=False, mode='a',index=False)
+     				 "MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","QTD_REGIOES_VALIDAS","QTD_REGIEOS_CONSECUTIVO","QTD_APARECE","CLASSE"]]				
+						##print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
+					df.to_csv('prov_all4.csv',header=False, mode='a',index=False)
 			

@@ -12,9 +12,9 @@ def reducao_ruido(num,imagem):
 	erosao = cv2.erode(imagem,kernel,iterations = 1)
 	
 	pasta = '1_Especial'
-	nome = str(num) + '.1'
-	print("erosao")
-	#salvar(pasta,erosao,nome)
+	nome = str(num) + '_1'
+	#print("erosao")
+	salvar(pasta,erosao,nome)
 
 	return erosao
 
@@ -130,9 +130,9 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 		#mostrar_imagem(res)
 
 		#if (area_final >= 0.01):
-		pasta = '3_SubImagens'
-		nome = str(num_imagem) + '_' + str(num)
-		salvar(pasta,imagem_fatia,nome)
+		#pasta = '3_SubImagens'
+		#nome = str(num_imagem) + '_' + str(num)
+		#salvar(pasta,imagem_fatia,nome)
 		return 1
 	else:
 		print("FORA")		
@@ -257,7 +257,7 @@ if __name__ == "__main__":
 
 	h = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Potholes_Cracks_Patches\\Source\\Cropped_Resized_Data\\"
 
-	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Features_Imagens\\"
+	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\FEATURES\\"
 	#origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Origem/'
 	
 	origem2 = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem_Fake\\'
@@ -274,7 +274,7 @@ if __name__ == "__main__":
 
 	for img in arquivo:
 		lista = [[]]
-
+		print("IMAGEM: ",img)
 		i = int(img.split('.')[0])
 		imagem = cv2.imread(origem+img)
 
@@ -298,16 +298,26 @@ if __name__ == "__main__":
 		salvar('1_Especial',cl1,str(i)+"_Gray")
 
 		print("REDUZINDO RUIDO")
-		imagem_tratada = reducao_ruido(i,cl1)
+		#imagem_tratada = reducao_ruido(i,cl1)
+		imagem_tratada2 = reducao_ruido(i,cl2)
+		#imagem_tratada3 = reducao_ruido(i,imagem_cinza)
+		#mostrar_imagens(imagem_cinza,imagem_tratada,imagem_tratada2,imagem_tratada3)
 		#mostrar_imagem(imagem_tratada)
 		
 		#thresh_callback(100,imagem_tratada)
 
-		imagem_canny = encontrando_contornos(imagem_tratada)
+		#imagem_canny = encontrando_contornos(imagem_tratada)
+		imagem_canny2 = encontrando_contornos(imagem_tratada2)
+		#imagem_canny3 = encontrando_contornos(imagem_tratada3)
+		#mostrar_imagens(imagem_cinza,imagem_canny,imagem_canny2,imagem_canny3)
 		#mostrar_imagem(imagem_canny)
 
 		#VERIFICAR A FUNÇÃO definindo_caracteristicas()
-		imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)	
+		#imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
+		imagem_finalizada2,quant_img_salvas2,lista = definindo_caracteristicas(imagem,imagem_canny2,i,lista)
+		#imagem_finalizada3,quant_img_salvas3,lista = definindo_caracteristicas(imagem,imagem_canny3,i,lista)
+		#mostrar_imagens(imagem_cinza,imagem_canny,imagem_canny2,imagem_canny3)
+			
 		#mostrar_imagem(imagem_finalizada)
 
 		print("TERMINOU")
@@ -317,7 +327,6 @@ if __name__ == "__main__":
 		#print(a)
 		#arq2.close()
 
-		
 		try:
 			#print(lista)
 			arq = open(destino + "0_Listas_Posicoes\\"+ "lista" +str(i) + ".txt", 'w')
