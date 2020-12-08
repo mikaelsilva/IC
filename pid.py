@@ -7,7 +7,7 @@ import os
 
 #Verificada e deixando apenas em função da erosao
 def reducao_ruido(num,imagem):	
-	kernel = np.ones((9,9),np.uint8)
+	kernel = np.ones((12,12),np.uint8)
 	
 	erosao = cv2.erode(imagem,kernel,iterations = 1)
 	
@@ -279,9 +279,13 @@ if __name__ == "__main__":
 		imagem = cv2.imread(origem+img)
 
 		#mostrar_imagem(imagem)
-		#Recortando imagem
-		imagem = imagem[256:512,0:512]
+		#Redimensionando a imagem
+		a = cv2.resize(imagem,(512,512))
+		b = a[150:310,50:462]
+		c = cv2.resize(b,(512,512))
+		imagem = c[256:512,0:512]
 		#mostrar_imagem(imagem)
+
 		salvar('1_Especial',imagem,str(i)+'_Cut')
 		
 		imagem_cinza = cv2.cvtColor(imagem,cv2.COLOR_RGB2GRAY)
@@ -290,7 +294,7 @@ if __name__ == "__main__":
 		clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(20,20))
 		cl1 = clahe.apply(imagem_cinza)
 
-		clahe2 = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(3,3 ))
+		clahe2 = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(3,3))
 		cl2 = clahe2.apply(imagem_cinza)
 
 		#mostrar_imagens(imagem,imagem_cinza,cl1,cl2)
@@ -302,10 +306,10 @@ if __name__ == "__main__":
 		imagem_tratada2 = reducao_ruido(i,cl2)
 		#imagem_tratada3 = reducao_ruido(i,imagem_cinza)
 		#mostrar_imagens(imagem_cinza,imagem_tratada,imagem_tratada2,imagem_tratada3)
-		#mostrar_imagem(imagem_tratada)
+		#mostrar_imagem(imagem_tratada2)
 		
-		#thresh_callback(100,imagem_tratada)
-
+		#thresh_callback(100,imagem_tratada2)
+		
 		#imagem_canny = encontrando_contornos(imagem_tratada)
 		imagem_canny2 = encontrando_contornos(imagem_tratada2)
 		#imagem_canny3 = encontrando_contornos(imagem_tratada3)

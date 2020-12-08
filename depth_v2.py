@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import cv2 as cv
 import math
+import csv
 import os
 
 
@@ -417,7 +418,7 @@ if __name__ == "__main__":
      		 "REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SL",
      		 "MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","QTD_REGIOES_VALIDAS","QTD_REGIEOS_CONSECUTIVO","QTD_APARECE","CLASSE"]]
 
-	df.to_csv('prov_all4.csv',header=True,index=False)
+	df.to_csv('prov_all_3110.csv',header=True,index=False)
 	
 	for _, _, quantidade in os.walk(origem):
 		pass
@@ -432,7 +433,7 @@ if __name__ == "__main__":
 	print(quantidade)
 	print(subimagem)
 	print(listas)
-	q0 = 0
+	q0 = 00
 	q1 = 0
 	
 	#quantidade = ["167","175", "179" , "278" , "285" , "322" , "343" , "356" , "359" , "360" , "373" , "376" , "388" , "393" , "394" , "395" , "399" , "400" , "401" , "402" , "403" , "404" , "406" , "410" , "432"]
@@ -446,22 +447,22 @@ if __name__ == "__main__":
 
 		##print(aux,"\n")
 
+		#MODIFICAR PARA CONSEGUIR CLASSIFICAR
 		leitura = origem + im
 		imagem = cv.imread(leitura)
-		cor = imagem[256:512,0:512]                                                                    
+		
+		im_resize = cv.resize(imagem,(512,512))
+		im_resize2 = im_resize[150:310,50:462]
+		im_resize3 = cv.resize(im_resize2,(512,512))
+		cor = im_resize3[256:512,0:512]
+		#mostrar_imagens(im_resize,im_resize2,im_resize3,cor)
 
-		leitura2 = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\1_Especial\\" + im.split('.')[0] + "_1.png"
-		#leitura2 = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\1_Especial\\" + im + "_1.png"
-		print('------------------ ', leitura2)
-		a = cv.imread(leitura2)
-		print('++++++++++++++++++ ',a.shape)
-		b = cv.cvtColor(a,cv.COLOR_RGB2GRAY)
-		print('++++++++++++++++++ ',b.shape)
+		#cor = imagem[256:512,0:512]                                                                    
+
 		imagem_cinza = cv.cvtColor(cor,cv.COLOR_RGB2GRAY)
-		print('++++++++++++++++++ ',imagem_cinza.shape)
-		#mostrar_imagem(b)
+		print('++++++++++++++++++ ',imagem_cinza.shape)  
+		#mostrar_imagens(im_resize,im_resize3,imagem_cinza,cor)
 
-		imagem_cinza = b
 		height, width = cor.shape[:2]
 		listandoContornos = []
 		
@@ -589,17 +590,16 @@ if __name__ == "__main__":
 						sub = subImagem
 						sub2 = cor.copy()
 						sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
-						cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,255),3)
+						cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,150),3)
 						mostrar_imagens(imagem, imagem_cinza,sub,sub2)
 						classe = input("POSSIVEL BURACO?: ")
-						
 						q1 += 1
 
 					else:
 						sub = subImagem
 						sub2 = cor.copy()
 						sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
-						cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,255),3)
+						cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,150),3)
 						mostrar_imagens(imagem, imagem_cinza,sub,sub2)
 						classe = input("O QUE É ISSO?: ")
 						q0 += 0 
@@ -678,5 +678,7 @@ if __name__ == "__main__":
      				 "REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SL",
      				 "MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","QTD_REGIOES_VALIDAS","QTD_REGIEOS_CONSECUTIVO","QTD_APARECE","CLASSE"]]				
 						##print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
-					df.to_csv('prov_all4.csv',header=False, mode='a',index=False)
+					df.to_csv('prov_all_3110.csv',header=False, mode='a',index=False)
+					
+
 			
