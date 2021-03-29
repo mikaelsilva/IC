@@ -1,49 +1,15 @@
 from matplotlib import pyplot as plt
-import random
 import numpy as np
-import cv2
+import random
+import json
 import math
+import cv2
 import os
 
-#Verificada e deixando apenas em função da erosao
-def reducao_ruido(num,imagem):	
-	kernel = np.ones((12,12),np.uint8)
-	
-	erosao = cv2.erode(imagem,kernel,iterations = 1)
-	
-	pasta = '1_Especial'
-	nome = str(num) + '_1'
-	#print("erosao")
-	salvar(pasta,erosao,nome)
+save_json = {}
 
-	return erosao
-
-def transform_image(img):
-	thresh = 127
-	maxValue = 255
-	kernel = np.ones((5,5),np.uint8)
-	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	ret, th = cv2.threshold(gray,thresh,maxValue,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-	opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel)
-	erosion = cv2.erode(opening,kernel,iterations = 1)
-	erosion = cv2.bitwise_not(erosion)
-	contours, hierarchy = cv2.findContours(erosion, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-
-	a = cv2.drawContours(img,contours,-1,(255,0,0),3)
-	mostrar_imagem(a)
-	print("CONTORNOS:", contours)
-	print("HIERARCHY:",hierarchy)
-	
-	return 0
-
-	
-
-def encontrando_contornos(imagem):
-	imagem2 = cv2.Canny(imagem,100,200) #Verificar a função da forma cv2.Canny(imagem) somente
-	return imagem2
-
+#Atualmente estas funções não estão em uso
 '''
-Atualmente não está em uso
 def area(contornos):
     a = cv2.contourArea(contornos)
     if a == None:
@@ -76,6 +42,42 @@ def circularidade(contornos):
 
 '''
 
+#Verificada e deixando apenas em função da erosao
+def reducao_ruido(num,imagem):	
+	kernel = np.ones((12,12),np.uint8)
+	
+	erosao = cv2.erode(imagem,kernel,iterations = 1)
+
+	pasta = "Imagens_Selecionadas_Analise_Geral"
+	salvar(pasta,erosao, str(num) + "_Erosao" )
+
+	return erosao
+
+#Teste de um outro fluxo (o original) , para geração de informações sobre a imagem
+def transform_image(img):
+	thresh = 127
+	maxValue = 255
+	kernel = np.ones((5,5),np.uint8)
+	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+	ret, th = cv2.threshold(gray,thresh,maxValue,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+	opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel)
+	erosion = cv2.erode(opening,kernel,iterations = 1)
+	erosion = cv2.bitwise_not(erosion)
+	contours, hierarchy = cv2.findContours(erosion, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+	a = cv2.drawContours(img,contours,-1,(255,0,0),3)
+	mostrar_imagem(a)
+	print("CONTORNOS:", contours)
+	print("HIERARCHY:",hierarchy)
+	
+	return 0
+
+#Utiliza a função CANNY para transformar uma imagem em GRAY SCALE para uma imgem BINARIZADA (Transforma em preto < X e branco em > x)
+def encontrando_contornos(imagem):
+	imagem2 = cv2.Canny(imagem,100,200) #Verificar a função da forma cv2.Canny(imagem) somente
+	return imagem2
+
+#Função que retorna a circularidade de um contorno gerado (IMPORTANTE VERIFICAR A CIRCULARIDADE PARA CONTORNOS IMCOMPLETOS)
 def circularidade(contornos):
 	try:
 		c = ((4*math.pi*cv2.contourArea(contornos))/(cv2.arcLength(contornos,True)**2))
@@ -85,6 +87,7 @@ def circularidade(contornos):
 	except:
 		return 0.0
 
+#Função responsavel por pegar o DESVIO PADRAO do contorno (VERIFICAR COMO ELA REALMENTE FUNCIONA)
 def standard_deviation(contornos):
 	try:
 		(means, std) = cv2.meanStdDev(contornos)
@@ -97,7 +100,10 @@ def standard_deviation(contornos):
 	except:
 		return 0.0
 
-#MELHORAR ESSE TRECHO DE CÓDIGO .. . . . . . . . . .... . .  ..  . . .
+#Esta função tem como objetivo RETORNAR um TRUE ou FALSE (1,0), para a função DEFININDO CARACTERISTICAS,
+#		informando se os PONTOS EXTREMOS dos CONTORNOS são aceitaveis, 
+#Ela também faz o corte da imagem, para salvar somente a REGIÃO DE CONTORNO PASSADA, para melhor analise, porém,
+#		se essa funcionalidade não for mais utilizada, está função pode ser transcrita em DEFININDO CARACTERISTICAS e EXCLUIDA
 def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 	listaX=[]
 	listaY=[]
@@ -140,6 +146,8 @@ def reanalizando_contornos(imagem,novos_contornos,num_imagem,num):
 
 	return 0
 
+#Está função tem como objetivo pegar a IMAGEM ORIGINAL, a imagem gerada na função CANNY com seus CONTORNOS, 
+#		assim como informaçoes de controle e salvamento dos arquivos (NUM IMAGEM e LISTA - que poderá ser substituida por um JSON)
 def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 	num = 1
 	
@@ -170,33 +178,31 @@ def definindo_caracteristicas(imagem, imagem_canny,num_imagem,lista):
 		if (reanalizando_contornos(imagem,novos_contornos,num_imagem,num) == 1):
 
 			cv2.drawContours(imagem_contornosQuadrados,[novos_contornos],0,(0,0,255),3)
-			pasta = '2_Tratadas'
+			#pasta = '2_Tratadas'
+			pasta = "Imagens_Selecionadas_Individuais"
 			nome = str(num_imagem) + '_' + str(num)
 			salvar(pasta,cv2.drawContours(imagem_quadrado,[novos_contornos],0,(0,255,0),3),nome)
 			#nome = 0
 			lista.append([novos_contornos.tolist(),num_imagem,num,round(circularidade(novos_contornos),2),round(standard_deviation(novos_contornos),2)])
+			save_json[num] = {"limites":novos_contornos.tolist(),
+         						"circularidade":round(circularidade(novos_contornos),2),
+        						"desvio_padrao":round(standard_deviation(novos_contornos),2)
+							 }
+							
 			num +=1
-
 
 	imagem_contornosCanny = imagem.copy()
 	cv2.drawContours(imagem_contornosCanny,contornos,-1,(0,255,255),3)
 
-	pasta = '1_Especial'
-	nome = str(num_imagem) + '_2'
-	salvar(pasta,imagem_canny,nome)
+	pasta = "Imagens_Selecionadas_Analise_Geral"
 
-	pasta = '1_Especial'
-	nome = str(num_imagem) + '_3'
-	salvar(pasta,imagem_contornosQuadrados,nome)
-
-	pasta = '1_Especial'
-	nome = str(num_imagem) + '_4'
-	salvar(pasta,imagem_contornosCanny,nome)
+	salvar(pasta,imagem_canny, str(num_imagem) + '_Canny' )
+	salvar(pasta,imagem_contornosQuadrados, str(num_imagem) + '_Regioes' )
+	salvar(pasta,imagem_contornosCanny, str(num_imagem) + '_Contornos')
 
 	return imagem,num,lista
 
-
-#Funções Auxiliares
+#Mostrar apenas uma imagem 
 def mostrar_imagem(imagem):
 
 	cv2.imshow('Imagem',imagem)
@@ -205,6 +211,7 @@ def mostrar_imagem(imagem):
 
 	return 0
 
+#Mostrar varias imagens
 def mostrar_imagens(imagem1,imagem2,imagem3,imagem4):
 	plt.subplot(221), plt.imshow(imagem1, 'gray')
 	plt.subplot(222), plt.imshow(imagem2,'gray')
@@ -214,17 +221,16 @@ def mostrar_imagens(imagem1,imagem2,imagem3,imagem4):
 
 	return 0
 
+#Salvar imagens (ESTA FUNÇÃO PODE MELHORAR E SE TORNAR MAIS GENERICA EM SEU PATH DE DESTINO)
 def salvar(pasta,imagem,nome):
-	destino = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\'
-	#destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuação/Processamento de Imagens/Imagens/Imagens_F/'
+	destino = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_IC\\Destino_Imagens\\"
+	
 	final = destino + pasta + '\\' + nome + '.png'
-
 	cv2.imwrite(final,imagem)
 
 	return 0
 
-
-
+#Função de teste para analise de REDUÇÃO DE RUIDO nas imagens e uma melhor tentativa de DIFERENCIAR as vias dos BURACOS
 def thresh_callback(val,src_gray):
 	threshold = val
 	print("THRESHOLD")
@@ -255,57 +261,48 @@ def thresh_callback(val,src_gray):
 
 if __name__ == "__main__":
 
-	h = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Potholes_Cracks_Patches\\Source\\Cropped_Resized_Data\\"
-
-	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\FEATURES\\"
+	#h = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Potholes_Cracks_Patches\\Source\\Cropped_Resized_Data\\"
+	#origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\FEATURES\\"
 	#origem = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Origem/'
-	
-	origem2 = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem_Fake\\'
 	#origem2 = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Origem_Fake/'
-
-	destino = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\'
 	#destino = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Imagens_F/'
-	
-	openn = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\'
+	#openn = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\'
 	#openn = '/media/study/Arquivos HD 2/Aprender/Areas de Atuacao/Processamento de Imagens/Imagens/Imagens_F/'
+	#destino = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_F\\'
+	#origem2 = 'C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Origem_Fake\\'
+	
+	origem = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_IC\\Origem_Imagens\\Imagens_Google_Maps\\"
+	destinoPosicoes = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_IC\\Destino_Imagens\\Arquivo_Posicoes\\"
 
 	for _, _, arquivo in os.walk(origem):
 		pass
 
 	for img in arquivo:
 		lista = [[]]
-		print("IMAGEM: ",img)
+		
 		i = int(img.split('.')[0])
 		imagem = cv2.imread(origem+img)
 
 		#mostrar_imagem(imagem)
+		
 		#Redimensionando a imagem
-		a = cv2.resize(imagem,(512,512))
-		b = a[150:310,50:462]
-		c = cv2.resize(b,(512,512))
-		imagem = c[256:512,0:512]
+		#a = cv2.resize(imagem,(512,512))
+		#b = a[150:310,50:462]
+		#c = cv2.resize(b,(512,512))
+		#imagem = c[256:512,0:512]
+		imagem = imagem[256:512,0:512]
 		#mostrar_imagem(imagem)
 
-		salvar('1_Especial',imagem,str(i)+'_Cut')
+		#salvar('1_Especial',imagem,str(i)+ '_Cut')
 		
 		imagem_cinza = cv2.cvtColor(imagem,cv2.COLOR_RGB2GRAY)
 		#mostrar_imagem(imagem_cinza)
-		
-		clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(20,20))
-		cl1 = clahe.apply(imagem_cinza)
 
-		clahe2 = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(3,3))
-		cl2 = clahe2.apply(imagem_cinza)
+		#salvar('1_Especial',imagem_cinza,str(i)+"_Gray")
+		salvar('Imagens_Selecionadas_Analise_Geral',imagem_cinza,str(i)+"_Gray")
 
-		#mostrar_imagens(imagem,imagem_cinza,cl1,cl2)
-		
-		salvar('1_Especial',cl1,str(i)+"_Gray")
-
-		print("REDUZINDO RUIDO")
-		#imagem_tratada = reducao_ruido(i,cl1)
-		imagem_tratada2 = reducao_ruido(i,cl2)
-		#imagem_tratada3 = reducao_ruido(i,imagem_cinza)
-		#mostrar_imagens(imagem_cinza,imagem_tratada,imagem_tratada2,imagem_tratada3)
+		imagem_tratada2 = reducao_ruido(i,imagem_cinza)
+		#mostrar_imagens(imagem_cinza,imagem_tratada2,imagem_tratada3,imagem_tratada4)
 		#mostrar_imagem(imagem_tratada2)
 		
 		#thresh_callback(100,imagem_tratada2)
@@ -316,7 +313,6 @@ if __name__ == "__main__":
 		#mostrar_imagens(imagem_cinza,imagem_canny,imagem_canny2,imagem_canny3)
 		#mostrar_imagem(imagem_canny)
 
-		#VERIFICAR A FUNÇÃO definindo_caracteristicas()
 		#imagem_finalizada,quant_img_salvas,lista = definindo_caracteristicas(imagem,imagem_canny,i,lista)
 		imagem_finalizada2,quant_img_salvas2,lista = definindo_caracteristicas(imagem,imagem_canny2,i,lista)
 		#imagem_finalizada3,quant_img_salvas3,lista = definindo_caracteristicas(imagem,imagem_canny3,i,lista)
@@ -325,23 +321,19 @@ if __name__ == "__main__":
 		#mostrar_imagem(imagem_finalizada)
 
 		print("TERMINOU")
-	
-		#arq2 = open('lista' +str(i) +'.txt',"r")
-		#a = arq2.read()
-		#print(a)
-		#arq2.close()
 
-		try:
-			#print(lista)
-			arq = open(destino + "0_Listas_Posicoes\\"+ "lista" +str(i) + ".txt", 'w')
-			saida = str(lista[1:])
-			if i == 2:
-				print(lista[1:])
-			arq.write(saida)
-			
-			arq.close()
-
-		except Exception as e:                
-			print ("ERRO:",img)
-			pass
+		with open(destinoPosicoes + "STRUCT_BASE_" + str(i) + ".json", 'w') as json_file:
+			json.dump(save_json, json_file)
 		
+		#try:
+		#	#print(lista)
+		#	arq = open(destino + "0_Listas_Posicoes\\"+ "lista" +str(i) + ".txt", 'w')
+		#	saida = str(lista[1:])
+		#	if i == 2:
+		#		print(lista[1:])
+		#	arq.write(saida)
+		#	arq.close()
+
+		#except Exception as e:                
+		#	print ("ERRO:",img)
+		#	pass
