@@ -140,12 +140,9 @@ def definindo_regiao(x,x1,y,y1 ,imagem):
 	else:
 		for height in range(y,y1): #height
 			for width in range(x,x1): #width
-				if(width <= 256 and (206 <= (width + height)) or (width > 256 and ((width - height) <= 296))):
-                    #imagem_copia[j][i] = (0,0,255)
-					indice = imagem[height][width]
-					dicio[str(indice)] = dicio[str(indice)] + 1
-				else:
-					pass
+				#imagem_copia[j][i] = (0,0,255)
+				indice = imagem[height][width]
+				dicio[str(indice)] = dicio[str(indice)] + 1
 
 		#print(lista)			
 		#plt.ylabel('Gauss')
@@ -163,6 +160,7 @@ def take(elem):
 #AQUI É REALIZADO UMA PORCENTAGEM SIMPLES, TALVEZ SEJA A MELHOR ABORDAGEM, JÁ QUE É DIFICIL ESTIMAR UM PESO PARA OS INTERVALO DE (0-255) 
 def estimando_regiao(width_subImagem,height_subImagem,lista):
 	r1,r2,r3 = 0,0,0
+	lis = []
 
 	for i in range(0,len(lista)-1):
 		if (i <= 85):
@@ -196,19 +194,31 @@ def estimando_regiao(width_subImagem,height_subImagem,lista):
 		media_3 = ( 1 - porcent_3 ) * 100
 			
 	listando = []
-	listando.append(("Escuro",media_1))
-	listando.append(("Cinza",media_2))
-	listando.append(("Claro",media_3))
+	listando.append(("ESCURO",media_1))
+	listando.append(("CINZA",media_2))
+	listando.append(("CLARO",media_3))
 	listando = sorted(listando,reverse=True,key=take)
-	#print (":: ",listando)
+	print ("\nValores das Medias Gerais: ",listando)
 
 	if (media_1 == media_2 == media_3 == 0):
-		return ("Indefinido",0.0)
+		return ("INDEFINIDO",0.0)
+	
+	elif(listando[0][1] == listando[1][1] == listando[2][1]):
+		return ("IGUAIS",listando[0][1])
+	
+	elif(listando[0][1] <= listando[1][1] + 15.0):
+		lis.append(listando[0][0])
+		lis.append(listando[1][0])
+		lis.sort(reverse=True)
+		
+		print("\n -[] " , lis)
+		print ("Valores das Medias Gerais 2: ", listando[0][0] +"/" + listando[1][0],listando[0][1])
+		
+		return (lis[0] + "/" + lis[1], listando[0][1]-7.0)
+		#return (listando[0][0] + "/" + listando[1][0],listando[0][1])
+
 	else:
-		if(listando[0][1] == listando[1][1] == listando[2][1]):
-			return ("Iguais",listando[0][1])
-		else:	
-			return listando[0]
+		return listando[0]
 
 #O objetivo desta função é verificar quantas regiões iguais a REGIÃO PRINCIPAL existem, e quantas vezes ela se REPETE, talvez isso possa ajudar a diferenciar uma
 #	região de buraco e uma que só possui alguma mancha ou algo do tipo.
@@ -216,6 +226,9 @@ def consecutivo(lista):
 	l = {'N':0,'NL':0,'L':0,'SL':0,'S':0,'SO':0,'O':0,'NO':0}
 	atual,value,qtd_consecutivo,qtd_repete_consecutivo = 0,0,0,0
 
+	print("CONSECUTIVO MINHAS LISTA: ", lista)
+	print("Lista local l = {'N':0,'NL':0,'L':0,'SL':0,'S':0,'SO':0,'O':0,'NO':0}\n")
+	
 	for i in lista:
 		if(i[0] != 'P'):
 			l[i[0]] = 1
@@ -227,7 +240,7 @@ def consecutivo(lista):
 		if(i == 1):
 			atual += 1
 		elif(i == 0):
-			if(r.get(atual) ==  True):
+			if(r.get(atual) is not None):
 				r[atual] += 1
 				atual = 0
 			else:
@@ -251,40 +264,49 @@ def consecutivo(lista):
 #Depois é verificado em qual das listas está a 'SIGLA_REGIAO' -> 'P', então ,é retornado o tamanho da lista que contém a região principal 'P'
 #	uma lista das LISTAS DAS REGIÕES, e a quantidade de vezes que o TIPO DA REGIÃO PRINCIPAL , apareceu ao seu ARREDOR e quantas vezes essa quantidade se repetiu
 def relacionando_regiao(lista):	
-	listaEs,listaCi,listaCl,listaIn,listaIg = [], [], [], [], []
+	#listaEs,listaCi,listaCl,listaIn,listaIg = [], [], [], [], []
+	qualLista = {'ESCURO':[],'CINZA':[],'CLARO':[],'INDEFINIDO':[],'IGUAIS':[],'ESCURO/CINZA':[],'ESCURO/CLARO':[],'CLARO/CINZA':[]}
 	valor = 0
-	flag = ''
+	#flag = ''
 	qtd_consecutivo = 0 
 	qtd_aparece = 0
 
-	#print("MINHA LISTA ------------------------------ \n",lista)
+	print("MINHA LISTA ------------------------------ \n",lista)
 
 	for lis in lista:
-		if (lis[1] == 'Escuro'):
-			listaEs.append(lis)
-			flag = "Escuro"
-		
-		if(lis[1] == 'Cinza'):
-			listaCi.append(lis)
-			flag = "Cinza"
-		
-		if(lis[1] == 'Claro'):
-			listaCl.append(lis)
-			flag = "Claro"
-		
-		if(lis[1] == 'Indefinido'):
-			listaIn.append(lis)
-			flag = "Indefinido"
+		qualLista[lis[1]].append(lis)
 
-		if(lis[1] == 'Iguais'):
+	'''
+		if (lis[1] == 'ESCURO'):
+			listaEs.append(lis)
+			flag = "ESCURO"
+		
+		if(lis[1] == 'CINZA'):
+			listaCi.append(lis)
+			flag = "CINZA"
+		
+		if(lis[1] == 'CLARO'):
+			listaCl.append(lis)
+			flag = "CLARO"
+		
+		if(lis[1] == 'INDEFINIDO'):
+			listaIn.append(lis)
+			flag = "INDEFINIDO"
+
+		if(lis[1] == 'IGUAIS'):
 			listaIg.append(lis)
-			flag = "Iguais"
-	
+			flag = "IGUAIS"
+	'''
+
 	listaTotal = []
-	for j in [listaEs,listaCi,listaCl,listaIn,listaIg]:
+	#for j in [listaEs,listaCi,listaCl,listaIn,listaIg]:
+	#	if(len(j) != 0):
+	#		listaTotal.append(j)
+	
+	for j in qualLista.values():
 		if(len(j) != 0):
 			listaTotal.append(j)
-	
+
 	#print("HAHAHAHAH\n")
 	#print(listaTotal)
 	#print(len(listaTotal))
@@ -293,7 +315,8 @@ def relacionando_regiao(lista):
 	if(len(listaTotal) == 1 and listaTotal[0][0][0] == 'P'):
 		#print('O VALOR VEIO PARA CA \n')
 		qtd_consecutivo,qtd_aparece = consecutivo(listaTotal[0])
-		return len(listaTotal[0]),[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)],qtd_consecutivo,qtd_aparece
+		#return len(listaTotal[0]),[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)],qtd_consecutivo,qtd_aparece
+		return len(listaTotal[0]),[len(qualLista['ESCURO']),len(qualLista['CINZA']),len(qualLista['CLARO']),len(qualLista['IGUAIS']),len(qualLista['INDEFINIDO']),len(qualLista['ESCURO/CINZA']),len(qualLista['ESCURO/CLARO']),len(qualLista['CLARO/CINZA'])],qtd_consecutivo,qtd_aparece
 
 	for i in listaTotal:
 		#print('TESTE:\n',i)
@@ -303,11 +326,11 @@ def relacionando_regiao(lista):
 				#print('PORQUE NAO DEU CERTO')
 				qtd_consecutivo,qtd_aparece = consecutivo(i)
 				valor = len(i)
-				return len(i),[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)],qtd_consecutivo,qtd_aparece
+				return len(i),[len(qualLista['ESCURO']),len(qualLista['CINZA']),len(qualLista['CLARO']),len(qualLista['IGUAIS']),len(qualLista['INDEFINIDO']),len(qualLista['ESCURO/CINZA']),len(qualLista['ESCURO/CLARO']),len(qualLista['CLARO/CINZA'])],qtd_consecutivo,qtd_aparece
 		except:
 			pass
 	#print("NENHUMA LISTA FUNCIONOU -------------------------------------------------")
-	return valor,[len(listaEs),len(listaCi),len(listaCl),len(listaIg),len(listaIn)],qtd_consecutivo,qtd_aparece
+	return valor,[len(qualLista['ESCURO']),len(qualLista['CINZA']),len(qualLista['CLARO']),len(qualLista['IGUAIS']),len(qualLista['INDEFINIDO']),len(qualLista['ESCURO/CINZA']),len(qualLista['ESCURO/CLARO']),len(qualLista['CLARO/CINZA'])],qtd_consecutivo,qtd_aparece
 
 #A relação entre as duas areas ocorre de forma a identificar qual a área da subimagem em relação a sua imagem mae #(Imagem_Original / Sub_Imagem)
 def area_interesse(area_Imagem,area_SubImagem):
@@ -376,9 +399,10 @@ if __name__ == "__main__":
 	jsonPosicoes = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_IC\\Destino_Imagens\\Arquivo_Posicoes\\"
 	destino = "C:\\Nova pasta\\2_Areas de Atuacao\\Processamento de Imagens\\Imagens\\Imagens_IC\\Destino_Imagens\\"
 
-	tabela = [{"NUM_ORIGIN":0, "NUM_SUB":0, "X_POS":0, "Y_POS":0, "AREA_ORIGIN":0, "AREA_SUB":0, "AREA_SUB_ORIGINAL":0, "COMPRIMENTO_ORIGIN":0, "COMPRIMENTO_SUB":0,
-        	  "LARGURA_ORIGIN":0, "LARGURA_SUB":0, "ALTURA_ORIGIN":0, "ALTURA_SUB":0, "CIRCULARIDADE_SUB":0, "DESVIO_PADRAO_SUB":0,
-        	  "QTD_REGIOES_ESCURO": 0, "QTD_REGIOES_CINZA": 0, "QTD_REGIOES_CLARO": 0, "QTD_REGIOES_IGUAIS": 0, "QTD_REGIOES_INDEFINIDO": 0,	
+	tabela = [{"ID_IMAGEM":0, "ID_SUB_IMAGEM":0, "X_POS":0, "Y_POS":0, "AREA_ORIGEM":0, "AREA_SUB":0, "AREA_SUB_ORIGINAL":0, "COMPRIMENTO_ORIGEM":0, "COMPRIMENTO_SUB":0,
+        	  "LARGURA_ORIGEM":0, "LARGURA_SUB":0, "ALTURA_ORIGEM":0, "ALTURA_SUB":0, "CIRCULARIDADE_SUB":0, "DESVIO_PADRAO_SUB":0,
+        	  "QTD_REGIOES_ESCURO": 0, "QTD_REGIOES_CINZA": 0, "QTD_REGIOES_CLARO": 0, "QTD_REGIOES_IGUAIS": 0, "QTD_REGIOES_INDEFINIDO": 0,
+			  "QTD_REGIOES_ESCURO/CLARO":0,	"QTD_REGIOES_ESCURO/CINZA":0,"QTD_REGIOES_CINZA/CLARO":0,
 			  "REGIAO_P":0, "MEDIA_REGIAO_P":0, "REGIAO_N":0, "MEDIA_REGIAO_N":0, "REGIAO_S":0, "MEDIA_REGIAO_S":0, "REGIAO_L":0, "MEDIA_REGIAO_L":0,
 			  "REGIAO_O":0, "MEDIA_REGIAO_O":0, "REGIAO_NO":0, "MEDIA_REGIAO_NO":0, "REGIAO_NL":0, "MEDIA_REGIAO_NL":0, "REGIAO_SL":0,
 			  "MEDIA_REGIAO_SL":0, "REGIAO_SO":0, "MEDIA_REGIAO_SO":0, "QTD_REGIOES":0, "QTD_REGIOES_VALIDAS":0,"QTD_REGIOES_CONSECUTIVO":0,
@@ -386,9 +410,10 @@ if __name__ == "__main__":
 			}]
 
 	dataFrame = pd.DataFrame(tabela)
-	dataFrame = dataFrame[["NUM_ORIGIN","NUM_SUB","X_POS","Y_POS","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB","LARGURA_ORIGIN",
-			"LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB","CIRCULARIDADE_SUB","DESVIO_PADRAO_SUB","QTD_REGIOES_ESCURO","QTD_REGIOES_CINZA","QTD_REGIOES_CLARO",
-			"QTD_REGIOES_IGUAIS","QTD_REGIOES_INDEFINIDO","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S",
+	dataFrame = dataFrame[["ID_IMAGEM","ID_SUB_IMAGEM","X_POS","Y_POS","AREA_ORIGEM","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGEM","COMPRIMENTO_SUB","LARGURA_ORIGEM",
+			"LARGURA_SUB","ALTURA_ORIGEM","ALTURA_SUB","CIRCULARIDADE_SUB","DESVIO_PADRAO_SUB","QTD_REGIOES_ESCURO","QTD_REGIOES_CINZA","QTD_REGIOES_CLARO",
+			"QTD_REGIOES_IGUAIS","QTD_REGIOES_INDEFINIDO","QTD_REGIOES_ESCURO/CLARO","QTD_REGIOES_ESCURO/CINZA","QTD_REGIOES_CINZA/CLARO",
+			"REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S",
 			"REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SL",
 			"MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","QTD_REGIOES_VALIDAS","QTD_REGIOES_CONSECUTIVO","QTD_APARECIMENTO","CLASSE"]]
 	
@@ -524,7 +549,7 @@ if __name__ == "__main__":
 			#cv.drawContours(subImagem,[novos_contornos],0,(0,0,255),3)
 			#mostrar_imagem(subImagem)
 
-			print("\nInformacoes para auxilio da classificacao\n")
+			print("Informacoes para auxilio da classificacao\n")
 			print("POSICOES [",lxi0,",",lxi1," | ",lyi0,", ",lyi1,"]")
 			print('AREA_SUBIMAGEM -> | ',area_SubImagem)
 			print("QTD_REGIOES_GERAIS -> | ", qtd_regioes)	
@@ -532,50 +557,47 @@ if __name__ == "__main__":
 			
 			classe = 0
 			if(area_SubImagem > 300):
-				if((lxi0 <= 256 and (246 <= (lxi0 + lyi0))) or (lxi0 > 256 and ((lxi1 - lyi0) <= 266))): #Verificar essa etapa para aumentar a região de limite e analise
-					if(valor <= 5):
-						sub = subImagem
-						sub2 = cor.copy()
-						sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
-						cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,150),3)
-						mostrar_imagens(imagem, imagem_cinza,sub,sub2)
-						classe = input("POSSIVEL BURACO?: ")
-						classe = 1
-						q1 += 1
+				#if((lxi0 <= 256 and (246 <= (lxi0 + lyi0))) or (lxi0 > 256 and ((lxi1 - lyi0) <= 266))): Etapa retirada para analise dos dados gerais
+				if(valor <= 5):
+					sub = subImagem
+					sub2 = cor.copy()
+					sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
+					cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,150),3)
+					mostrar_imagens(imagem, imagem_cinza,sub,sub2)
+					classe = int(input("POSSIVEL BURACO?: "))
+				#else:
+				#	sub = subImagem
+				#	sub2 = cor.copy()
+				#	sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
+				#	cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,150),3)
+				#	mostrar_imagens(imagem, imagem_cinza,sub,sub2)
+				#	classe = int(input("O QUE EH ISSO?: "))
+				
+				if(classe not in (0,1)):
+					classe = int(input("O QUE ERA MESMO? "))
+			else:
+				classe = 0
+			
+				tabela = [{"ID_IMAGEM":num,"ID_SUB_IMAGEM":index_json,"X_POS":lxi0,"Y_POS":lyi0,"AREA_ORIGEM":area_Imagem,"AREA_SUB":area_SubImagem,
+			"AREA_SUB_ORIGINAL":area_SubOriginal,"COMPRIMENTO_ORIGEM":comp_Imagem,"COMPRIMENTO_SUB":comp_SubImagem,"LARGURA_ORIGEM":larg_Imagem,
+			"LARGURA_SUB":larg_SubImagem, "ALTURA_ORIGEM":alt_Imagem,"ALTURA_SUB":alt_SubImagem,"CIRCULARIDADE_SUB":image_json[str(index_json)]["circularidade"],
+			"DESVIO_PADRAO_SUB":image_json[str(index_json)]["desvio_padrao"],"QTD_REGIOES_ESCURO": qtd_regioes[0], "QTD_REGIOES_CINZA": qtd_regioes[1],
+			"QTD_REGIOES_CLARO": qtd_regioes[2],"QTD_REGIOES_IGUAIS": qtd_regioes[3],"QTD_REGIOES_INDEFINIDO": qtd_regioes[4],
+			"QTD_REGIOES_ESCURO/CLARO":qtd_regioes[5],"QTD_REGIOES_ESCURO/CINZA":qtd_regioes[6],"QTD_REGIOES_CINZA/CLARO":qtd_regioes[7],
+			"REGIAO_P":listaRegiao[0][1],"MEDIA_REGIAO_P":listaRegiao[0][2],"REGIAO_N":listaRegiao[1][1],"MEDIA_REGIAO_N":listaRegiao[1][2],
+			"REGIAO_S":listaRegiao[2][1],"MEDIA_REGIAO_S":listaRegiao[2][2],"REGIAO_L":listaRegiao[3][1],"MEDIA_REGIAO_L":listaRegiao[3][2],
+			"REGIAO_O":listaRegiao[4][1],"MEDIA_REGIAO_O":listaRegiao[4][2],"REGIAO_NO":listaRegiao[5][1],"MEDIA_REGIAO_NO":listaRegiao[5][2],
+			"REGIAO_NL":listaRegiao[6][1],"MEDIA_REGIAO_NL":listaRegiao[6][2],"REGIAO_SL":listaRegiao[7][1],"MEDIA_REGIAO_SL":listaRegiao[7][2],
+			"REGIAO_SO":listaRegiao[8][1],"MEDIA_REGIAO_SO":listaRegiao[8][2],"QTD_REGIOES":valor,"QTD_REGIOES_VALIDAS": 9 - qtd_regioes[4],
+			"QTD_REGIOES_CONSECUTIVO":qtd_regioes_consecutivos,"QTD_APARECIMENTO":qtd_aparecimento,"CLASSE":classe
+					}]
 
-					else:
-						sub = subImagem
-						sub2 = cor.copy()
-						sub[lyi0:lyi1,lxi0:lxi1] = (255, 255, 255)
-						cv.rectangle(sub2,(lxi0,lyi0),(lxi1,lyi1),(100,0,150),3)
-						mostrar_imagens(imagem, imagem_cinza,sub,sub2)
-						classe = input("O QUE EH ISSO?: ")
-						classe = 0
-						q0 += 0 
-					
-					if(classe is None):
-						classe = 0
-
-
-					#if(q0 <= 500 or (q1 <= 200 and classe == 1)):
-					tabela = [{"NUM_ORIGIN":num,"NUM_SUB":index_json,"X_POS":lxi0,"Y_POS":lyi0,"AREA_ORIGIN":area_Imagem,"AREA_SUB":area_SubImagem,
-					"AREA_SUB_ORIGINAL":area_SubOriginal,"COMPRIMENTO_ORIGIN":comp_Imagem,"COMPRIMENTO_SUB":comp_SubImagem,"LARGURA_ORIGIN":larg_Imagem,
-					"LARGURA_SUB":larg_SubImagem, "ALTURA_ORIGIN":alt_Imagem,"ALTURA_SUB":alt_SubImagem,"CIRCULARIDADE_SUB":image_json[str(index_json)]["circularidade"],
-					"DESVIO_PADRAO_SUB":image_json[str(index_json)]["desvio_padrao"],"QTD_REGIOES_ESCURO": qtd_regioes[0], "QTD_REGIOES_CINZA": qtd_regioes[1],
-					"QTD_REGIOES_CLARO": qtd_regioes[2],"QTD_REGIOES_IGUAIS": qtd_regioes[3],"QTD_REGIOES_INDEFINIDO": qtd_regioes[4],"REGIAO_P":listaRegiao[0][1],
-					"MEDIA_REGIAO_P":listaRegiao[0][2],"REGIAO_N":listaRegiao[1][1],"MEDIA_REGIAO_N":listaRegiao[1][2],"REGIAO_S":listaRegiao[2][1],
-					"MEDIA_REGIAO_S":listaRegiao[2][2],"REGIAO_L":listaRegiao[3][1],"MEDIA_REGIAO_L":listaRegiao[3][2],"REGIAO_O":listaRegiao[4][1],
-					"MEDIA_REGIAO_O":listaRegiao[4][2],"REGIAO_NO":listaRegiao[5][1],"MEDIA_REGIAO_NO":listaRegiao[5][2],"REGIAO_NL":listaRegiao[6][1],
-					"MEDIA_REGIAO_NL":listaRegiao[6][2],"REGIAO_SL":listaRegiao[7][1],"MEDIA_REGIAO_SL":listaRegiao[7][2], "REGIAO_SO":listaRegiao[8][1],
-					"MEDIA_REGIAO_SO":listaRegiao[8][2],"QTD_REGIOES":valor,"QTD_REGIOES_VALIDAS": 9 - qtd_regioes[4],"QTD_REGIOES_CONSECUTIVO":qtd_regioes_consecutivos,
-					"QTD_APARECIMENTO":qtd_aparecimento,"CLASSE":classe
-							}]
-
-					dataFrame = pd.DataFrame(tabela)
-					dataFrame = dataFrame[["NUM_ORIGIN","NUM_SUB","X_POS","Y_POS","AREA_ORIGIN","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGIN","COMPRIMENTO_SUB",
-					"LARGURA_ORIGIN","LARGURA_SUB","ALTURA_ORIGIN","ALTURA_SUB","CIRCULARIDADE_SUB","DESVIO_PADRAO_SUB","QTD_REGIOES_ESCURO","QTD_REGIOES_CINZA",
-					"QTD_REGIOES_CLARO","QTD_REGIOES_IGUAIS","QTD_REGIOES_INDEFINIDO","REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S",
-     				 "REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO","MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SL",
-     				 "MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","QTD_REGIOES_VALIDAS","QTD_REGIOES_CONSECUTIVO","QTD_APARECIMENTO","CLASSE"]]				
-						##print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
-					dataFrame.to_csv("C:\\Nova pasta\\Projetos Git\\IC\\" + "prov_all_" + date + ".csv" ,header=False, mode='a',index=False)
+			dataFrame = pd.DataFrame(tabela)
+			dataFrame = dataFrame[["ID_IMAGEM","ID_SUB_IMAGEM","X_POS","Y_POS","AREA_ORIGEM","AREA_SUB","AREA_SUB_ORIGINAL","COMPRIMENTO_ORIGEM","COMPRIMENTO_SUB",
+			"LARGURA_ORIGEM","LARGURA_SUB","ALTURA_ORIGEM","ALTURA_SUB","CIRCULARIDADE_SUB","DESVIO_PADRAO_SUB","QTD_REGIOES_ESCURO","QTD_REGIOES_CINZA",
+			"QTD_REGIOES_CLARO","QTD_REGIOES_IGUAIS","QTD_REGIOES_INDEFINIDO","QTD_REGIOES_ESCURO/CLARO","QTD_REGIOES_ESCURO/CINZA","QTD_REGIOES_CINZA/CLARO",
+			"REGIAO_P","MEDIA_REGIAO_P","REGIAO_N","MEDIA_REGIAO_N","REGIAO_S","MEDIA_REGIAO_S","REGIAO_L","MEDIA_REGIAO_L","REGIAO_O","MEDIA_REGIAO_O","REGIAO_NO",
+			"MEDIA_REGIAO_NO","REGIAO_NL","MEDIA_REGIAO_NL","REGIAO_SL","MEDIA_REGIAO_SL","REGIAO_SO","MEDIA_REGIAO_SO","QTD_REGIOES","QTD_REGIOES_VALIDAS",
+			"QTD_REGIOES_CONSECUTIVO","QTD_APARECIMENTO","CLASSE"]]				
+			##print("+++++++++++++++++++++++++++++++++++++++++++ SALVO NO CSV ++++++++++++++++++++++++++++++++++++++++++++")
+			dataFrame.to_csv("C:\\Nova pasta\\Projetos Git\\IC\\" + "prov_all_" + date + ".csv" ,header=False, mode='a',index=False)
